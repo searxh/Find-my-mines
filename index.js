@@ -3,7 +3,7 @@ const app = require('express')()
 const http = require('http').Server(app)
 const socketIO = require('socket.io')(http,{
     cors: {
-      origin: "http://"+process.env.IP+":3000",
+      origin: '*'
     }
   })
 
