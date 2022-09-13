@@ -31,7 +31,7 @@ const chooseRandomUser = () => {
 
 const generateGameInfo = () => {
     return {
-        users:activeUsers,
+        users:[],
         playingUser:chooseRandomUser(),
         scores:[0,0],
         minesArray:createMinesArray(),
@@ -87,7 +87,7 @@ socketIO.on('connection', (socket)=>{
                     timer = 10
                     socketIO.emit('gameInfo update',gameInfo)
                 }
-            }, 1000);
+            }, 1000)
         }
     })
     socket.on('unmatching',(user)=>{
