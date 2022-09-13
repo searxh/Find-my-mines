@@ -44,6 +44,10 @@ export function GlobalStateProvider({ children }:any) {
         state['socket'].on('counter',(timer:any)=>{
             dispatch({ type:'set', field:'timer', payload:timer })
         })
+        state['socket'].on('end game',(gameInfo:any)=>{
+            dispatch({ type:'set', field:'gameInfo', payload:gameInfo })
+            setTimeout(()=>navigate('/result'),1000)
+        })
     },[])
     return (
         <GlobalContext.Provider value={{ global_state:state, dispatch:dispatch }}>

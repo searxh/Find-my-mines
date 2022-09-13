@@ -8,7 +8,9 @@ export default function ActiveUsers() {
     },[])
     return (
         <div className="basis-1/2 bg-slate-900 rounded-lg">
-           <div className="text-white bg-slate-700 w-full text-center">Active Users</div>
+           <div className="text-white bg-slate-700 w-full text-center">
+                Active Users
+            </div>
            <div className="flex flex-col">
                 {global_state['activeUsers'].length !== 0 && global_state['activeUsers'].map((user:any)=>{
                     return (

@@ -14,12 +14,12 @@ export default function MinesGrid() {
     )
 }
 
-interface BlockProps {
+interface BlockTypes {
     selected:boolean,
     value:number
 }
 
-function Block({ block, index }:{ block:BlockProps, index:number }) {
+function Block({ block, index }:{ block:BlockTypes, index:number }) {
     const { global_state } = React.useContext(GlobalContext)
     const handleOnClick = () => {
         global_state['socket'].emit('select block',index)

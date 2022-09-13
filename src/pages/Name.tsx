@@ -16,7 +16,7 @@ export default function Name() {
             global_state['socket'].emit('name register',
                 {
                     name:nameRef.current.value,
-                    id:global_state.socket.id
+                    id:global_state['socket'].id
                 }
             )
             navigate('/menu')

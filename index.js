@@ -26,24 +26,36 @@ const createMinesArray = () => {
     return arr
 }
 const chooseRandomUser = () => {
-    const random = Math.random()
-    return random>0.5?Math.floor(random):Math.ceil(random)
+    return Math.random()>0.5?1:0
+}
+
+const generateGameInfo = () => {
+    return {
+        users:activeUsers,
+        playingUser:chooseRandomUser(),
+        scores:[0,0],
+        minesArray:createMinesArray(),
+    }
 }
 
 let chatHistory = []
-let activeUser = []
+let activeUsers = []
+let matchingUsers = []
 let countdown = null
-let gameInfo = {
-    timer:10,
-    users:activeUser,
-    playingUser:chooseRandomUser(),
-    scores:[0,0],
-    minesArray:createMinesArray(),
-}
+let timer = 10
+let gameInfo = generateGameInfo()
 
 const switchUser = () => {
     const newPlayingUser = Number(!Boolean(gameInfo.playingUser))
     gameInfo.playingUser = newPlayingUser
+}
+
+const resetGame = () => {
+    gameInfo = generateGameInfo()
+}
+
+const checkEndGame = () => {
+    return gameInfo.scores[0]+gameInfo.scores[1]===11
 }
 
 app.get('/', function(req, res) {
@@ -58,34 +70,45 @@ socketIO.on('connection', (socket)=>{
     console.log('Connected!',socket.id,socketIO.engine.clientsCount)
     socket.on('name register', (user)=>{
         console.log('new user has registered')
-        activeUser = [ ...activeUser, user ]
-        gameInfo.users = activeUser
-        if (activeUser.length === 2) {
+        activeUsers = [ ...activeUsers, user ]
+    })
+    socket.on('matching',(user)=>{
+        console.log('Matching request',user)
+        matchingUsers = [ ...matchingUsers, user ]
+        if (matchingUsers.length === 2) {
+            gameInfo.users = matchingUsers
             socketIO.emit('start game',gameInfo)
+            matchingUsers = []
             countdown = setInterval(()=>{
-                socketIO.emit('counter', gameInfo.timer)
-                gameInfo.timer--
-                if (gameInfo.timer === -1) {
+                socketIO.emit('counter', timer)
+                timer--
+                if (timer === -1) {
                     switchUser()
-                    gameInfo.timer = 10
+                    timer = 10
                     socketIO.emit('gameInfo update',gameInfo)
                 }
             }, 1000);
         }
     })
+    socket.on('unmatching',(user)=>{
+        console.log('Unmatching request',user)
+        matchingUsers = matchingUsers.filter((userObj)=>user.name!==userObj.name)
+    })
     socket.on('chat message', ({ msg, name, id })=>{
-        const userIndex = activeUser.findIndex((user)=>user.name===name)
-        activeUser[userIndex].id = id
+        const userIndex = activeUsers.findIndex((user)=>user.name===name)
+        activeUsers[userIndex].id = id
         if (userIndex !== undefined) {
             chatHistory = [ ...chatHistory, { 
-                from:activeUser[userIndex].name, message:msg, at:Date.now()
+                from:activeUsers[userIndex].name, 
+                message:msg, 
+                at:Date.now()
             }]
             socketIO.emit('chat update', chatHistory)
         }
     })
     socket.on('active user request', ()=>{
-        socketIO.emit('active user update', activeUser)
-        console.log(activeUser.length+' users are registered')
+        socketIO.emit('active user update', activeUsers)
+        console.log(activeUsers.length+' users are registered')
     })
     socket.on('chat request', ()=>{
         socketIO.emit('chat update', chatHistory)
@@ -95,16 +118,22 @@ socketIO.on('connection', (socket)=>{
         if (gameInfo.minesArray[index].value === 1) {
             gameInfo.scores[gameInfo.playingUser]++
         }
-        switchUser()
-        gameInfo.timer = 10
-        socketIO.emit('gameInfo update',gameInfo)
+        if (checkEndGame()) {
+            socketIO.emit('end game',gameInfo)
+            clearInterval(countdown)
+            resetGame()
+        } else {
+            switchUser()
+            timer = 10
+            socketIO.emit('gameInfo update',gameInfo)
+        }
     })
     socket.on('disconnect', ()=>{
-        const leftUser = activeUser.find((user)=>user.id===socket.id)
+        const leftUser = activeUsers.find((user)=>user.id===socket.id)
         if (leftUser !== undefined) console.log(leftUser.name+ ' has left the chat')
-        activeUser = activeUser.filter((user)=>{
+        activeUsers = activeUsers.filter((user)=>{
             return (user.id !== socket.id)
         })
-        socketIO.emit('active user update', activeUser)
+        socketIO.emit('active user update', activeUsers)
     })
 })
