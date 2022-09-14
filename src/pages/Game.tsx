@@ -2,6 +2,7 @@ import React from 'react'
 import Chat from '../components/Chat'
 import MinesGrid from '../components/MinesGrid'
 import { GlobalContext } from '../states'
+import SocketID from '../components/SocketID'
 
 export default function Game() {
     const { global_state } = React.useContext(GlobalContext)
@@ -19,6 +20,7 @@ export default function Game() {
             <div className="text-2xl text-cyan-400">
                 Timer: {global_state['timer']}
             </div>
+            <SocketID />
             <MinesGrid />
             <Chat />
         </div>

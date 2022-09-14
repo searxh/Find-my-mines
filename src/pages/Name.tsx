@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { GlobalContext } from '../states';
+import SocketID from '../components/SocketID';
 
 export default function Name() {
     const { global_state, dispatch } = React.useContext(GlobalContext)
@@ -24,6 +25,7 @@ export default function Name() {
     }
     return (
         <div className="flex flex-col bg-black w-full h-screen p-5">
+            <SocketID />
             <div className="text-white text-center">Enter your name</div>
             <input
                 className="rounded-lg my-5"
