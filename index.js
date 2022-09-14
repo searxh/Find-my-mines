@@ -1,4 +1,5 @@
 require('dotenv').config()
+const uuid = require('uuid')
 const app = require('express')()
 const http = require('http').Server(app)
 const socketIO = require('socket.io')(http,{
@@ -29,36 +30,47 @@ const chooseRandomUser = () => {
     return Math.random()>0.5?1:0
 }
 
-const generateGameInfo = () => {
-    return {
+const generateID = () => {
+    return uuid.v4()
+}
+
+const generateGameInfo = (arr) => {
+    arr.push({
+        roomID:generateID(),
         users:[],
         playingUser:chooseRandomUser(),
         scores:[0,0],
         minesArray:createMinesArray(),
-    }
+    })
+}
+
+const getGameInfo = (roomID) => {
+    return gameInfo.find((info)=>info.roomID === roomID)
+}
+
+const switchUser = (roomID) => {
+    const info = getGameInfo(roomID)
+    const newPlayingUser = Number(!Boolean(info.playingUser))
+    info.playingUser = newPlayingUser
+}
+
+const checkEndGame = (roomID) => {
+    const info = getGameInfo(roomID)
+    return info.scores[0]+info.scores[1]===1
 }
 
 let chatHistory = []
 let activeUsers = []
 let matchingUsers = []
-let roomCounter = 0
-let roomName = "room"+roomCounter
 let countdown = null
 let timer = 10
-let gameInfo = generateGameInfo()
-
-const switchUser = () => {
-    const newPlayingUser = Number(!Boolean(gameInfo.playingUser))
-    gameInfo.playingUser = newPlayingUser
-}
-
-const resetGame = () => {
-    gameInfo = generateGameInfo()
-}
-
-const checkEndGame = () => {
-    return gameInfo.scores[0]+gameInfo.scores[1]===1
-}
+let gameInfo = [{
+    roomID:generateID(),
+    users:[],
+    playingUser:chooseRandomUser(),
+    scores:[0,0],
+    minesArray:createMinesArray(),
+}]
 
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html')
@@ -72,16 +84,25 @@ socketIO.on('connection', (socket)=>{
     console.log('Connected!',socket.id,socketIO.engine.clientsCount)
     socket.on('name register', (user)=>{
         console.log('new user has registered')
-        activeUsers = [ ...activeUsers, user ]
+        activeUsers.push(user)
     })
     socket.on('matching',(user)=>{
         console.log('Matching request',user,matchingUsers)
-        matchingUsers = [ ...matchingUsers, user ]
-        if (gameInfo.users.length < 2) {
-            gameInfo.users = matchingUsers
-            if (gameInfo.users.find((tempUser)=>tempUser.name===user.name)!==undefined) {
-                socket.join(roomName)
+        matchingUsers.push(user)
+        while (true) {
+            for (let i = 0; i < gameInfo.length; i++) {
+                const info = gameInfo[i]
+                if (info.users.length < 2) {
+                    info.users = matchingUsers
+                    if (info.users.find((tempUser)=>tempUser.name===user.name)!==undefined) {
+                        socket.join(info.roomID)
+                        console.log('exit while loop')
+                        return
+                    }
+                }
             }
+            console.log('full rooms, creating new room...')
+            generateGameInfo(gameInfo)
         }
     })
     socket.on('unmatching',(user)=>{
@@ -92,11 +113,11 @@ socketIO.on('connection', (socket)=>{
         const userIndex = activeUsers.findIndex((user)=>user.name===name)
         activeUsers[userIndex].id = id
         if (userIndex !== undefined) {
-            chatHistory = [ ...chatHistory, { 
+            chatHistory.push({ 
                 from:activeUsers[userIndex].name, 
                 message:msg, 
                 at:Date.now()
-            }]
+            })
             socketIO.emit('chat update', chatHistory)
         }
     })
@@ -107,38 +128,39 @@ socketIO.on('connection', (socket)=>{
     socket.on('chat request', ()=>{
         socketIO.emit('chat update', chatHistory)
     })
-    socket.on('select block', (index)=>{
-        gameInfo.minesArray[index].selected = true
-        if (gameInfo.minesArray[index].value === 1) {
-            gameInfo.scores[gameInfo.playingUser]++
+    socket.on('select block', ({ index, roomID })=>{
+        const info = getGameInfo(roomID) 
+        info.minesArray[index].selected = true
+        if (info.minesArray[index].value === 1) {
+           info.scores[info.playingUser]++
         }
-        if (checkEndGame()) {
-            socketIO.to(roomName).emit('end game',gameInfo)
+        if (checkEndGame(roomID)) {
+            socketIO.to(roomID).emit('end game',info)
             clearInterval(countdown)
             countdown = null
-            roomCounter++
-            roomName = "room"+roomCounter
-            resetGame()
-        } else {
-            switchUser()
+            generateGameInfo(gameInfo)
             timer = 10
-            socketIO.to(roomName).emit('gameInfo update',gameInfo)
+        } else {
+            switchUser(roomID)
+            timer = 10
+            socketIO.to(roomID).emit('gameInfo update',info)
         }
     })
-    socket.adapter.on("join-room", (room, id) => {
-        console.log(`socket ${id} has joined room ${room}`);
+    socket.adapter.on("join-room", (roomID, id) => {
+        console.log(`socket ${id} has joined room ${roomID}`);
+        const info = getGameInfo(roomID)
         if (matchingUsers.length === 2) {
-            socketIO.to(roomName).emit('start game',gameInfo)
+            socketIO.to(roomID).emit('start game',info)
             matchingUsers = []
             if (countdown === null) {
                 console.log('set countdown')
                 countdown = setInterval(()=>{
-                    socketIO.to(roomName).emit('counter', timer)
+                    socketIO.to(roomID).emit('counter', timer)
                     timer--
                     if (timer === -1) {
                         switchUser()
                         timer = 10
-                        socketIO.to(roomName).emit('gameInfo update',gameInfo)
+                        socketIO.to(roomID).emit('gameInfo update',info)
                     }
                 }, 1000)
             }
