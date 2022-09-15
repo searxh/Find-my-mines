@@ -21,8 +21,10 @@ interface BlockTypes {
 
 function Block({ block, index }:{ block:BlockTypes, index:number }) {
     const { global_state } = React.useContext(GlobalContext)
+    const { socket, gameInfo } = global_state
     const handleOnClick = () => {
-        global_state['socket'].emit('select block',index)
+        console.log(gameInfo)
+        socket.emit('select block',{ index:index, roomID:gameInfo.roomID })
     }
     const checkPlayerCanInteract = () => {
         const gameInfo = global_state['gameInfo']

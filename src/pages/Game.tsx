@@ -6,19 +6,26 @@ import SocketID from '../components/SocketID'
 
 export default function Game() {
     const { global_state } = React.useContext(GlobalContext)
+    const { gameInfo } = global_state
+    const { 
+        users,
+        scores,
+        playingUser,
+        timer
+    } = gameInfo
     return (
         <div className="">
             <div className="text-2xl text-white">
-                {global_state['gameInfo'].users[0].name} vs. {global_state['gameInfo'].users[1].name}
+                {users[0].name} vs. {users[1].name}
             </div>
             <div className="text-2xl text-white">
-                {global_state['gameInfo'].scores[0]} vs. {global_state['gameInfo'].scores[1]}
+                {scores[0]} vs. {scores[1]}
             </div>
             <div className="text-xl text-cyan-400">
-                {global_state['gameInfo'].users[global_state['gameInfo'].playingUser].name}
+                {users[playingUser].name}
             </div>
             <div className="text-2xl text-cyan-400">
-                Timer: {global_state['timer']}
+                Timer: {timer}
             </div>
             <SocketID />
             <MinesGrid />

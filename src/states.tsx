@@ -10,7 +10,6 @@ export const initialState = {
     socket:io("http://"+process.env.REACT_APP_IP+":9000"),
     chatHistory:[],
     activeUsers:[],
-    timer:10,
     gameInfo:{},
 }
 
@@ -21,6 +20,10 @@ export function GlobalStateProvider({ children }:any) {
         switch (action.type) {
             case "set":
                 newState[action.field] = action.payload
+                return newState
+            case "timer":
+                newState.gameInfo = { ...newState.gameInfo, timer:action.payload }
+                console.log(newState)
                 return newState
             default:
                 return state
@@ -42,7 +45,7 @@ export function GlobalStateProvider({ children }:any) {
             dispatch({ type:'set', field:'gameInfo', payload:gameInfo })
         })
         state['socket'].on('counter',(timer:any)=>{
-            dispatch({ type:'set', field:'timer', payload:timer })
+            dispatch({ type:'timer', payload:timer })
         })
         state['socket'].on('end game',(gameInfo:any)=>{
             dispatch({ type:'set', field:'gameInfo', payload:gameInfo })
