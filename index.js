@@ -156,7 +156,6 @@ socketIO.on('connection', (socket)=>{
             const counter = getCounter(roomID)
             clearInterval(counter.countdown)
             counter.countdown = false
-            generateGameInfo(gameInfo)
             info.timer = 10
         } else {
             switchUser(roomID)
