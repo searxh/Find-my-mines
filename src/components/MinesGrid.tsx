@@ -1,5 +1,6 @@
 import React from 'react'
 import { GlobalContext } from '../states'
+import { playAudio } from '../lib/Audio'
 
 export default function MinesGrid() {
     const { global_state } = React.useContext(GlobalContext)
@@ -23,8 +24,8 @@ function Block({ block, index }:{ block:BlockTypes, index:number }) {
     const { global_state } = React.useContext(GlobalContext)
     const { socket, gameInfo } = global_state
     const handleOnClick = () => {
-        console.log(gameInfo)
         socket.emit('select block',{ index:index, roomID:gameInfo.roomID })
+        playAudio('pop.wav')
     }
     const checkPlayerCanInteract = () => {
         const gameInfo = global_state['gameInfo']
