@@ -23,7 +23,6 @@ export function GlobalStateProvider({ children }:any) {
                 return newState
             case "timer":
                 newState.gameInfo = { ...newState.gameInfo, timer:action.payload }
-                console.log(newState)
                 return newState
             default:
                 return state

@@ -62,6 +62,20 @@ const removeMatchingUser = (user) => {
     matchingUsers =  matchingUsers.filter((userObj)=>user.name!==userObj.name)
 }
 
+const removeRoomUser = (user,callback) => {
+    let info = gameInfo.find((infoObj)=>{
+        console.log(infoObj.users)
+        return infoObj.users.find((userObj)=>userObj.name===user.name)!==undefined
+    })
+    if (info === undefined) {
+        console.log('undefined info')
+    } else {
+        info.users = info.users.filter((userObj)=>user.name!==userObj.name)
+        console.log(info)
+        callback(info.roomID)
+    }
+}
+
 const switchUser = (roomID) => {
     const info = getGameInfo(roomID)
     const newPlayingUser = Number(!Boolean(info.playingUser))
@@ -125,6 +139,7 @@ socketIO.on('connection', (socket)=>{
     socket.on('unmatching',(user)=>{
         console.log('Unmatching request',user)
         removeMatchingUser(user)
+        removeRoomUser(user,(roomID)=>socket.leave(roomID))
     })
     socket.on('chat message', ({ msg, name, id })=>{
         const userIndex = activeUsers.findIndex((user)=>user.name===name)
