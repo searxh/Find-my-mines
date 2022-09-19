@@ -8,6 +8,8 @@ const socketIO = require('socket.io')(http,{
     }
   })
 
+const WINNING_SCORE = 1
+
 const createMinesArray = () => {
     let nums = new Set();
     while (nums.size < 11) {
@@ -58,14 +60,13 @@ const getCounter = (roomID) => {
     return counter.find((counterObj)=>counterObj.roomID === roomID)
 }
 
-const removeMatchingUser = (user) => {
-    matchingUsers =  matchingUsers.filter((userObj)=>user.name!==userObj.name)
-}
-
 const removeRoomUser = (user,callback) => {
     let info = gameInfo.find((infoObj)=>{
-        console.log(infoObj.users)
-        return infoObj.users.find((userObj)=>userObj.name===user.name)!==undefined
+        if (infoObj.scores[0]+infoObj.scores[1] !== WINNING_SCORE) {
+            return infoObj.users.find((userObj)=>userObj.name===user.name)!==undefined
+        } else {
+            return false
+        }
     })
     if (info === undefined) {
         console.log('undefined info')
@@ -84,12 +85,11 @@ const switchUser = (roomID) => {
 
 const checkEndGame = (roomID) => {
     const info = getGameInfo(roomID)
-    return info.scores[0]+info.scores[1]===1
+    return info.scores[0]+info.scores[1]===WINNING_SCORE
 }
 
 let chatHistory = []
 let activeUsers = []
-let matchingUsers = []
 const initialRoomID = generateID()
 let counter = [{
     roomID:initialRoomID,
@@ -120,15 +120,14 @@ socketIO.on('connection', (socket)=>{
     })
     socket.on('matching',(user)=>{
         console.log('Matching request',user)
-        matchingUsers.push(user)
         while (true) {
             for (let i = 0; i < gameInfo.length; i++) {
                 const info = gameInfo[i]
-                if (info.users.length < 2) {
+                if ((info.scores[0]+info.scores[1] !== WINNING_SCORE) && info.users.length < 2) {
                     info.users.push(user)
-                    removeMatchingUser(user)
                     socket.join(info.roomID)
                     console.log('exit while loop')
+                    console.log(gameInfo)
                     return
                 }
             }
@@ -138,7 +137,6 @@ socketIO.on('connection', (socket)=>{
     })
     socket.on('unmatching',(user)=>{
         console.log('Unmatching request',user)
-        removeMatchingUser(user)
         removeRoomUser(user,(roomID)=>socket.leave(roomID))
     })
     socket.on('chat message', ({ msg, name, id })=>{
