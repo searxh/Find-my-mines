@@ -148,7 +148,6 @@ socketIO.on('connection', (socket)=>{
                 if ((info.scores[0]+info.scores[1] !== WINNING_SCORE) && info.users.length < 2) {
                     info.users.push(user)
                     socket.join(info.roomID)
-                    console.log('exit while loop')
                     console.log(gameInfo)
                     return
                 }
@@ -198,8 +197,12 @@ socketIO.on('connection', (socket)=>{
             socketIO.to(roomID).emit('gameInfo update',info)
         }
     })
+    socket.on('leave room request',(roomID)=>{
+        socket.leave(roomID)
+        socketIO.to(roomID).emit("other user left")
+    })
     socket.adapter.on("join-room", (roomID, id) => {
-        console.log(`socket ${id} has joined room ${roomID}`);
+        console.log(`socket ${id} has joined room ${roomID}`)
         //prevents socketID rooms
         if (roomID.length > 20) {
             const info = getGameInfo(roomID)
@@ -222,8 +225,9 @@ socketIO.on('connection', (socket)=>{
             }
         }
     })
-    socket.adapter.on('leave-room',(room,id) => {
-        console.log(`socket ${id} has left room ${room}`)
+    socket.adapter.on('leave-room',(roomID,id) => {
+        console.log(`socket ${id} has left room ${roomID}`)
+        socketIO.to(roomID).emit("other user left")
     })
     socket.on('play again', ({ gameInfo, requester })=>{
         const { roomID } = gameInfo
