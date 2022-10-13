@@ -1,12 +1,13 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import RematchStatus from '../components/RematchStatus'
+import RematchStatus from './RematchStatus'
 import { GlobalContext } from '../states'
 
 export default function Result() {
     const { global_state, dispatch } = React.useContext(GlobalContext)
     const { resultVisible, socket, gameInfo, name } = global_state
     const { users, scores } = gameInfo
+    const [ playAgainVisible, setPlayAgainVisible ] = React.useState(true)
     const navigate = useNavigate()
     const handleOnClickPlayAgain = () => {
         socket.emit("play again", { 
@@ -14,13 +15,19 @@ export default function Result() {
             requester:{
                 name:name,
                 id:socket.id
-            } 
-        }) 
+            }
+        })
     }
     const handleOnClickMenu = () => {
         dispatch({ type:"set", field:"resultVisible", payload:false })
+        socket.emit("leave room request", gameInfo.roomID)
         navigate('/menu')
     }
+    React.useEffect(()=>{
+        socket.on('other user left',()=>{
+            setPlayAgainVisible(false)
+        })
+    },[])
     return (resultVisible?
         <div
             className="absolute top-0 bottom-0 left-0 right-0 w-1/2 h-1/2 text-white
@@ -34,12 +41,14 @@ export default function Result() {
                 <div>{users[1].name} score: {scores[1]}</div>
                 <RematchStatus />
                 <div className="flex">
-                    <button
-                        onClick={handleOnClickPlayAgain}
-                        className="bg-green-600 text-white p-5 rounded-lg text-xl"
-                    >
-                        Play Again
-                    </button>
+                    {playAgainVisible &&
+                        <button
+                            onClick={handleOnClickPlayAgain}
+                            className="bg-green-600 text-white p-5 rounded-lg text-xl"
+                        >
+                            Play Again
+                        </button>
+                    }
                     <button
                         onClick={handleOnClickMenu}
                         className="bg-slate-600 text-white p-5 rounded-lg text-xl"
