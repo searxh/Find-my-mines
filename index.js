@@ -52,6 +52,28 @@ const generateGameInfo = (gameInfo,counter) => {
     })
 }
 
+const resetRoom = (roomID) => {
+    const info = getGameInfo(roomID)
+    info.timer = 10
+    info.playingUser = chooseRandomUser()
+    info.scores = [0,0]
+    info.minesArray = createMinesArray()
+    return info
+}
+
+const resetCountdown = (info,roomID) => {
+    const counter = getCounter(roomID)
+    counter.countdown = setInterval(()=>{
+        socketIO.to(roomID).emit('counter', info.timer)
+        info.timer--
+        if (info.timer === -1) {
+            switchUser(roomID)
+            info.timer = 10
+            socketIO.to(roomID).emit('gameInfo update',info)
+        }
+    }, 1000)
+}
+
 const getGameInfo = (roomID) => {
     return gameInfo.find((info)=>info.roomID === roomID)
 }
@@ -203,8 +225,15 @@ socketIO.on('connection', (socket)=>{
     socket.adapter.on('leave-room',(room,id) => {
         console.log(`socket ${id} has left room ${room}`)
     })
-    socket.on('force disconnect',()=>{
-        socket.disconnect()
+    socket.on('play again', ({ gameInfo, requester })=>{
+        const { roomID } = gameInfo
+        console.log('play again',roomID)
+        socketIO.to(roomID).emit('rematch request', requester)
+    })
+    socket.on('rematch accepted', (roomID)=>{
+        const info = resetRoom(roomID)
+        socketIO.to(roomID).emit('start game',info)
+        resetCountdown(info,roomID)
     })
     socket.on('disconnect', ()=>{
         const leftUser = activeUsers.find((user)=>user.id===socket.id)

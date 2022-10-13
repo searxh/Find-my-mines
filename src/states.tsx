@@ -43,7 +43,11 @@ export function GlobalStateProvider({ children }:any) {
             dispatch({ type:'set', field:'activeUsers', payload:activeUsers })
         })
         state['socket'].on('start game',(gameInfo:any)=>{
-            dispatch({ type:'set', field:'gameInfo', payload:gameInfo })
+            dispatch({ 
+                type:'multi-set', 
+                field:['gameInfo', 'resultVisible'],
+                payload:[gameInfo,false]
+            })
             setTimeout(()=>navigate('/game'),1000)
         })
         state['socket'].on('gameInfo update',(gameInfo:any)=>{

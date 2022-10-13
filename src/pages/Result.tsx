@@ -1,13 +1,23 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import RematchStatus from '../components/RematchStatus'
 import { GlobalContext } from '../states'
 
 export default function Result() {
     const { global_state, dispatch } = React.useContext(GlobalContext)
-    const { resultVisible } = global_state
-    const { users, scores } = global_state['gameInfo']
+    const { resultVisible, socket, gameInfo, name } = global_state
+    const { users, scores } = gameInfo
     const navigate = useNavigate()
-    const handleOnClick = () => {
+    const handleOnClickPlayAgain = () => {
+        socket.emit("play again", { 
+            gameInfo:gameInfo,
+            requester:{
+                name:name,
+                id:socket.id
+            } 
+        }) 
+    }
+    const handleOnClickMenu = () => {
         dispatch({ type:"set", field:"resultVisible", payload:false })
         navigate('/menu')
     }
@@ -22,12 +32,21 @@ export default function Result() {
                 } !
                 <div>{users[0].name} score: {scores[0]}</div>
                 <div>{users[1].name} score: {scores[1]}</div>
-                <button
-                    onClick={handleOnClick}
-                    className="bg-slate-600 text-white p-5 rounded-lg text-xl"
-                >
-                    Back to menu
-                </button>
+                <RematchStatus />
+                <div className="flex">
+                    <button
+                        onClick={handleOnClickPlayAgain}
+                        className="bg-green-600 text-white p-5 rounded-lg text-xl"
+                    >
+                        Play Again
+                    </button>
+                    <button
+                        onClick={handleOnClickMenu}
+                        className="bg-slate-600 text-white p-5 rounded-lg text-xl"
+                    >
+                        Back to menu
+                    </button>
+                </div>
             </div>
         </div>:null
     )
