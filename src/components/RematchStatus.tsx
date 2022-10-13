@@ -5,28 +5,33 @@ export default function RematchStatus() {
     const { global_state } = React.useContext(GlobalContext)
     const { socket, gameInfo, name } = global_state
     const [ requester, setRequester ] = React.useState("")
-    const [ visible, setVisible ] = React.useState<boolean>(false)
+    const [ mode, setMode ] = React.useState<number>(0)
     const handleOnClick = () => {
         socket.emit('rematch accepted', gameInfo.roomID)
-        setVisible(false)
+        setMode(0)
     }
     React.useEffect(()=>{
         socket.on('rematch request',(requester:any)=>{
             if (requester.name !== name) {
-                setVisible(true)
+                setMode(1)
                 setRequester(requester.name+" is requesting for a rematch")
+            } else {
+                setMode(2)
+                setRequester("Waiting for the other player...")
             }
         })
     },[])
-    return (visible?
+    return (mode!==0?
         <div>
             {requester}
-            <button
-                onClick={handleOnClick}
-                className="bg-red-500 text-white px-5 py-2 rounded-lg"
-            >
-                Accept
-            </button>
+            {mode===1 &&
+                <button
+                    onClick={handleOnClick}
+                    className="bg-red-500 text-white px-5 py-2 rounded-lg"
+                >
+                    Accept
+                </button>
+            }
         </div>:null
     )
 }
