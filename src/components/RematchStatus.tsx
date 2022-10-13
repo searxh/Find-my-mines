@@ -1,5 +1,6 @@
 import React from 'react'
 import { GlobalContext } from '../states'
+import { UserType } from '../types'
 
 export default function RematchStatus() {
     const { global_state } = React.useContext(GlobalContext)
@@ -13,7 +14,7 @@ export default function RematchStatus() {
         setMode(0)
     }
     React.useEffect(()=>{
-        socket.on('rematch request',(requester:any)=>{
+        socket.on('rematch request',(requester:UserType)=>{
             if (requester.name !== name) {
                 setMode(1)
                 setStatus(requester.name+" is requesting for a rematch")

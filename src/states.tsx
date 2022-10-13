@@ -2,10 +2,11 @@ import React from "react"
 import { io } from "socket.io-client"
 import { createContext } from "react"
 import { useNavigate } from "react-router-dom"
+import { ActionType, GlobalStateType } from "./types"
 
 export const GlobalContext = createContext<any>({})
 
-export const initialState = {
+export const initialState:GlobalStateType = {
     name:"",
     socket:io("http://"+process.env.REACT_APP_IP+":9000"),
     chatHistory:[],
@@ -16,17 +17,21 @@ export const initialState = {
 
 export function GlobalStateProvider({ children }:any) {
     const navigate = useNavigate()
-    const reducer = (state:any, action:any) => {
+    const reducer = (state:GlobalStateType, action:ActionType) => {
         const newState = { ...state }
         switch (action.type) {
             case "set":
-                newState[action.field] = action.payload
-                return newState
+                if (action.field !== undefined) {
+                    newState[action.field as string] = action.payload
+                    return newState
+                } else return state
             case "multi-set":
-                for (let i = 0; i < action.field.length; i++) {
-                    newState[action.field[i]] = action.payload[i]
-                }
-                return newState
+                if (action.field !== undefined) {
+                    for (let i = 0; i < action.field.length; i++) {
+                        newState[action.field[i]] = action.payload[i]
+                    }
+                    return newState
+                } else return state
             case "timer":
                 newState.gameInfo = { ...newState.gameInfo, timer:action.payload }
                 return newState
