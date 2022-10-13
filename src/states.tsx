@@ -11,6 +11,7 @@ export const initialState = {
     chatHistory:[],
     activeUsers:[],
     gameInfo:{},
+    resultVisible:false,
 }
 
 export function GlobalStateProvider({ children }:any) {
@@ -20,6 +21,11 @@ export function GlobalStateProvider({ children }:any) {
         switch (action.type) {
             case "set":
                 newState[action.field] = action.payload
+                return newState
+            case "multi-set":
+                for (let i = 0; i < action.field.length; i++) {
+                    newState[action.field[i]] = action.payload[i]
+                }
                 return newState
             case "timer":
                 newState.gameInfo = { ...newState.gameInfo, timer:action.payload }
@@ -37,7 +43,11 @@ export function GlobalStateProvider({ children }:any) {
             dispatch({ type:'set', field:'activeUsers', payload:activeUsers })
         })
         state['socket'].on('start game',(gameInfo:any)=>{
-            dispatch({ type:'set', field:'gameInfo', payload:gameInfo })
+            dispatch({ 
+                type:'multi-set', 
+                field:['gameInfo', 'resultVisible'],
+                payload:[gameInfo,false]
+            })
             setTimeout(()=>navigate('/game'),1000)
         })
         state['socket'].on('gameInfo update',(gameInfo:any)=>{
@@ -47,8 +57,11 @@ export function GlobalStateProvider({ children }:any) {
             dispatch({ type:'timer', payload:timer })
         })
         state['socket'].on('end game',(gameInfo:any)=>{
-            dispatch({ type:'set', field:'gameInfo', payload:gameInfo })
-            setTimeout(()=>navigate('/result'),1000)
+            dispatch({ 
+                type:'multi-set',
+                field:['gameInfo','resultVisible'], 
+                payload:[gameInfo,true]
+            })
         })
     },[])
     return (

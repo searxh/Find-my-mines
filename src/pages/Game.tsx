@@ -1,8 +1,10 @@
 import React from 'react'
 import Chat from '../components/Chat'
 import MinesGrid from '../components/MinesGrid'
+import Result from './Result'
 import { GlobalContext } from '../states'
 import SocketID from '../components/SocketID'
+import Backdrop from '../components/Backdrop'
 
 export default function Game() {
     const { global_state } = React.useContext(GlobalContext)
@@ -29,6 +31,8 @@ export default function Game() {
             </div>
             <SocketID />
             <MinesGrid />
+            <Result />
+            <Backdrop />
             <Chat />
         </div>
     )
