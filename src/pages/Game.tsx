@@ -1,7 +1,7 @@
 import React from 'react'
 import Chat from '../components/Chat'
 import MinesGrid from '../components/MinesGrid'
-import Result from './Result'
+import Result from '../components/Result'
 import { GlobalContext } from '../states'
 import SocketID from '../components/SocketID'
 import Backdrop from '../components/Backdrop'

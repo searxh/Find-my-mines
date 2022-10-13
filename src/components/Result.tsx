@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import RematchStatus from '../components/RematchStatus'
+import RematchStatus from './RematchStatus'
 import { GlobalContext } from '../states'
 
 export default function Result() {
