@@ -2,7 +2,7 @@ import React from 'react'
 import { GlobalContext } from '../states'
 
 export default function RematchStatus() {
-    const { global_state, dispatch } = React.useContext(GlobalContext)
+    const { global_state } = React.useContext(GlobalContext)
     const { socket, gameInfo, name } = global_state
     const [ status, setStatus ] = React.useState("")
     //mode 0 = not visible, mode 1 = challenged user view

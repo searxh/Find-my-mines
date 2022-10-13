@@ -1,6 +1,6 @@
 import React from 'react'
 import { GlobalContext } from '../states'
-import { playAudio } from '../lib/Audio'
+import { playAudio } from '../lib/utility/Audio'
 
 export default function MinesGrid() {
     const { global_state } = React.useContext(GlobalContext)
