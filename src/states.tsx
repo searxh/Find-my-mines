@@ -2,7 +2,7 @@ import React from "react"
 import { io } from "socket.io-client"
 import { createContext } from "react"
 import { useNavigate } from "react-router-dom"
-import { ActionType, GameInfoType, GlobalStateType } from "./types"
+import { ActionType, GameInfoType, GlobalStateType, MessageType, UserType } from "./types"
 
 export const GlobalContext = createContext<any>({})
 
@@ -41,13 +41,13 @@ export function GlobalStateProvider({ children }:{ children:React.ReactNode }) {
     }
     const [ state, dispatch ] = React.useReducer(reducer, initialState);
     React.useEffect(()=>{
-        state['socket'].on('chat update',(chat:any)=>{
+        state['socket'].on('chat update',(chat:MessageType)=>{
             dispatch({ type:'set', field:'chatHistory', payload:chat })
         })
-        state['socket'].on('active user update',(activeUsers:any)=>{
+        state['socket'].on('active user update',(activeUsers:Array<UserType>)=>{
             dispatch({ type:'set', field:'activeUsers', payload:activeUsers })
         })
-        state['socket'].on('start game',(gameInfo:any)=>{
+        state['socket'].on('start game',(gameInfo:GameInfoType)=>{
             dispatch({ 
                 type:'multi-set', 
                 field:['gameInfo', 'resultVisible'],
@@ -55,13 +55,13 @@ export function GlobalStateProvider({ children }:{ children:React.ReactNode }) {
             })
             setTimeout(()=>navigate('/game'),1000)
         })
-        state['socket'].on('gameInfo update',(gameInfo:any)=>{
+        state['socket'].on('gameInfo update',(gameInfo:GameInfoType)=>{
             dispatch({ type:'set', field:'gameInfo', payload:gameInfo })
         })
-        state['socket'].on('counter',(timer:any)=>{
+        state['socket'].on('counter',(timer:number)=>{
             dispatch({ type:'timer', payload:timer })
         })
-        state['socket'].on('end game',(gameInfo:any)=>{
+        state['socket'].on('end game',(gameInfo:GameInfoType)=>{
             dispatch({ 
                 type:'multi-set',
                 field:['gameInfo','resultVisible'], 
