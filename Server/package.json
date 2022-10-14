@@ -22,7 +22,7 @@
     "nodemon": "^2.0.20"
   },
   "scripts": {
-    "start":"node server.js",
-    "dev": "concurrently \"tsc server.ts -w\" \"nodemon server.js\""
+    "start":"node dist/server.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/server.js\""
   }
 }

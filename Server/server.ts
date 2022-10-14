@@ -1,22 +1,14 @@
-import express, { Response } from 'express'
-import { Socket } from 'socket.io'
+import { Response } from 'express'
 const uuid = require('uuid')
-const app = express()
+const app = require('express')()
 const http = require('http').Server(app)
 const socketIO = require('socket.io')(http,{
     cors: {
       origin: '*'
     }
 })
-import { 
-    BlockType, 
-    GameInfoType,
-    CounterType,
-    UserType,
-    MessageType,
-} from './types'
 
-const WINNING_SCORE = 2
+const WINNING_SCORE = 3
 
 const createMinesArray = ():Array<BlockType> => {
     let nums = new Set<number>();
@@ -147,7 +139,7 @@ http.listen(9000,'0.0.0.0', ()=>{
    console.log('listening on *:9000')
 })
 
-socketIO.on('connection', (socket:Socket)=>{
+socketIO.on('connection', (socket:any)=>{
     console.log('Connected!',socket.id,socketIO.engine.clientsCount)
     socket.on('name register', (user:UserType)=>{
         console.log('new user has registered')
@@ -259,3 +251,28 @@ socketIO.on('connection', (socket:Socket)=>{
         socketIO.emit('active user update', activeUsers)
     })
 })
+interface MessageType {
+    from:string,
+    message:string,
+    at:string | number
+}
+interface BlockType {
+    selected:boolean,
+    value:number
+}
+interface UserType {
+    name:string,
+    id:string
+}
+interface GameInfoType {
+    roomID:string,
+    timer:number,
+    users:Array<UserType>,
+    playingUser:number,
+    scores:Array<number>,
+    minesArray:Array<BlockType>,
+}
+interface CounterType {
+    roomID:string,
+    countdown: ReturnType<typeof setInterval> | boolean
+}
