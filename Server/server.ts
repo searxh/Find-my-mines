@@ -6,7 +6,7 @@ const socketIO = require('socket.io')(http,{
     cors: {
       origin: '*'
     }
-  })
+})
 
 const WINNING_SCORE = 2
 
