@@ -1,12 +1,7 @@
 import React from 'react'
 import ChatInput from './ChatInput'
 import { GlobalContext } from '../states'
-
-interface Message {
-    from:string,
-    message:string,
-    at:string
-}
+import { MessageType } from '../types'
 
 export default function Chat() {
     const { global_state } = React.useContext(GlobalContext)
@@ -15,7 +10,7 @@ export default function Chat() {
     },[])
     return (
         <div className="flex flex-col">
-            {global_state['chatHistory'].map((msg:Message,index:number)=>{
+            {global_state['chatHistory'].map((msg:MessageType,index:number)=>{
                 return (
                     <div 
                         key={index}
