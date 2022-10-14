@@ -2,7 +2,7 @@ import { Socket } from "socket.io-client"
 export interface MessageType {
     from:string,
     message:string,
-    at:string
+    at:string | number
 }
 export interface BlockType {
     selected:boolean,
@@ -10,7 +10,7 @@ export interface BlockType {
 }
 export interface UserType {
     name:string,
-    id:number
+    id:string
 }
 export interface GameInfoType {
     roomID:string,

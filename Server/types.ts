@@ -1,8 +1,7 @@
-
 export interface MessageType {
     from:string,
     message:string,
-    at:string
+    at:string | number
 }
 export interface BlockType {
     selected:boolean,
@@ -10,7 +9,7 @@ export interface BlockType {
 }
 export interface UserType {
     name:string,
-    id:number
+    id:string
 }
 export interface GameInfoType {
     roomID:string,
@@ -19,4 +18,8 @@ export interface GameInfoType {
     playingUser:number,
     scores:Array<number>,
     minesArray:Array<BlockType>,
+}
+export interface CounterType {
+    roomID:string,
+    countdown: ReturnType<typeof setInterval> | boolean
 }
