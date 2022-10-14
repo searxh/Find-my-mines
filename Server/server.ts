@@ -1,4 +1,3 @@
-import * as dotenv from 'dotenv'
 import express from 'express'
 const uuid = require('uuid')
 const app = require('express')()
@@ -9,7 +8,7 @@ const socketIO = require('socket.io')(http,{
     }
   })
 
-const WINNING_SCORE = 1
+const WINNING_SCORE = 2
 
 const createMinesArray = () => {
     let nums = new Set<number>();
@@ -28,7 +27,6 @@ const createMinesArray = () => {
                 value:0
             }
     })
-    console.log(arr)
     return arr
 }
 const chooseRandomUser = () => {

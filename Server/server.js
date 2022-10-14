@@ -17,7 +17,7 @@ var socketIO = require('socket.io')(http, {
         origin: '*'
     }
 });
-var WINNING_SCORE = 1;
+var WINNING_SCORE = 2;
 var createMinesArray = function () {
     var nums = new Set();
     while (nums.size < 11) {
@@ -35,7 +35,6 @@ var createMinesArray = function () {
             value: 0
         };
     });
-    console.log(arr);
     return arr;
 };
 var chooseRandomUser = function () {
