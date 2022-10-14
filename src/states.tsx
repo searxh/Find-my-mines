@@ -2,7 +2,7 @@ import React from "react"
 import { io } from "socket.io-client"
 import { createContext } from "react"
 import { useNavigate } from "react-router-dom"
-import { ActionType, GlobalStateType } from "./types"
+import { ActionType, GameInfoType, GlobalStateType } from "./types"
 
 export const GlobalContext = createContext<any>({})
 
@@ -11,11 +11,11 @@ export const initialState:GlobalStateType = {
     socket:io("http://"+process.env.REACT_APP_IP+":9000"),
     chatHistory:[],
     activeUsers:[],
-    gameInfo:{},
+    gameInfo:{} as GameInfoType,
     resultVisible:false,
 }
 
-export function GlobalStateProvider({ children }:any) {
+export function GlobalStateProvider({ children }:{ children:React.ReactNode }) {
     const navigate = useNavigate()
     const reducer = (state:GlobalStateType, action:ActionType) => {
         const newState = { ...state }

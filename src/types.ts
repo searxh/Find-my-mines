@@ -8,13 +8,17 @@ export interface BlockType {
     selected:boolean,
     value:number
 }
-
 export interface UserType {
     name:string,
     id:number
 }
 export interface GameInfoType {
-
+    roomID:string,
+    timer:number,
+    users:Array<UserType>,
+    playingUser:number,
+    scores:Array<number>,
+    minesArray:Array<BlockType>,
 }
 export interface GlobalStateKeys {
     [key:string]:string | boolean | Socket | Array<MessageType> | Array<UserType> | GameInfoType
