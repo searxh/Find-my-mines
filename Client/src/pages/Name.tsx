@@ -2,24 +2,19 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { GlobalContext } from '../states';
 import SocketID from '../components/SocketID';
+import { io } from 'socket.io-client';
 
 export default function Name() {
-    const { global_state, dispatch } = React.useContext(GlobalContext)
+    const { dispatch } = React.useContext(GlobalContext)
     const navigate = useNavigate();
     const nameRef = React.useRef<HTMLInputElement>(null);
     const handleOnSubmit = () => {
         if (nameRef.current !== null) {
             dispatch({
-                type:'set',
-                field:'name',
-                payload:nameRef.current.value
+                type:'multi-set',
+                field:['name','socket'],
+                payload:[nameRef.current.value,io("http://"+process.env.REACT_APP_IP+":9000")]
             })
-            global_state['socket'].emit('name register',
-                {
-                    name:nameRef.current.value,
-                    id:global_state['socket'].id
-                }
-            )
             navigate('/menu')
         }
     }
