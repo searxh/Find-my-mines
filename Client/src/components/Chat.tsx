@@ -9,7 +9,9 @@ export default function Chat() {
     const { chatHistory } = global_state
     const { socket } = React.useContext(SocketContext)
     React.useEffect(()=>{
-        socket.emit('chat request')
+        if (socket !== undefined) {
+            socket.emit('chat request')
+        }
     },[])
     return (
         <div className="flex flex-col">

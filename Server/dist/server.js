@@ -220,6 +220,9 @@ socketIO.on('connection', (socket) => {
             socketIO.to(roomID).emit("other user left");
         }
     });
+    socket.on('reconnect game', ({ roomID, name }) => {
+        socket.join(roomID);
+    });
     socket.on('play again', ({ gameInfo, requester }) => {
         const { roomID } = gameInfo;
         console.log('play again', roomID);

@@ -23,8 +23,10 @@ function Block({ block, index }:{ block:BlockType, index:number }) {
     const { socket } = React.useContext(SocketContext) 
     const { gameInfo, name } = global_state
     const handleOnClick = () => {
-        socket.emit('select block',{ index:index, roomID:gameInfo.roomID })
-        playAudio('pop.wav')
+        if (socket !== undefined) {
+            socket.emit('select block',{ index:index, roomID:gameInfo.roomID })
+            playAudio('pop.wav')
+        }
     }
     const checkPlayerCanInteract = () => {
         const playingUser =  gameInfo.users[gameInfo.playingUser]
