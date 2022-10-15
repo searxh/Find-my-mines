@@ -8,7 +8,7 @@ export const GlobalContext = createContext<any>({})
 
 export const initialState:GlobalStateType = {
     name:"",
-    socket:io("http://"+process.env.REACT_APP_IP+":9000"),
+    socket:undefined,
     chatHistory:[],
     activeUsers:[],
     gameInfo:{} as GameInfoType,
@@ -41,33 +41,35 @@ export function GlobalStateProvider({ children }:{ children:React.ReactNode }) {
     }
     const [ state, dispatch ] = React.useReducer(reducer, initialState);
     React.useEffect(()=>{
-        state['socket'].on('chat update',(chat:MessageType)=>{
-            dispatch({ type:'set', field:'chatHistory', payload:chat })
-        })
-        state['socket'].on('active user update',(activeUsers:Array<UserType>)=>{
-            dispatch({ type:'set', field:'activeUsers', payload:activeUsers })
-        })
-        state['socket'].on('start game',(gameInfo:GameInfoType)=>{
-            dispatch({ 
-                type:'multi-set', 
-                field:['gameInfo', 'resultVisible'],
-                payload:[gameInfo,false]
+        if (state['socket'] !== undefined) {
+            state['socket'].on('chat update',(chat:MessageType)=>{
+                dispatch({ type:'set', field:'chatHistory', payload:chat })
             })
-            setTimeout(()=>navigate('/game'),1000)
-        })
-        state['socket'].on('gameInfo update',(gameInfo:GameInfoType)=>{
-            dispatch({ type:'set', field:'gameInfo', payload:gameInfo })
-        })
-        state['socket'].on('counter',(timer:number)=>{
-            dispatch({ type:'timer', payload:timer })
-        })
-        state['socket'].on('end game',(gameInfo:GameInfoType)=>{
-            dispatch({ 
-                type:'multi-set',
-                field:['gameInfo','resultVisible'], 
-                payload:[gameInfo,true]
+            state['socket'].on('active user update',(activeUsers:Array<UserType>)=>{
+                dispatch({ type:'set', field:'activeUsers', payload:activeUsers })
             })
-        })
+            state['socket'].on('start game',(gameInfo:GameInfoType)=>{
+                dispatch({ 
+                    type:'multi-set', 
+                    field:['gameInfo', 'resultVisible'],
+                    payload:[gameInfo,false]
+                })
+                setTimeout(()=>navigate('/game'),1000)
+            })
+            state['socket'].on('gameInfo update',(gameInfo:GameInfoType)=>{
+                dispatch({ type:'set', field:'gameInfo', payload:gameInfo })
+            })
+            state['socket'].on('counter',(timer:number)=>{
+                dispatch({ type:'timer', payload:timer })
+            })
+            state['socket'].on('end game',(gameInfo:GameInfoType)=>{
+                dispatch({ 
+                    type:'multi-set',
+                    field:['gameInfo','resultVisible'], 
+                    payload:[gameInfo,true]
+                })
+            })
+        }
     },[])
     return (
         <GlobalContext.Provider value={{ global_state:state, dispatch:dispatch }}>
