@@ -2,10 +2,12 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import RematchStatus from './RematchStatus'
 import { GlobalContext } from '../states'
+import { SocketContext } from '../socket'
 
 export default function Result() {
     const { global_state, dispatch } = React.useContext(GlobalContext)
-    const { resultVisible, socket, gameInfo, name } = global_state
+    const { socket } = React.useContext(SocketContext)
+    const { resultVisible, gameInfo, name } = global_state
     const { users, scores } = gameInfo
     const [ playAgainVisible, setPlayAgainVisible ] = React.useState(true)
     const navigate = useNavigate()

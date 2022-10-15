@@ -1,10 +1,12 @@
 import React from 'react'
+import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
 import { UserType } from '../types'
 
 export default function RematchStatus() {
     const { global_state } = React.useContext(GlobalContext)
-    const { socket, gameInfo, name } = global_state
+    const { socket } = React.useContext(SocketContext)
+    const { gameInfo, name } = global_state
     const [ status, setStatus ] = React.useState("")
     //mode 0 = not visible, mode 1 = challenged user view
     //mode 2 = challenger user view, mode 3 = one of the user has left

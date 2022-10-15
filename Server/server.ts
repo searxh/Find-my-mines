@@ -227,8 +227,10 @@ socketIO.on('connection', (socket:any)=>{
         }
     })
     socket.adapter.on('leave-room',(roomID:string,id:string) => {
-        console.log(`socket ${id} has left room ${roomID}`)
-        socketIO.to(roomID).emit("other user left")
+        if (roomID.length > 20) {
+            console.log(`socket ${id} has left room ${roomID}`)
+            socketIO.to(roomID).emit("other user left")
+        }
     })
     socket.on('play again', ({ gameInfo, requester }:{ gameInfo:GameInfoType, requester:UserType })=>{
         const { roomID } = gameInfo

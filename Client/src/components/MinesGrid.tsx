@@ -2,12 +2,14 @@ import React from 'react'
 import { GlobalContext } from '../states'
 import { playAudio } from '../lib/utility/Audio'
 import { BlockType } from '../types'
+import { SocketContext } from '../socket'
 
 export default function MinesGrid() {
     const { global_state } = React.useContext(GlobalContext)
+    const { gameInfo } = global_state
     return (
         <div className="w-fit grid grid-cols-6 gap-2 mx-auto">
-            {global_state['gameInfo'].minesArray.map(
+            {gameInfo.minesArray.map(
                 (block:BlockType,index:number)=>{
                     return <Block block={block} index={index} />
                 })
@@ -18,15 +20,15 @@ export default function MinesGrid() {
 
 function Block({ block, index }:{ block:BlockType, index:number }) {
     const { global_state } = React.useContext(GlobalContext)
-    const { socket, gameInfo } = global_state
+    const { socket } = React.useContext(SocketContext) 
+    const { gameInfo, name } = global_state
     const handleOnClick = () => {
         socket.emit('select block',{ index:index, roomID:gameInfo.roomID })
         playAudio('pop.wav')
     }
     const checkPlayerCanInteract = () => {
-        const gameInfo = global_state['gameInfo']
         const playingUser =  gameInfo.users[gameInfo.playingUser]
-        return playingUser.name === global_state['name']
+        return playingUser.name === name
     }
     return (
         <button
