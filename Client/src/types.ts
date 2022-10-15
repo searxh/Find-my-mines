@@ -21,15 +21,15 @@ export interface GameInfoType {
     minesArray:Array<BlockType>,
 }
 export interface GlobalStateKeys {
-    [key:string]:string | boolean | Socket | Array<MessageType> | Array<UserType> | GameInfoType | undefined
+    [key:string]:string | boolean | Array<MessageType> | Array<UserType> | GameInfoType | undefined
 }
 export interface GlobalStateType extends GlobalStateKeys {
     name:string
-    socket:Socket | undefined,
     chatHistory:Array<MessageType>,
     activeUsers:Array<UserType>,
     gameInfo:GameInfoType,
     resultVisible:boolean,
+    connected:boolean,
 }
 export interface ActionType {
     type:string

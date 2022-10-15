@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { GlobalStateProvider } from './states';
+import { SocketProvider } from './socket';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -12,7 +13,9 @@ root.render(
   <React.StrictMode>
       <BrowserRouter>
         <GlobalStateProvider>
-          <App />
+          <SocketProvider>
+            <App />
+          </SocketProvider>
         </GlobalStateProvider>
       </BrowserRouter>
   </React.StrictMode>

@@ -1,16 +1,17 @@
 import React from 'react'
-import { GlobalContext } from '../states'
+import { SocketContext } from '../socket'
 
 export default function SocketID() {
-    const { global_state } = React.useContext(GlobalContext)
+    const { socket } = React.useContext(SocketContext)
+    const [ id, setId ] = React.useState<string>()
     React.useEffect(()=>{
-        if (global_state['socket'] !== undefined) {
-            console.log(global_state['socket'])
-        }
+        socket.on("connect", ()=>{
+            setId(socket.id)
+        })
     },[])
     return (
         <div className="p-5 bg-red-700 text-white">
-            Socket ID: {global_state['socket'].id}
+            Socket ID: {id}
         </div>
     )
 }

@@ -7,7 +7,7 @@ const socketIO = require('socket.io')(http,{
     }
 })
 
-const WINNING_SCORE = 1
+const WINNING_SCORE = 3
 
 const createMinesArray = () => {
     let nums = new Set<number>();
@@ -142,8 +142,8 @@ http.listen(9000,'0.0.0.0', ()=>{
 socketIO.on('connection', (socket:any)=>{
     console.log('Connected!',socket.id,socketIO.engine.clientsCount)
     socket.on('name register', (user:UserType)=>{
-        console.log('new user has registered')
         activeUsers.push(user)
+        socketIO.emit('active user update', activeUsers)
     })
     socket.on('matching',(user:UserType)=>{
         console.log('Matching request',user)
