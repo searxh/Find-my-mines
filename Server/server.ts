@@ -7,16 +7,16 @@ const socketIO = require('socket.io')(http,{
     }
 })
 
-const WINNING_SCORE = 3
+const WINNING_SCORE = 1
 
-const createMinesArray = ():Array<BlockType> => {
+const createMinesArray = () => {
     let nums = new Set<number>();
     while (nums.size < 11) {
         nums.add(Math.floor(Math.random()*36+1));
     }
     const bombIndexes:Array<number> = []
     nums.forEach((num:number)=>bombIndexes.push(num))
-    const arr = [...Array(36)].map((index:number)=>{
+    const arr = [...Array(36)].map((value:number,index:number)=>{
         return bombIndexes.includes(index+1)?
             {
                 selected:false,
@@ -25,6 +25,7 @@ const createMinesArray = ():Array<BlockType> => {
                 selected:false,
                 value:0
             }
+        
     })
     return arr
 }

@@ -7,7 +7,7 @@ const socketIO = require('socket.io')(http, {
         origin: '*'
     }
 });
-const WINNING_SCORE = 3;
+const WINNING_SCORE = 1;
 const createMinesArray = () => {
     let nums = new Set();
     while (nums.size < 11) {
@@ -15,7 +15,7 @@ const createMinesArray = () => {
     }
     const bombIndexes = [];
     nums.forEach((num) => bombIndexes.push(num));
-    const arr = [...Array(36)].map((index) => {
+    const arr = [...Array(36)].map((value, index) => {
         return bombIndexes.includes(index + 1) ?
             {
                 selected: false,
