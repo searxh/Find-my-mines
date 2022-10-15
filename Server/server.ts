@@ -1,4 +1,3 @@
-import { Response } from 'express'
 const uuid = require('uuid')
 const app = require('express')()
 const http = require('http').Server(app)
@@ -131,7 +130,7 @@ let gameInfos:Array<GameInfoType> = [{
     minesArray:createMinesArray() as Array<BlockType>,
 }]
 
-app.get('/', function(res:Response) {
+app.get('/', function(res:any) {
     res.sendFile(__dirname + '/index.html')
 })
 

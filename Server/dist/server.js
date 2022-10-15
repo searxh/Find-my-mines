@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const uuid = require('uuid');
 const app = require('express')();
 const http = require('http').Server(app);
