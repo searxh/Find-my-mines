@@ -21,15 +21,18 @@ export interface GameInfoType {
     minesArray:Array<BlockType>,
 }
 export interface GlobalStateKeys {
-    [key:string]:string | boolean | Socket | Array<MessageType> | Array<UserType> | GameInfoType
+    [key:string]: any
 }
 export interface GlobalStateType extends GlobalStateKeys {
     name:string
-    socket:Socket,
     chatHistory:Array<MessageType>,
-    activeUsers:Array<UserType>,
+    activeUsers:any,
     gameInfo:GameInfoType,
     resultVisible:boolean,
+    connected:boolean,
+    flags:{
+        setRematchStatus:boolean
+    }
 }
 export interface ActionType {
     type:string

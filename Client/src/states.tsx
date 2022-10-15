@@ -1,28 +1,45 @@
 import React from "react"
-import { io } from "socket.io-client"
 import { createContext } from "react"
-import { useNavigate } from "react-router-dom"
-import { ActionType, GameInfoType, GlobalStateType, MessageType, UserType } from "./types"
+import { ActionType, GameInfoType, GlobalStateType } from "./types"
 
 export const GlobalContext = createContext<any>({})
 
 export const initialState:GlobalStateType = {
     name:"",
-    socket:io("http://"+process.env.REACT_APP_IP+":9000"),
     chatHistory:[],
-    activeUsers:[],
+    activeUsers:{} as any,
     gameInfo:{} as GameInfoType,
     resultVisible:false,
+    connected:false,
+    flags:{ setRematchStatus:false },
+}
+
+const getSessionData = () => {
+    const state = sessionStorage.getItem("fmm-state")
+    if (state === null) {
+        save(initialState)
+        return initialState
+    } else {
+        return load()
+    }
+}
+
+const save = (state:GlobalStateType) => {
+    sessionStorage.setItem("fmm-state",JSON.stringify(state))
+}
+
+const load = () => {
+    return JSON.parse(sessionStorage.getItem("fmm-state") as string)
 }
 
 export function GlobalStateProvider({ children }:{ children:React.ReactNode }) {
-    const navigate = useNavigate()
     const reducer = (state:GlobalStateType, action:ActionType) => {
         const newState = { ...state }
         switch (action.type) {
             case "set":
                 if (action.field !== undefined) {
                     newState[action.field as string] = action.payload
+                    save(newState)
                     return newState
                 } else return state
             case "multi-set":
@@ -30,45 +47,18 @@ export function GlobalStateProvider({ children }:{ children:React.ReactNode }) {
                     for (let i = 0; i < action.field.length; i++) {
                         newState[action.field[i]] = action.payload[i]
                     }
+                    save(newState)
                     return newState
                 } else return state
             case "timer":
                 newState.gameInfo = { ...newState.gameInfo, timer:action.payload }
+                save(newState)
                 return newState
             default:
                 return state
         }
     }
-    const [ state, dispatch ] = React.useReducer(reducer, initialState);
-    React.useEffect(()=>{
-        state['socket'].on('chat update',(chat:MessageType)=>{
-            dispatch({ type:'set', field:'chatHistory', payload:chat })
-        })
-        state['socket'].on('active user update',(activeUsers:Array<UserType>)=>{
-            dispatch({ type:'set', field:'activeUsers', payload:activeUsers })
-        })
-        state['socket'].on('start game',(gameInfo:GameInfoType)=>{
-            dispatch({ 
-                type:'multi-set', 
-                field:['gameInfo', 'resultVisible'],
-                payload:[gameInfo,false]
-            })
-            setTimeout(()=>navigate('/game'),1000)
-        })
-        state['socket'].on('gameInfo update',(gameInfo:GameInfoType)=>{
-            dispatch({ type:'set', field:'gameInfo', payload:gameInfo })
-        })
-        state['socket'].on('counter',(timer:number)=>{
-            dispatch({ type:'timer', payload:timer })
-        })
-        state['socket'].on('end game',(gameInfo:GameInfoType)=>{
-            dispatch({ 
-                type:'multi-set',
-                field:['gameInfo','resultVisible'], 
-                payload:[gameInfo,true]
-            })
-        })
-    },[])
+    const [ state, dispatch ] = React.useReducer(reducer, getSessionData());
     return (
         <GlobalContext.Provider value={{ global_state:state, dispatch:dispatch }}>
             {children}

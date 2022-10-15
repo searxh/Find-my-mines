@@ -7,7 +7,7 @@ const socketIO = require('socket.io')(http, {
         origin: '*'
     }
 });
-const WINNING_SCORE = 1;
+const WINNING_SCORE = 3;
 const createMinesArray = () => {
     let nums = new Set();
     while (nums.size < 11) {
@@ -106,7 +106,7 @@ const checkEndGame = (roomID) => {
     return info.scores[0] + info.scores[1] === WINNING_SCORE;
 };
 let chatHistory = [];
-let activeUsers = [];
+let activeUsers = {};
 const initialRoomID = generateID();
 let counters = [{
         roomID: initialRoomID,
@@ -129,8 +129,8 @@ http.listen(9000, '0.0.0.0', () => {
 socketIO.on('connection', (socket) => {
     console.log('Connected!', socket.id, socketIO.engine.clientsCount);
     socket.on('name register', (user) => {
-        console.log('new user has registered');
-        activeUsers.push(user);
+        activeUsers[user.name] = user.id;
+        socketIO.emit('active user update', activeUsers);
     });
     socket.on('matching', (user) => {
         console.log('Matching request', user);
@@ -152,21 +152,17 @@ socketIO.on('connection', (socket) => {
         console.log('Unmatching request', user);
         removeRoomUser(user, (roomID) => socket.leave(roomID));
     });
-    socket.on('chat message', ({ msg, name, id }) => {
-        const userIndex = activeUsers.findIndex((user) => user.name === name);
-        activeUsers[userIndex].id = id;
-        if (userIndex !== undefined) {
-            chatHistory.push({
-                from: activeUsers[userIndex].name,
-                message: msg,
-                at: Date.now()
-            });
-            socketIO.emit('chat update', chatHistory);
-        }
+    socket.on('chat message', ({ msg, name }) => {
+        chatHistory.push({
+            from: name,
+            message: msg,
+            at: Date.now()
+        });
+        socketIO.emit('chat update', chatHistory);
     });
     socket.on('active user request', () => {
         socketIO.emit('active user update', activeUsers);
-        console.log(activeUsers.length + ' users are registered');
+        console.log(Object.keys(activeUsers).length + ' users are registered');
     });
     socket.on('chat request', () => {
         socketIO.emit('chat update', chatHistory);
@@ -219,8 +215,13 @@ socketIO.on('connection', (socket) => {
         }
     });
     socket.adapter.on('leave-room', (roomID, id) => {
-        console.log(`socket ${id} has left room ${roomID}`);
-        socketIO.to(roomID).emit("other user left");
+        if (roomID.length > 20) {
+            console.log(`socket ${id} has left room ${roomID}`);
+            socketIO.to(roomID).emit("other user left");
+        }
+    });
+    socket.on('reconnect game', ({ roomID }) => {
+        socket.join(roomID);
     });
     socket.on('play again', ({ gameInfo, requester }) => {
         const { roomID } = gameInfo;
@@ -233,10 +234,11 @@ socketIO.on('connection', (socket) => {
         resetCountdown(info, roomID);
     });
     socket.on('disconnect', () => {
-        const leftUser = activeUsers.find((user) => user.id === socket.id);
-        if (leftUser !== undefined)
-            console.log(leftUser.name + ' has left the chat');
-        activeUsers = activeUsers.filter((user) => (user.id !== socket.id));
+        const user = Object.keys(activeUsers).find((key) => activeUsers[key] === socket.id);
+        if (user !== undefined) {
+            console.log(user + ' has left the chat');
+            delete activeUsers[user];
+        }
         socketIO.emit('active user update', activeUsers);
     });
 });

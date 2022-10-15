@@ -1,19 +1,24 @@
 import React from 'react'
+import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
 
 export default function MatchingButton() {
     const { global_state } = React.useContext(GlobalContext)
+    const { name } = global_state
+    const { socket } = React.useContext(SocketContext)
     const [ isMatching, setIsMatching ] = React.useState<boolean>(false)
     const [ cooldown, setCooldown ] = React.useState<boolean>(false)
     const handleOnClick = () => {
-        const newIsMatching = !isMatching
-        global_state['socket'].emit(newIsMatching?'matching':'unmatching',{
-            name:global_state['name'],
-            id:global_state['socket'].id
-        })
-        setIsMatching(newIsMatching)
-        setCooldown(true)
-        setTimeout(()=>setCooldown(false),1000)
+        if (socket !== undefined) {
+            const newIsMatching = !isMatching
+            socket.emit(newIsMatching?'matching':'unmatching',{
+                name:name,
+                id:socket.id
+            })
+            setIsMatching(newIsMatching)
+            setCooldown(true)
+            setTimeout(()=>setCooldown(false),1000)
+        }
     }
     return (
         <button

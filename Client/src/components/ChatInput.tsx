@@ -1,16 +1,19 @@
 import React, { FormEvent } from 'react'
+import { SocketContext } from '../socket';
 import { GlobalContext } from '../states';
 
 export default function ChatInput() {
     const { global_state } = React.useContext(GlobalContext)
+    const { socket } = React.useContext(SocketContext)
+    const { name } = global_state
     const messageRef = React.useRef<any>(null);
     const handleOnSubmit = (e:FormEvent) => {
         e.preventDefault()
         if (messageRef.current !== null) {
-            global_state['socket'].emit('chat message',{ 
+            socket.emit('chat message',{ 
                 msg:messageRef.current.value,
-                name:global_state['name'],
-                id:global_state['socket'].id,
+                name:name,
+                id:socket.id,
             });
             messageRef.current.value = ""
         }

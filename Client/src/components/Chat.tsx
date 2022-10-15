@@ -2,15 +2,20 @@ import React from 'react'
 import ChatInput from './ChatInput'
 import { GlobalContext } from '../states'
 import { MessageType } from '../types'
+import { SocketContext } from '../socket'
 
 export default function Chat() {
     const { global_state } = React.useContext(GlobalContext)
+    const { chatHistory } = global_state
+    const { socket } = React.useContext(SocketContext)
     React.useEffect(()=>{
-        global_state['socket'].emit('chat request')
+        if (socket !== undefined) {
+            socket.emit('chat request')
+        }
     },[])
     return (
         <div className="flex flex-col">
-            {global_state['chatHistory'].map((msg:MessageType,index:number)=>{
+            {chatHistory.map((msg:MessageType,index:number)=>{
                 return (
                     <div 
                         key={index}

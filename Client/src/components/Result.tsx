@@ -2,31 +2,39 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import RematchStatus from './RematchStatus'
 import { GlobalContext } from '../states'
+import { SocketContext } from '../socket'
 
 export default function Result() {
     const { global_state, dispatch } = React.useContext(GlobalContext)
-    const { resultVisible, socket, gameInfo, name } = global_state
+    const { socket } = React.useContext(SocketContext)
+    const { resultVisible, gameInfo, name } = global_state
     const { users, scores } = gameInfo
     const [ playAgainVisible, setPlayAgainVisible ] = React.useState(true)
     const navigate = useNavigate()
     const handleOnClickPlayAgain = () => {
-        socket.emit("play again", { 
-            gameInfo:gameInfo,
-            requester:{
-                name:name,
-                id:socket.id
-            }
-        })
+        if (socket !== undefined) {
+            socket.emit("play again", { 
+                gameInfo:gameInfo,
+                requester:{
+                    name:name,
+                    id:socket.id
+                }
+            })
+        }
     }
     const handleOnClickMenu = () => {
-        dispatch({ type:"set", field:"resultVisible", payload:false })
-        socket.emit("leave room request", gameInfo.roomID)
-        navigate('/menu')
+        if (socket !== undefined) {
+            dispatch({ type:"set", field:"resultVisible", payload:false })
+            socket.emit("leave room request", gameInfo.roomID)
+            navigate('/menu')
+        }
     }
     React.useEffect(()=>{
-        socket.on('other user left',()=>{
-            setPlayAgainVisible(false)
-        })
+        if (socket !== undefined) {
+            socket.on('other user left',()=>{
+                setPlayAgainVisible(false)
+            })
+        }
     },[])
     return (resultVisible?
         <div
