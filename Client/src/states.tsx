@@ -7,7 +7,7 @@ export const GlobalContext = createContext<any>({})
 export const initialState:GlobalStateType = {
     name:"",
     chatHistory:[],
-    activeUsers:[],
+    activeUsers:{} as any,
     gameInfo:{} as GameInfoType,
     resultVisible:false,
     connected:false,

@@ -7,13 +7,18 @@ import { GameInfoType, MessageType, UserType } from "./types"
 export const SocketContext = createContext<any>({})
 
 export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
-    const { dispatch } = React.useContext(GlobalContext)
+    const { global_state, dispatch } = React.useContext(GlobalContext)
     const [ socket, setSocket ] = useState<Socket | undefined>(undefined);
     const navigate = useNavigate()
     React.useEffect(()=>{
         if (socket !== undefined) {
             socket.on('connect',()=>{
                 dispatch({ type:'set', field:'connected', payload:socket.connected })
+                const user:UserType = {
+                    name:global_state.name,
+                    id:socket.id,
+                }
+                socket.emit("name register",user)
             })
             socket.on('chat update',(chat:MessageType)=>{
                 dispatch({ type:'set', field:'chatHistory', payload:chat })
@@ -24,7 +29,7 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
             })
             socket.on('start game',(gameInfo:GameInfoType)=>{
                 dispatch({ 
-                    type:'multi-set', 
+                    type:'multi-set',
                     field:['gameInfo', 'resultVisible'],
                     payload:[gameInfo,false]
                 })
@@ -44,7 +49,7 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
                 })
             })
         }
-    },[])
+    },[socket])
     return (
         <SocketContext.Provider value={{ socket:socket, setSocket:setSocket }}>
             {children}

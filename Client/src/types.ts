@@ -26,7 +26,7 @@ export interface GlobalStateKeys {
 export interface GlobalStateType extends GlobalStateKeys {
     name:string
     chatHistory:Array<MessageType>,
-    activeUsers:Array<UserType>,
+    activeUsers:any,
     gameInfo:GameInfoType,
     resultVisible:boolean,
     connected:boolean,

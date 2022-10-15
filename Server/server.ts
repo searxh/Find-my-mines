@@ -116,7 +116,7 @@ const checkEndGame = (roomID:string) => {
 }
 
 let chatHistory:Array<MessageType> = []
-let activeUsers:Array<UserType> = []
+let activeUsers:any= {}
 const initialRoomID = generateID()
 let counters:Array<CounterType> = [{
     roomID:initialRoomID,
@@ -142,7 +142,7 @@ http.listen(9000,'0.0.0.0', ()=>{
 socketIO.on('connection', (socket:any)=>{
     console.log('Connected!',socket.id,socketIO.engine.clientsCount)
     socket.on('name register', (user:UserType)=>{
-        activeUsers.push(user)
+        activeUsers[user.name] = user.id
         socketIO.emit('active user update', activeUsers)
     })
     socket.on('matching',(user:UserType)=>{
@@ -165,21 +165,17 @@ socketIO.on('connection', (socket:any)=>{
         console.log('Unmatching request',user)
         removeRoomUser(user,(roomID:string)=>socket.leave(roomID))
     })
-    socket.on('chat message', ({ msg, name, id }:{ msg:string, name:string, id:string })=>{
-        const userIndex = activeUsers.findIndex((user:UserType)=>user.name===name)
-        activeUsers[userIndex].id = id
-        if (userIndex !== undefined) {
-            chatHistory.push({ 
-                from:activeUsers[userIndex].name, 
-                message:msg, 
-                at:Date.now()
-            })
-            socketIO.emit('chat update', chatHistory)
-        }
+    socket.on('chat message', ({ msg, name }:{ msg:string, name:string })=>{
+        chatHistory.push({ 
+            from:name,
+            message:msg,
+            at:Date.now()
+        })
+        socketIO.emit('chat update', chatHistory)
     })
     socket.on('active user request', ()=>{
         socketIO.emit('active user update', activeUsers)
-        console.log(activeUsers.length+' users are registered')
+        console.log(Object.keys(activeUsers).length+' users are registered')
     })
     socket.on('chat request', ()=>{
         socketIO.emit('chat update', chatHistory)
@@ -245,9 +241,11 @@ socketIO.on('connection', (socket:any)=>{
         resetCountdown(info,roomID)
     })
     socket.on('disconnect', ()=>{
-        const leftUser = activeUsers.find((user:UserType)=>user.id===socket.id)
-        if (leftUser !== undefined) console.log(leftUser.name+ ' has left the chat')
-        activeUsers = activeUsers.filter((user:UserType)=>(user.id !== socket.id))
+        const user = Object.keys(activeUsers).find((key:any)=>activeUsers[key]===socket.id)
+        if (user !== undefined) {
+            console.log(user+ ' has left the chat')
+            delete activeUsers[user]
+        }
         socketIO.emit('active user update', activeUsers)
     })
 })
