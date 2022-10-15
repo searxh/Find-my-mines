@@ -21,7 +21,7 @@ export interface GameInfoType {
     minesArray:Array<BlockType>,
 }
 export interface GlobalStateKeys {
-    [key:string]:string | boolean | Array<MessageType> | Array<UserType> | GameInfoType | undefined
+    [key:string]: any
 }
 export interface GlobalStateType extends GlobalStateKeys {
     name:string
@@ -30,6 +30,9 @@ export interface GlobalStateType extends GlobalStateKeys {
     gameInfo:GameInfoType,
     resultVisible:boolean,
     connected:boolean,
+    flags:{
+        setRematchStatus:boolean
+    }
 }
 export interface ActionType {
     type:string

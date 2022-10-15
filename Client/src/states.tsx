@@ -11,6 +11,7 @@ export const initialState:GlobalStateType = {
     gameInfo:{} as GameInfoType,
     resultVisible:false,
     connected:false,
+    flags:{ setRematchStatus:false },
 }
 
 const getSessionData = () => {

@@ -232,7 +232,7 @@ socketIO.on('connection', (socket:any)=>{
             socketIO.to(roomID).emit("other user left")
         }
     })
-    socket.on('reconnect game',({ roomID, name }:{ roomID:string, name:string })=>{
+    socket.on('reconnect game',({ roomID }:{ roomID:string })=>{
         socket.join(roomID)
     })
     socket.on('play again', ({ gameInfo, requester }:{ gameInfo:GameInfoType, requester:UserType })=>{

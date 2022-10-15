@@ -6,7 +6,7 @@ import { UserType } from '../types'
 export default function RematchStatus() {
     const { global_state } = React.useContext(GlobalContext)
     const { socket } = React.useContext(SocketContext)
-    const { gameInfo, name } = global_state
+    const { gameInfo, name, flags } = global_state
     const [ status, setStatus ] = React.useState("")
     //mode 0 = not visible, mode 1 = challenged user view
     //mode 2 = challenger user view, mode 3 = one of the user has left
@@ -33,7 +33,11 @@ export default function RematchStatus() {
                 setStatus("Other user has left the room")
             })
         }
-    },[])
+        if (flags.setRematchStatus) {
+            setMode(3)
+            setStatus("Other user has left the room")
+        }
+    },[flags])
     return (mode===1||mode===2?
         <div>
             {status}
