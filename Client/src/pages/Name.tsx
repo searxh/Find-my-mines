@@ -18,21 +18,27 @@ export default function Name() {
         }
     }
     return (
-        <div className="flex flex-col bg-neutral-800 w-full h-screen p-5">
-            <div className="font-fredoka text-4xl text-white text-center">
-                FIND MY MINES
+        <div className="flex bg-neutral-800 w-full h-screen p-5">
+            <div className="flex flex-col m-auto p-2">
+                <div className="font-allerta text-6xl text-white text-center">
+                    FIND MY MINES
+                </div>
+                <input
+                    placeholder="Enter Your Name"
+                    className="rounded-full text-center p-2 font-quicksand 
+                    bg-neutral-500 text-white placeholder-white"
+                    ref={nameRef}
+                />
+                <div className="flex justify-center p-5">
+                    <button
+                        className="bg-green-600 text-white p-2 rounded-full 
+                        font-quicksand w-1/2"
+                        onClick={handleOnSubmit}
+                    >
+                        PLAY
+                    </button>
+                </div>
             </div>
-            <input
-                placeholder="Enter Your Name"
-                className="rounded-full my-5 text-center p-2"
-                ref={nameRef}
-            />
-            <button
-                className="bg-green-200 p-2 rounded-lg"
-                onClick={handleOnSubmit}
-            >
-                Enter
-            </button>
         </div>
     )
 }

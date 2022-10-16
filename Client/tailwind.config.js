@@ -20,7 +20,7 @@ module.exports = {
     extend: {
       fontFamily:{
         'quicksand':'Quicksand',
-        'fredoka':'Fredoka One'
+        'allerta':'Allerta Stencil'
       },
     },
   },
