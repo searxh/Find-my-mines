@@ -24,10 +24,10 @@ export default function MatchingButton() {
         <button
             disabled={cooldown}
             onClick={handleOnClick}
-            className={`flex m-auto ${isMatching?"bg-green-600":"bg-slate-600"} rounded-lg p-3 px-5 text-center
-            text-white hover:scale-105 transition`}
+            className={`flex m-auto ${isMatching?"bg-green-600":"bg-neutral-800"} rounded-full p-3 px-10 text-center
+            text-white hover:scale-105 transition shadow-md text-xl`}
         >
-            <div>Match</div>
+            <div>MATCH</div>
             {isMatching && 
                 <svg
                     xmlns="http://www.w3.org/2000/svg" 
