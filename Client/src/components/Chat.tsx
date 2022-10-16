@@ -14,23 +14,25 @@ export default function Chat() {
         }
     },[])
     return (
-        <div className="flex flex-col font-quicksand">
-            {chatHistory.map((msg:MessageType,index:number)=>{
-                return (
-                    <div 
-                        key={index}
-                        className="flex justify-between bg-white p-1"
-                    >
-                        <div className="flex">
-                            <div>From: {msg.from}</div>
-                            <div className="text-blue-700 ml-5">
-                                {msg.message}
+        <div className="flex flex-col justify-evenly font-quicksand text-white text-xl h-full">
+            <div className="bg-neutral-800 rounded-lg mb-5 overflow-y-scroll shadow-md">
+                {chatHistory.map((msg:MessageType,index:number)=>{
+                    return (
+                        <div 
+                            key={index}
+                            className="flex justify-between px-5 py-1"
+                        >
+                            <div className="flex">
+                                <div>{msg.from}:</div>
+                                <div className="ml-3">
+                                    {msg.message}
+                                </div>
                             </div>
+                            <div className="text-green-300">{new Date(msg.at).toLocaleTimeString()}</div>
                         </div>
-                        <div className="text-green-700">At: {new Date(msg.at).toLocaleTimeString()}</div>
-                    </div>
-                )
-            })}
+                    )
+                })}
+            </div>
             <ChatInput />
         </div>
     )

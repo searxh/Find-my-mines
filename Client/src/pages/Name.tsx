@@ -27,7 +27,7 @@ export default function Name() {
                 <input
                     placeholder="Enter Your Name"
                     className="rounded-full text-center p-2 font-quicksand 
-                    bg-neutral-500 text-white placeholder-white shadow-md"
+                    bg-neutral-500 text-white placeholder-white shadow-md my-5"
                     ref={nameRef}
                 />
                 <div className="flex justify-center p-5">

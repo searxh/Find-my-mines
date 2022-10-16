@@ -18,7 +18,7 @@ export default function SocketID() {
         }
     },[socket])
     return (
-        <div className="p-5 bg-red-700 text-white">
+        <div className="p-5 text-white">
             Socket ID: {id} Connected: {connected.toString()}
         </div>
     )
