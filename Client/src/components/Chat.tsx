@@ -16,7 +16,8 @@ export default function Chat() {
             setChatHeight(chatWindowRef.current.clientHeight)
         }
     }
-    React.useEffect(()=>{
+    React.useLayoutEffect(()=>{
+        chatHeightHandler()
         window.addEventListener('resize',chatHeightHandler)
         return ()=>window.removeEventListener('resize',chatHeightHandler)
     },[])
