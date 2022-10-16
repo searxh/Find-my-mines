@@ -38,7 +38,7 @@ export default function Result() {
     React.useEffect(()=>{
         if (flags.userLeft) {
             setPlayAgainVisible(false)
-            const newFlags = { ...flags, setRematchStatus:false }
+            const newFlags = { ...flags, userLeft:false }
             dispatch({
                 type:'set',
                 field:'flags',
