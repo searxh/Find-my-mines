@@ -127,7 +127,7 @@ http.listen(9000, '0.0.0.0', () => {
     console.log('listening on *:9000');
 });
 socketIO.on('connection', (socket) => {
-    console.log('Connected!', socket.id, socketIO.engine.clientsCount);
+    console.log('Connected!', socket.id, socketIO.of("/").sockets.size);
     socket.on('name register', (user) => {
         activeUsers[user.name] = user.id;
         socketIO.emit('active user update', activeUsers);
@@ -191,7 +191,6 @@ socketIO.on('connection', (socket) => {
         socketIO.to(roomID).emit("other user left");
     });
     socket.adapter.on("join-room", (roomID, id) => {
-        console.log(`socket ${id} has joined room ${roomID}`);
         //prevents socketID rooms
         if (roomID.length > 20) {
             const info = getGameInfo(roomID);
@@ -216,7 +215,6 @@ socketIO.on('connection', (socket) => {
     });
     socket.adapter.on('leave-room', (roomID, id) => {
         if (roomID.length > 20) {
-            console.log(`socket ${id} has left room ${roomID}`);
             socketIO.to(roomID).emit("other user left");
         }
     });

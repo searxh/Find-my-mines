@@ -2,10 +2,17 @@ import React, { createContext } from "react"
 import { useLocation, useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { GlobalContext } from "./states";
-import { GameInfoType, MessageType, UserType, SocketContextType, FlagsType } from "./types"
+import { GameInfoType, MessageType, UserType, SocketContextType } from "./types"
 import { io } from "socket.io-client"
+import { useBeforeunload } from 'react-beforeunload'
 
 export const SocketContext = createContext<SocketContextType>({} as SocketContextType)
+
+const listeners = [
+    'connect','chat update','active user update',
+    'start game','gameInfo update','counter',
+    'end game','other user left'
+]
 
 export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
     const { global_state, dispatch } = React.useContext(GlobalContext)
@@ -84,16 +91,32 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
                 setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
                 setReconnectInGame(true)
             } else if (location.pathname.includes("menu")) {
+                console.log('setting socket')
                 setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
             }
         }
-    },[socket])
+        return ()=>{
+            if (socket !== undefined) {
+                for (let i = 0; i < listeners.length; i++) {
+                    socket.off(listeners[i])
+                }
+            }
+        }
+    },[socket,location.pathname])
     React.useEffect(()=>{
         if (reconnectInGame && socket!== undefined) {
             socket.emit("reconnect game", { roomID:gameInfo.roomID })
             setReconnectInGame(false)
         }
     },[reconnectInGame])
+    useBeforeunload(()=>{
+        if (socket !== undefined) {
+            for (let i = 0; i < listeners.length; i++) {
+                socket.off(listeners[i])
+            }
+            socket.close()
+        }
+    })
     return (
         <SocketContext.Provider value={{ socket:socket , setSocket:setSocket } as SocketContextType}>
             {children}
