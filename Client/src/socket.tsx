@@ -87,20 +87,15 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
                 })
             })
         } else {
-            if (location.pathname.includes("game")) {
-                setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
-                setReconnectInGame(true)
-            } else if (location.pathname.includes("menu")) {
-                console.log('setting socket')
-                setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
-            }
-        }
-        return ()=>{
-            if (socket !== undefined) {
-                for (let i = 0; i < listeners.length; i++) {
-                    socket.off(listeners[i])
+            setTimeout(()=>{
+                if (location.pathname.includes("game") && socket === undefined) {
+                    setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
+                    setReconnectInGame(true)
+                } else if (location.pathname.includes("menu") && socket === undefined) {
+                    console.log('setting socket')
+                    setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
                 }
-            }
+            },300)
         }
     },[socket,location.pathname])
     React.useEffect(()=>{
@@ -109,14 +104,6 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
             setReconnectInGame(false)
         }
     },[reconnectInGame])
-    useBeforeunload(()=>{
-        if (socket !== undefined) {
-            for (let i = 0; i < listeners.length; i++) {
-                socket.off(listeners[i])
-            }
-            socket.close()
-        }
-    })
     return (
         <SocketContext.Provider value={{ socket:socket , setSocket:setSocket } as SocketContextType}>
             {children}

@@ -33,6 +33,9 @@ export default function RematchStatus() {
             setMode(3)
             setStatus("Other user has left the room")
         }
+        return ()=>{
+            socket?.off('rematch request')
+        }
     },[flags])
     return (mode===1||mode===2?
         <div>
