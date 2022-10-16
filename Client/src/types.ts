@@ -22,7 +22,7 @@ export interface GameInfoType {
     minesArray:Array<BlockType>,
 }
 export interface FlagsType {
-    setRematchStatus:boolean
+    userLeft:boolean
     resultVisible:boolean,
 }
 export interface GlobalStateKeys {

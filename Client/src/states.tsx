@@ -12,7 +12,7 @@ export const initialState:GlobalStateType = {
     connected:false,
     flags:{ 
         resultVisible:false,
-        setRematchStatus:false
+        userLeft:false,
     },
 }
 

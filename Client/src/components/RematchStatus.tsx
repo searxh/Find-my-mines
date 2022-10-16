@@ -29,7 +29,7 @@ export default function RematchStatus() {
                 }
             })
         }
-        if (flags.setRematchStatus) {
+        if (flags.userLeft) {
             setMode(3)
             setStatus("Other user has left the room")
         }
