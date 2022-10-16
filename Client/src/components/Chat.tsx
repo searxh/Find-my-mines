@@ -16,7 +16,8 @@ export default function Chat() {
             setChatHeight(chatWindowRef.current.clientHeight)
         }
     }
-    React.useEffect(()=>{
+    React.useLayoutEffect(()=>{
+        chatHeightHandler()
         window.addEventListener('resize',chatHeightHandler)
         return ()=>window.removeEventListener('resize',chatHeightHandler)
     },[])
@@ -29,7 +30,7 @@ export default function Chat() {
         <div className="flex flex-col justify-evenly font-quicksand text-white text-xl h-full">
             <div
                 ref={chatWindowRef}
-                className="basis-[95%] bg-neutral-800 rounded-lg mb-5 shadow-md"
+                className="basis-[95%] bg-neutral-800 rounded-lg mb-5 shadow-md overflow-hidden"
             >
                 <AutoScroll
                     height={chatHeight}
