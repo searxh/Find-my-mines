@@ -91,6 +91,7 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
     React.useEffect(()=>{
         if (reconnectInGame && socket!== undefined) {
             socket.emit("reconnect game", { roomID:gameInfo.roomID })
+            setReconnectInGame(false)
         }
     },[reconnectInGame])
     return (
