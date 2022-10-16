@@ -140,6 +140,23 @@ socketIO.on('connection', (socket) => {
                 if ((info.scores[0] + info.scores[1] !== WINNING_SCORE) && info.users.length < 2) {
                     info.users.push(user);
                     socket.join(info.roomID);
+                    if (info.users.length === 2) {
+                        console.log("starting game for room ", info.roomID);
+                        socketIO.to(info.roomID).emit('start game', info);
+                        const counter = getCounter(info.roomID);
+                        if (!counter.countdown) {
+                            console.log('set countdown');
+                            counter.countdown = setInterval(() => {
+                                socketIO.to(info.roomID).emit('counter', info.timer);
+                                info.timer--;
+                                if (info.timer === -1) {
+                                    switchUser(info.roomID);
+                                    info.timer = 10;
+                                    socketIO.to(info.roomID).emit('gameInfo update', info);
+                                }
+                            }, 1000);
+                        }
+                    }
                     console.log(gameInfos);
                     return;
                 }
@@ -189,29 +206,6 @@ socketIO.on('connection', (socket) => {
     socket.on('leave room request', (roomID) => {
         socket.leave(roomID);
         socketIO.to(roomID).emit("other user left");
-    });
-    socket.adapter.on("join-room", (roomID, id) => {
-        //prevents socketID rooms
-        if (roomID.length > 20) {
-            const info = getGameInfo(roomID);
-            if (info.users.length === 2) {
-                console.log("starting game for room ", roomID);
-                socketIO.to(roomID).emit('start game', info);
-                const counter = getCounter(roomID);
-                if (!counter.countdown) {
-                    console.log('set countdown');
-                    counter.countdown = setInterval(() => {
-                        socketIO.to(roomID).emit('counter', info.timer);
-                        info.timer--;
-                        if (info.timer === -1) {
-                            switchUser(roomID);
-                            info.timer = 10;
-                            socketIO.to(roomID).emit('gameInfo update', info);
-                        }
-                    }, 1000);
-                }
-            }
-        }
     });
     socket.adapter.on('leave-room', (roomID, id) => {
         if (roomID.length > 20) {
