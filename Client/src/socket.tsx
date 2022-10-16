@@ -35,7 +35,6 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
                 })
             })
             socket.on('active user update',(activeUsers:Array<UserType>)=>{
-                console.log(activeUsers)
                 dispatch({ 
                     type:'set', 
                     field:'activeUsers', 
@@ -43,10 +42,11 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
                 })
             })
             socket.on('start game',(gameInfo:GameInfoType)=>{
+                const newFlags = { ...flags, resultVisible:false }
                 dispatch({ 
                     type:'multi-set',
-                    field:['gameInfo', 'resultVisible'],
-                    payload:[gameInfo,false]
+                    field:['gameInfo', 'flags'],
+                    payload:[gameInfo,newFlags]
                 })
                 setTimeout(()=>navigate('/game'),1000)
             })
@@ -64,21 +64,20 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
                 })
             })
             socket.on('end game',(gameInfo:GameInfoType)=>{
+                const newFlags = { ...flags, resultVisible:true }
                 dispatch({ 
                     type:'multi-set',
-                    field:['gameInfo','resultVisible'], 
-                    payload:[gameInfo,true]
+                    field:['gameInfo','flags'], 
+                    payload:[gameInfo,newFlags]
                 })
             })
             socket.on('other user left',()=>{
-                
-                    const newFlags = { ...flags, setRematchStatus:true }
-                    console.log('setting flag')
-                    dispatch({
-                        type:'multi-set',
-                        field:['resultVisible','flags'],
-                        payload:[true, newFlags]
-                    })
+                const newFlags = { resultVisible:true, setRematchStatus:true }
+                dispatch({
+                    type:'set',
+                    field:'flags',
+                    payload:newFlags
+                })
             })
         } else {
             if (location.pathname.includes("game")) {

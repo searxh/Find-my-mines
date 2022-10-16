@@ -23,6 +23,7 @@ export interface GameInfoType {
 }
 export interface FlagsType {
     setRematchStatus:boolean
+    resultVisible:boolean,
 }
 export interface GlobalStateKeys {
     [key:string]: any
@@ -32,7 +33,6 @@ export interface GlobalStateType extends GlobalStateKeys {
     chatHistory:Array<MessageType>,
     activeUsers:any,
     gameInfo:GameInfoType,
-    resultVisible:boolean,
     connected:boolean,
     flags:FlagsType
 }

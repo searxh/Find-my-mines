@@ -9,9 +9,11 @@ export const initialState:GlobalStateType = {
     chatHistory:[],
     activeUsers:{} as any,
     gameInfo:{} as GameInfoType,
-    resultVisible:false,
     connected:false,
-    flags:{ setRematchStatus:false },
+    flags:{ 
+        resultVisible:false,
+        setRematchStatus:false
+    },
 }
 
 const getSessionData = () => {

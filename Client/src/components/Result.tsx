@@ -7,7 +7,7 @@ import { SocketContext } from '../socket'
 export default function Result() {
     const { global_state, dispatch } = React.useContext(GlobalContext)
     const { socket } = React.useContext(SocketContext)
-    const { resultVisible, gameInfo, name } = global_state
+    const { flags, gameInfo, name } = global_state
     const { users, scores } = gameInfo
     const [ playAgainVisible, setPlayAgainVisible ] = React.useState(true)
     const navigate = useNavigate()
@@ -24,19 +24,29 @@ export default function Result() {
     }
     const handleOnClickMenu = () => {
         if (socket !== undefined) {
-            dispatch({ type:"set", field:"resultVisible", payload:false })
+            const newFlags = { ...flags, resultVisible:false }
+            dispatch({ 
+                type:"set", 
+                field:"flags", 
+                payload:newFlags
+            })
             socket.emit("leave room request", gameInfo.roomID)
+            setPlayAgainVisible(true)
             navigate('/menu')
         }
     }
     React.useEffect(()=>{
-        if (socket !== undefined) {
-            socket.on('other user left',()=>{
-                setPlayAgainVisible(false)
+        if (flags.setRematchStatus) {
+            setPlayAgainVisible(false)
+            const newFlags = { ...flags, setRematchStatus:false }
+            dispatch({
+                type:'set',
+                field:'flags',
+                payload:newFlags
             })
         }
-    },[])
-    return (resultVisible?
+    },[flags])
+    return (flags.resultVisible?
         <div
             className="absolute top-0 bottom-0 left-0 right-0 w-1/2 h-1/2 text-white
             text-2xl bg-slate-800 rounded-lg p-5 z-50 flex m-auto">
