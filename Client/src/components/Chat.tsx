@@ -15,7 +15,7 @@ export default function Chat() {
     },[])
     return (
         <div className="flex flex-col justify-evenly font-quicksand text-white text-xl h-full">
-            <div className="bg-neutral-800 rounded-lg mb-5 overflow-y-scroll shadow-md">
+            <div className="basis-[95%] bg-neutral-800 rounded-lg mb-5 shadow-md overflow-y-scroll">
                 {chatHistory.map((msg:MessageType,index:number)=>{
                     return (
                         <div 
@@ -32,8 +32,11 @@ export default function Chat() {
                         </div>
                     )
                 })}
+                {chatHistory.length===0?<div className="px-5 py-1"> </div>:null}
             </div>
-            <ChatInput />
+            <div className="basis-[5%]">
+                <ChatInput />
+            </div>
         </div>
     )
 }

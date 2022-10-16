@@ -5,7 +5,7 @@ export default function ActiveUsers() {
     const { global_state } = React.useContext(GlobalContext)
     const { activeUsers } = global_state
     return (
-        <div className="flex-1">
+        <div className="flex-1 overflow-y-scroll">
            <div className="flex flex-col text-xl">
                 {Object.keys(activeUsers).length !== 0 && Object.keys(activeUsers).map((name:any)=>{
                     return (
