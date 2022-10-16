@@ -18,10 +18,13 @@ export default function Name() {
         }
     }
     return (
-        <div className="flex flex-col bg-black w-full h-screen p-5">
-            <div className="text-white text-center">Enter your name</div>
+        <div className="flex flex-col bg-neutral-800 w-full h-screen p-5">
+            <div className="font-fredoka text-4xl text-white text-center">
+                FIND MY MINES
+            </div>
             <input
-                className="rounded-lg my-5"
+                placeholder="Enter Your Name"
+                className="rounded-full my-5 text-center p-2"
                 ref={nameRef}
             />
             <button

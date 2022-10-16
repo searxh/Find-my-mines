@@ -14,7 +14,7 @@ export default function Chat() {
         }
     },[])
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col font-quicksand">
             {chatHistory.map((msg:MessageType,index:number)=>{
                 return (
                     <div 
