@@ -7,7 +7,7 @@ export default function RematchStatus() {
     const { global_state } = React.useContext(GlobalContext)
     const { socket } = React.useContext(SocketContext)
     const { gameInfo, name, flags } = global_state
-    const [ status, setStatus ] = React.useState("")
+    const [ status, setStatus ] = React.useState<string>("")
     //mode 0 = not visible, mode 1 = challenged user view
     //mode 2 = challenger user view, mode 3 = one of the user has left
     const [ mode, setMode ] = React.useState<number>(0)
@@ -28,14 +28,13 @@ export default function RematchStatus() {
                     setStatus("Waiting for the other player...")
                 }
             })
-            socket.on('other user left',()=>{
-                setMode(3)
-                setStatus("Other user has left the room")
-            })
         }
-        if (flags.setRematchStatus) {
+        if (flags.userLeft) {
             setMode(3)
             setStatus("Other user has left the room")
+        }
+        return ()=>{
+            socket?.off('rematch request')
         }
     },[flags])
     return (mode===1||mode===2?

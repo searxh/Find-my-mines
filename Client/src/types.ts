@@ -1,3 +1,4 @@
+import { Dispatch } from "react"
 import { Socket } from "socket.io-client"
 export interface MessageType {
     from:string,
@@ -20,6 +21,10 @@ export interface GameInfoType {
     scores:Array<number>,
     minesArray:Array<BlockType>,
 }
+export interface FlagsType {
+    userLeft:boolean
+    resultVisible:boolean,
+}
 export interface GlobalStateKeys {
     [key:string]: any
 }
@@ -28,14 +33,19 @@ export interface GlobalStateType extends GlobalStateKeys {
     chatHistory:Array<MessageType>,
     activeUsers:any,
     gameInfo:GameInfoType,
-    resultVisible:boolean,
     connected:boolean,
-    flags:{
-        setRematchStatus:boolean
-    }
+    flags:FlagsType
 }
 export interface ActionType {
     type:string
     field?:string | Array<string>
     payload:any
+}
+export interface SocketContextType {
+    socket:Socket
+    setSocket:Dispatch<Socket>
+}
+export interface GlobalContextType {
+    global_state:GlobalStateType
+    dispatch:Dispatch<ActionType>
 }

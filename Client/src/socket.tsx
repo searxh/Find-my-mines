@@ -2,15 +2,14 @@ import React, { createContext } from "react"
 import { useLocation, useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { GlobalContext } from "./states";
-import { GameInfoType, MessageType, UserType } from "./types"
-import { io } from "socket.io-client";
+import { GameInfoType, MessageType, UserType, SocketContextType } from "./types"
+import { io } from "socket.io-client"
 
-export const SocketContext = createContext<any>({})
+export const SocketContext = createContext<SocketContextType>({} as SocketContextType)
 
 export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
     const { global_state, dispatch } = React.useContext(GlobalContext)
-    const { gameInfo, name, flags }:
-    { gameInfo:GameInfoType, name:string, flags:{ setRematchStatus:boolean } } = global_state
+    const { gameInfo, name, flags } = global_state
     const [ socket, setSocket ] = React.useState<Socket | undefined>(undefined)
     const [ reconnectInGame, setReconnectInGame ] = React.useState<boolean>(false)
     const navigate = useNavigate()
@@ -36,7 +35,6 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
                 })
             })
             socket.on('active user update',(activeUsers:Array<UserType>)=>{
-                console.log(activeUsers)
                 dispatch({ 
                     type:'set', 
                     field:'activeUsers', 
@@ -44,10 +42,11 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
                 })
             })
             socket.on('start game',(gameInfo:GameInfoType)=>{
+                const newFlags = { ...flags, resultVisible:false }
                 dispatch({ 
                     type:'multi-set',
-                    field:['gameInfo', 'resultVisible'],
-                    payload:[gameInfo,false]
+                    field:['gameInfo', 'flags'],
+                    payload:[gameInfo,newFlags]
                 })
                 setTimeout(()=>navigate('/game'),1000)
             })
@@ -65,38 +64,41 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
                 })
             })
             socket.on('end game',(gameInfo:GameInfoType)=>{
+                const newFlags = { ...flags, resultVisible:true }
                 dispatch({ 
                     type:'multi-set',
-                    field:['gameInfo','resultVisible'], 
-                    payload:[gameInfo,true]
+                    field:['gameInfo','flags'], 
+                    payload:[gameInfo,newFlags]
                 })
             })
             socket.on('other user left',()=>{
-                
-                    const newFlags = { ...flags, setRematchStatus:true }
-                    console.log('setting flag')
-                    dispatch({
-                        type:'multi-set',
-                        field:['resultVisible','flags'],
-                        payload:[true, newFlags]
-                    })
+                const newFlags = { resultVisible:true, userLeft:true }
+                dispatch({
+                    type:'set',
+                    field:'flags',
+                    payload:newFlags
+                })
             })
         } else {
-            if (location.pathname.includes("game")) {
-                setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
-                setReconnectInGame(true)
-            } else if (location.pathname.includes("menu")) {
-                setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
-            }
+            setTimeout(()=>{
+                if (location.pathname.includes("game") && socket === undefined) {
+                    setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
+                    setReconnectInGame(true)
+                } else if (location.pathname.includes("menu") && socket === undefined) {
+                    console.log('setting socket')
+                    setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
+                }
+            },300)
         }
-    },[socket])
+    },[socket,location.pathname])
     React.useEffect(()=>{
         if (reconnectInGame && socket!== undefined) {
             socket.emit("reconnect game", { roomID:gameInfo.roomID })
+            setReconnectInGame(false)
         }
     },[reconnectInGame])
     return (
-        <SocketContext.Provider value={{ socket:socket, setSocket:setSocket }}>
+        <SocketContext.Provider value={{ socket:socket , setSocket:setSocket } as SocketContextType}>
             {children}
         </SocketContext.Provider>
     )

@@ -1,12 +1,9 @@
 import React from 'react'
 import { GlobalContext } from '../states';
-import { io } from 'socket.io-client';
-import { SocketContext } from '../socket';
 import { useNavigate } from 'react-router-dom';
 
 export default function Name() {
     const { dispatch } = React.useContext(GlobalContext)
-    const { setSocket } = React.useContext(SocketContext)
     const navigate = useNavigate()
     const nameRef = React.useRef<HTMLInputElement>(null);
     const handleOnSubmit = () => {
@@ -16,7 +13,7 @@ export default function Name() {
                 field:'name',
                 payload:nameRef.current.value
             })
-            setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
+            nameRef.current.value = ""
             navigate('menu')
         }
     }

@@ -126,8 +126,37 @@ app.get('/', function (res) {
 http.listen(9000, '0.0.0.0', () => {
     console.log('listening on *:9000');
 });
+socketIO.of("/").adapter.on('join-room', (roomID, id) => {
+    console.log(`${id} has joined room ${roomID}`);
+    if (roomID.length > 20) {
+        const info = getGameInfo(roomID);
+        if (info.users.length === 2) {
+            console.log("starting game for room ", info.roomID);
+            socketIO.to(info.roomID).emit('start game', info);
+            const counter = getCounter(info.roomID);
+            if (!counter.countdown) {
+                console.log('set countdown');
+                counter.countdown = setInterval(() => {
+                    socketIO.to(info.roomID).emit('counter', info.timer);
+                    info.timer--;
+                    if (info.timer === -1) {
+                        switchUser(info.roomID);
+                        info.timer = 10;
+                        socketIO.to(info.roomID).emit('gameInfo update', info);
+                    }
+                }, 1000);
+            }
+        }
+    }
+});
+socketIO.of("/").adapter.on('leave-room', (roomID, id) => {
+    console.log(`${id} has left room ${roomID}`);
+    if (roomID.length > 20) {
+        socketIO.to(roomID).emit("other user left");
+    }
+});
 socketIO.on('connection', (socket) => {
-    console.log('Connected!', socket.id, socketIO.engine.clientsCount);
+    console.log('Connected!', socket.id, socketIO.of("/").sockets.size);
     socket.on('name register', (user) => {
         activeUsers[user.name] = user.id;
         socketIO.emit('active user update', activeUsers);
@@ -189,36 +218,6 @@ socketIO.on('connection', (socket) => {
     socket.on('leave room request', (roomID) => {
         socket.leave(roomID);
         socketIO.to(roomID).emit("other user left");
-    });
-    socket.adapter.on("join-room", (roomID, id) => {
-        console.log(`socket ${id} has joined room ${roomID}`);
-        //prevents socketID rooms
-        if (roomID.length > 20) {
-            const info = getGameInfo(roomID);
-            if (info.users.length === 2) {
-                console.log("starting game for room ", roomID);
-                socketIO.to(roomID).emit('start game', info);
-                const counter = getCounter(roomID);
-                if (!counter.countdown) {
-                    console.log('set countdown');
-                    counter.countdown = setInterval(() => {
-                        socketIO.to(roomID).emit('counter', info.timer);
-                        info.timer--;
-                        if (info.timer === -1) {
-                            switchUser(roomID);
-                            info.timer = 10;
-                            socketIO.to(roomID).emit('gameInfo update', info);
-                        }
-                    }, 1000);
-                }
-            }
-        }
-    });
-    socket.adapter.on('leave-room', (roomID, id) => {
-        if (roomID.length > 20) {
-            console.log(`socket ${id} has left room ${roomID}`);
-            socketIO.to(roomID).emit("other user left");
-        }
     });
     socket.on('reconnect game', ({ roomID }) => {
         socket.join(roomID);

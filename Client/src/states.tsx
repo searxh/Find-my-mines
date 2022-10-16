@@ -1,17 +1,19 @@
 import React from "react"
 import { createContext } from "react"
-import { ActionType, GameInfoType, GlobalStateType } from "./types"
+import { ActionType, GameInfoType, GlobalContextType, GlobalStateType } from "./types"
 
-export const GlobalContext = createContext<any>({})
+export const GlobalContext = createContext<GlobalContextType>({} as GlobalContextType)
 
 export const initialState:GlobalStateType = {
     name:"",
     chatHistory:[],
     activeUsers:{} as any,
     gameInfo:{} as GameInfoType,
-    resultVisible:false,
     connected:false,
-    flags:{ setRematchStatus:false },
+    flags:{ 
+        resultVisible:false,
+        userLeft:false,
+    },
 }
 
 const getSessionData = () => {

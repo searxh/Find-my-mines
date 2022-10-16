@@ -13,6 +13,9 @@ export default function SocketID() {
                 setId(socket.id)
             })
         }
+        return ()=>{
+            socket?.off('connect')
+        }
     },[socket])
     return (
         <div className="p-5 bg-red-700 text-white">
