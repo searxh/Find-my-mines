@@ -2,15 +2,14 @@ import React, { createContext } from "react"
 import { useLocation, useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { GlobalContext } from "./states";
-import { GameInfoType, MessageType, UserType } from "./types"
-import { io } from "socket.io-client";
+import { GameInfoType, MessageType, UserType, SocketContextType, FlagsType } from "./types"
+import { io } from "socket.io-client"
 
-export const SocketContext = createContext<any>({})
+export const SocketContext = createContext<SocketContextType>({} as SocketContextType)
 
 export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
     const { global_state, dispatch } = React.useContext(GlobalContext)
-    const { gameInfo, name, flags }:
-    { gameInfo:GameInfoType, name:string, flags:{ setRematchStatus:boolean } } = global_state
+    const { gameInfo, name, flags } = global_state
     const [ socket, setSocket ] = React.useState<Socket | undefined>(undefined)
     const [ reconnectInGame, setReconnectInGame ] = React.useState<boolean>(false)
     const navigate = useNavigate()
@@ -96,7 +95,7 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
         }
     },[reconnectInGame])
     return (
-        <SocketContext.Provider value={{ socket:socket, setSocket:setSocket }}>
+        <SocketContext.Provider value={{ socket:socket , setSocket:setSocket } as SocketContextType}>
             {children}
         </SocketContext.Provider>
     )
