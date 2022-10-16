@@ -4,15 +4,8 @@ import { Socket } from "socket.io-client";
 import { GlobalContext } from "./states";
 import { GameInfoType, MessageType, UserType, SocketContextType } from "./types"
 import { io } from "socket.io-client"
-import { useBeforeunload } from 'react-beforeunload'
 
 export const SocketContext = createContext<SocketContextType>({} as SocketContextType)
-
-const listeners = [
-    'connect','chat update','active user update',
-    'start game','gameInfo update','counter',
-    'end game','other user left'
-]
 
 export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
     const { global_state, dispatch } = React.useContext(GlobalContext)

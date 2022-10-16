@@ -14,7 +14,6 @@
     "dotenv": "^16.0.2",
     "postcss": "^8.4.16",
     "react": "^18.2.0",
-    "react-beforeunload": "^2.5.3",
     "react-dom": "^18.2.0",
     "react-router-dom": "6",
     "react-scripts": "5.0.1",
@@ -50,7 +49,5 @@
   "main": "index.js",
   "author": "search <search35453@gmail.com>",
   "license": "MIT",
-  "devDependencies": {
-    "@types/react-beforeunload": "^2.1.1"
-  }
+  "devDependencies": {}
 }
