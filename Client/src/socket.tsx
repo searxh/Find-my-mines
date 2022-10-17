@@ -19,8 +19,8 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
             socket.on('connect',()=>{
                 dispatch({ 
                     type:'set', 
-                    field:'connected', 
-                    payload:socket.connected
+                    field:'socketID', 
+                    payload:socket.id
                 })
                 socket.emit("name register",{
                     name:name,
@@ -82,9 +82,19 @@ export const SocketProvider = ({ children }:{ children:React.ReactNode }) => {
         } else {
             setTimeout(()=>{
                 if (location.pathname.includes("game") && socket === undefined) {
+                    dispatch({ 
+                        type:'set', 
+                        field:'socketID', 
+                        payload:""
+                    })
                     setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
                     setReconnectInGame(true)
                 } else if (location.pathname.includes("menu") && socket === undefined) {
+                    dispatch({ 
+                        type:'set', 
+                        field:'socketID', 
+                        payload:""
+                    })
                     console.log('setting socket')
                     setSocket(io("http://"+process.env.REACT_APP_IP+":9000"))
                 }

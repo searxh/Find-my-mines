@@ -33,7 +33,7 @@ export interface GlobalStateType extends GlobalStateKeys {
     chatHistory:Array<MessageType>,
     activeUsers:any,
     gameInfo:GameInfoType,
-    connected:boolean,
+    socketID:string,
     flags:FlagsType
 }
 export interface ActionType {

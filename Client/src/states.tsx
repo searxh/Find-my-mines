@@ -9,7 +9,7 @@ export const initialState:GlobalStateType = {
     chatHistory:[],
     activeUsers:{} as any,
     gameInfo:{} as GameInfoType,
-    connected:false,
+    socketID:"",
     flags:{ 
         resultVisible:false,
         userLeft:false,
