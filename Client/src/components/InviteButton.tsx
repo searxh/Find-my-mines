@@ -15,9 +15,13 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
         socket.emit("invite request",{ senderName:name, receiverName:user.name })
     }
     const checkCanInvite = () => {
-        return !activeUsers.find((activeUser:UserType)=>activeUser.name === user.name)?.inGame
+        return (!activeUsers.find((activeUser:UserType)=>
+            activeUser.name === user.name)?.inGame
+        )
+
     }
     return (
+        user.name !== name?
         <button
             disabled={!checkCanInvite()}
             className={`w-8 h-8 text-white bg-neutral-500 rounded-full 
@@ -26,5 +30,6 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
         >
             +
         </button>
+        :<div />
     )
 }

@@ -1,7 +1,4 @@
 "use strict";
-
-import { info } from "console";
-
 const uuid = require("uuid");
 const app = require("express")();
 const http = require("http").Server(app);
