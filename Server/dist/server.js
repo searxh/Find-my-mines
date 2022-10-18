@@ -193,6 +193,15 @@ socketIO.on("connection", (socket) => {
         console.log("Unmatching request", user);
         removeRoomUser(user, (roomID) => socket.leave(roomID));
     });
+    socket.on("invite request", ({ senderName, receiverName }) => {
+        socket.to(activeUsers[receiverName].id).emit("request incoming", senderName);
+    });
+    socket.on("invite reply", ({ senderName, decision }) => {
+        socket.to(activeUsers[senderName].id).emit("reply incoming", decision);
+        if (decision) {
+            console.log('create a room for two');
+        }
+    });
     socket.on("chat message", ({ msg, name }) => {
         chatHistory.push({
             from: name,

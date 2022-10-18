@@ -176,7 +176,7 @@ socketIO.on("connection", (socket:any)=>{
     socket.on("name register", (user:UserType)=>{
         activeUsers[user.name] = { id:user.id, name:user.name, inGame:user.inGame };
 		socketIO.emit("active user update", activeUsers);
-    })
+    });
     socket.on("matching",(user:UserType)=>{
         console.log("Matching request",user);
         while (true) {
@@ -198,20 +198,37 @@ socketIO.on("connection", (socket:any)=>{
         console.log("Unmatching request",user)
         removeRoomUser(user,(roomID:string)=>socket.leave(roomID))
     });
+    socket.on("invite request",({
+        senderName, receiverName
+    }:{
+        senderName:string, receiverName:string
+    })=>{
+        socket.to(activeUsers[receiverName].id).emit("request incoming",senderName)
+    });
+    socket.on("invite reply",({
+        senderName, decision
+    }:{
+        senderName:string, decision:boolean
+    })=>{
+        socket.to(activeUsers[senderName].id).emit("reply incoming",decision);
+        if (decision) {
+            console.log('create a room for two');
+        }
+    });
     socket.on("chat message", ({ msg, name }:{ msg:string, name:string })=>{
         chatHistory.push({ 
             from:name,
             message:msg,
             at:Date.now()
         })
-        socketIO.emit("chat update", chatHistory)
+        socketIO.emit("chat update", chatHistory);
     });
     socket.on("active user request", ()=>{
-        socketIO.emit("active user update", activeUsers)
-        console.log(Object.keys(activeUsers).length+" users are registered")
+        socketIO.emit("active user update", activeUsers);
+        console.log(Object.keys(activeUsers).length+" users are registered");
     });
     socket.on("chat request", ()=>{
-        socketIO.emit("chat update", chatHistory)
+        socketIO.emit("chat update", chatHistory);
     });
     socket.on("select block", ({ 
         index, roomID
