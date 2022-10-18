@@ -92,9 +92,12 @@ const removeRoomUser = (user, callback) => {
     }
     else {
         info.users = info.users.filter((userObj) => user.name !== userObj.name);
-        console.log(info);
         callback(info.roomID);
     }
+};
+const cleanGameInfos = () => {
+    gameInfos = gameInfos.filter((gameInfo) => gameInfo.scores[0] + gameInfo.scores[1] !== WINNING_SCORE);
+    console.log('cleared unused rooms', gameInfos);
 };
 const switchUser = (roomID) => {
     const info = getGameInfo(roomID);
@@ -182,6 +185,7 @@ socketIO.on("connection", (socket) => {
                 }
             }
             console.log("full rooms, creating new room...");
+            cleanGameInfos();
             generateGameInfo(gameInfos, counters);
         }
     });

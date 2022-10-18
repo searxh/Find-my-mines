@@ -75,26 +75,29 @@ const resetCountdown = (info:GameInfoType,roomID:string) => {
     }
 };
 const getGameInfo = (roomID:string) => {
-    return gameInfos.find((info:GameInfoType)=>info.roomID === roomID) as GameInfoType
+    return gameInfos.find((info:GameInfoType)=>info.roomID === roomID) as GameInfoType;
 };
 const getCounter = (roomID:string) => {
-    return counters.find((counterObj:CounterType)=>counterObj.roomID === roomID) as CounterType
+    return counters.find((counterObj:CounterType)=>counterObj.roomID === roomID) as CounterType;
 };
 const removeRoomUser = (user:UserType,callback:Function) => {
     let info = gameInfos.find((infoObj:GameInfoType)=>{
         if (infoObj.scores[0]+infoObj.scores[1] !== WINNING_SCORE) {
-            return infoObj.users.find((userObj:UserType)=>userObj.name===user.name)!==undefined
+            return infoObj.users.find((userObj:UserType)=>userObj.name===user.name)!==undefined;
         } else {
-            return false
+            return false;
         }
     })
     if (info === undefined) {
         console.log("undefined info")
     } else {
-        info.users = info.users.filter((userObj:UserType)=>user.name!==userObj.name)
-        console.log(info)
-        callback(info.roomID)
+        info.users = info.users.filter((userObj:UserType)=>user.name!==userObj.name);
+        callback(info.roomID);
     }
+};
+const cleanGameInfos = () => {
+    gameInfos = gameInfos.filter((gameInfo)=>gameInfo.scores[0]+gameInfo.scores[1]!==WINNING_SCORE);
+    console.log('cleared unused rooms',gameInfos);
 };
 const switchUser = (roomID:string) => {
     const info = getGameInfo(roomID);
@@ -134,60 +137,61 @@ http.listen(9000,"0.0.0.0", ()=>{
 });
 
 socketIO.of("/").adapter.on("join-room",(roomID:string,id:string) => {
-    console.log(`${id} has joined room ${roomID}`)
+    console.log(`${id} has joined room ${roomID}`);
     if (roomID.length > 20) {
-        const info = getGameInfo(roomID)
+        const info = getGameInfo(roomID);
         if (info.users.length === 2) {
-            console.log("starting game for room ",info.roomID)
+            console.log("starting game for room ",info.roomID);
             info.users.forEach((user) => {
 				activeUsers[user.name].inGame = true;
 			});
-            socketIO.to(info.roomID).emit("start game",info)
-            setTimeout(()=>socketIO.emit("active user update", activeUsers), 500)
-            const counter = getCounter(info.roomID)
+            socketIO.to(info.roomID).emit("start game",info);
+            setTimeout(()=>socketIO.emit("active user update", activeUsers), 500);
+            const counter = getCounter(info.roomID);
             if (!counter.countdown) {
                 console.log("set countdown")
                 counter.countdown = setInterval(()=>{
-                    socketIO.to(info.roomID).emit("counter", info.timer)
-                    info.timer--
+                    socketIO.to(info.roomID).emit("counter", info.timer);
+                    info.timer--;
                     if (info.timer === -1) {
-                        switchUser(info.roomID)
-                        info.timer = 10
-                        socketIO.to(info.roomID).emit("gameInfo update",info)
+                        switchUser(info.roomID);
+                        info.timer = 10;
+                        socketIO.to(info.roomID).emit("gameInfo update",info);
                     }
-                }, 1000)
+                }, 1000);
             }
         }
     }
 });
 
 socketIO.of("/").adapter.on("leave-room",(roomID:string,id:string) => {
-    console.log(`${id} has left room ${roomID}`)
+    console.log(`${id} has left room ${roomID}`);
     if (roomID.length > 20) {
-        socketIO.to(roomID).emit("other user left")
+        socketIO.to(roomID).emit("other user left");
     }
 });
 
 socketIO.on("connection", (socket:any)=>{
-    console.log("Connected!",socket.id, socketIO.of("/").sockets.size)
+    console.log("Connected!",socket.id, socketIO.of("/").sockets.size);
     socket.on("name register", (user:UserType)=>{
         activeUsers[user.name] = { id:user.id, name:user.name, inGame:user.inGame };
 		socketIO.emit("active user update", activeUsers);
     })
     socket.on("matching",(user:UserType)=>{
-        console.log("Matching request",user)
+        console.log("Matching request",user);
         while (true) {
             for (let i = 0; i < gameInfos.length; i++) {
-                const info = gameInfos[i]
+                const info = gameInfos[i];
                 if ((info.scores[0]+info.scores[1] !== WINNING_SCORE) && info.users.length < 2) {
-                    info.users.push(user)
-                    socket.join(info.roomID)
-                    console.log(gameInfos)
-                    return
+                    info.users.push(user);
+                    socket.join(info.roomID);
+                    console.log(gameInfos);
+                    return;
                 }
             }
-            console.log("full rooms, creating new room...")
-            generateGameInfo(gameInfos,counters)
+            console.log("full rooms, creating new room...");
+            cleanGameInfos()
+            generateGameInfo(gameInfos,counters);
         }
     });
     socket.on("unmatching",(user:UserType)=>{
