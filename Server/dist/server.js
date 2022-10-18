@@ -1,109 +1,111 @@
 "use strict";
-const uuid = require('uuid');
-const app = require('express')();
-const http = require('http').Server(app);
-const socketIO = require('socket.io')(http, {
-    cors: {
-        origin: '*'
-    }
+const uuid = require("uuid");
+const app = require("express")();
+const http = require("http").Server(app);
+const socketIO = require("socket.io")(http, {
+	cors: {
+		origin: "*",
+	},
 });
 const WINNING_SCORE = 3;
 const createMinesArray = () => {
-    let nums = new Set();
-    while (nums.size < 11) {
-        nums.add(Math.floor(Math.random() * 36 + 1));
-    }
-    const bombIndexes = [];
-    nums.forEach((num) => bombIndexes.push(num));
-    const arr = [...Array(36)].map((value, index) => {
-        return bombIndexes.includes(index + 1) ?
-            {
-                selected: false,
-                value: 1
-            } : {
-            selected: false,
-            value: 0
-        };
-    });
-    return arr;
+	let nums = new Set();
+	while (nums.size < 11) {
+		nums.add(Math.floor(Math.random() * 36 + 1));
+	}
+	const bombIndexes = [];
+	nums.forEach((num) => bombIndexes.push(num));
+	const arr = [...Array(36)].map((value, index) => {
+		return bombIndexes.includes(index + 1)
+			? {
+					selected: false,
+					value: 1,
+			  }
+			: {
+					selected: false,
+					value: 0,
+			  };
+	});
+	return arr;
 };
 const chooseRandomUser = () => {
-    return Math.random() > 0.5 ? 1 : 0;
+	return Math.random() > 0.5 ? 1 : 0;
 };
 const generateID = () => {
-    return uuid.v4();
+	return uuid.v4();
 };
 const generateGameInfo = (gameInfos, counters) => {
-    const id = generateID();
-    counters.push({
-        roomID: id,
-        countdown: false,
-    });
-    gameInfos.push({
-        roomID: id,
-        timer: 10,
-        users: [],
-        playingUser: chooseRandomUser(),
-        scores: [0, 0],
-        minesArray: createMinesArray(),
-    });
+	const id = generateID();
+	counters.push({
+		roomID: id,
+		countdown: false,
+	});
+	gameInfos.push({
+		roomID: id,
+		timer: 10,
+		users: [],
+		playingUser: chooseRandomUser(),
+		scores: [0, 0],
+		minesArray: createMinesArray(),
+	});
 };
 const resetRoom = (roomID) => {
-    const info = getGameInfo(roomID);
-    if (info !== undefined) {
-        info.timer = 10;
-        info.playingUser = chooseRandomUser();
-        info.scores = [0, 0];
-        info.minesArray = createMinesArray();
-    }
-    return info;
+	const info = getGameInfo(roomID);
+	if (info !== undefined) {
+		info.timer = 10;
+		info.playingUser = chooseRandomUser();
+		info.scores = [0, 0];
+		info.minesArray = createMinesArray();
+	}
+	return info;
 };
 const resetCountdown = (info, roomID) => {
-    const counter = getCounter(roomID);
-    if (counter !== undefined) {
-        counter.countdown = setInterval(() => {
-            socketIO.to(roomID).emit('counter', info.timer);
-            info.timer--;
-            if (info.timer === -1) {
-                switchUser(roomID);
-                info.timer = 10;
-                socketIO.to(roomID).emit('gameInfo update', info);
-            }
-        }, 1000);
-    }
+	const counter = getCounter(roomID);
+	if (counter !== undefined) {
+		counter.countdown = setInterval(() => {
+			socketIO.to(roomID).emit("counter", info.timer);
+			info.timer--;
+			if (info.timer === -1) {
+				switchUser(roomID);
+				info.timer = 10;
+				socketIO.to(roomID).emit("gameInfo update", info);
+			}
+		}, 1000);
+	}
 };
 const getGameInfo = (roomID) => {
-    return gameInfos.find((info) => info.roomID === roomID);
+	return gameInfos.find((info) => info.roomID === roomID);
 };
 const getCounter = (roomID) => {
-    return counters.find((counterObj) => counterObj.roomID === roomID);
+	return counters.find((counterObj) => counterObj.roomID === roomID);
 };
 const removeRoomUser = (user, callback) => {
-    let info = gameInfos.find((infoObj) => {
-        if (infoObj.scores[0] + infoObj.scores[1] !== WINNING_SCORE) {
-            return infoObj.users.find((userObj) => userObj.name === user.name) !== undefined;
-        }
-        else {
-            return false;
-        }
-    });
-    if (info === undefined) {
-        console.log('undefined info');
-    }
-    else {
-        info.users = info.users.filter((userObj) => user.name !== userObj.name);
-        console.log(info);
-        callback(info.roomID);
-    }
+	let info = gameInfos.find((infoObj) => {
+		if (infoObj.scores[0] + infoObj.scores[1] !== WINNING_SCORE) {
+			return (
+				infoObj.users.find((userObj) => userObj.name === user.name) !==
+				undefined
+			);
+		} else {
+			return false;
+		}
+	});
+	if (info === undefined) {
+		console.log("undefined info");
+	} else {
+		info.users = info.users.filter((userObj) => user.name !== userObj.name);
+		console.log(info);
+		callback(info.roomID);
+	}
 };
 const switchUser = (roomID) => {
-    const info = getGameInfo(roomID);
-    const newPlayingUser = Number(!Boolean(info.playingUser));
-    info.playingUser = newPlayingUser;
+	const info = getGameInfo(roomID);
+	const newPlayingUser = Number(!Boolean(info.playingUser));
+	info.playingUser = newPlayingUser;
 };
 const checkEndGame = (roomID) => {
-    const info = getGameInfo(roomID);
-    return info.scores[0] + info.scores[1] === WINNING_SCORE;
+	const info = getGameInfo(roomID);
+	return info.scores[0] + info.scores[1] === WINNING_SCORE;
 };
 let chatHistory = [];
 let activeUsers = {};
@@ -127,8 +129,8 @@ let gameInfos = [
 app.get('/', function (res) {
     res.sendFile(__dirname + '/index.html');
 });
-http.listen(9000, '0.0.0.0', () => {
-    console.log('listening on *:9000');
+http.listen(9000, "0.0.0.0", () => {
+	console.log("listening on *:9000");
 });
 socketIO.of("/").adapter.on('join-room', (roomID, id) => {
     console.log(`${id} has joined room ${roomID}`);
@@ -157,11 +159,11 @@ socketIO.of("/").adapter.on('join-room', (roomID, id) => {
         }
     }
 });
-socketIO.of("/").adapter.on('leave-room', (roomID, id) => {
-    console.log(`${id} has left room ${roomID}`);
-    if (roomID.length > 20) {
-        socketIO.to(roomID).emit("other user left");
-    }
+socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
+	console.log(`${id} has left room ${roomID}`);
+	if (roomID.length > 20) {
+		socketIO.to(roomID).emit("other user left");
+	}
 });
 socketIO.on('connection', (socket) => {
     console.log('Connected!', socket.id, socketIO.of("/").sockets.size);
