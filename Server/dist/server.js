@@ -108,18 +108,22 @@ const checkEndGame = (roomID) => {
 let chatHistory = [];
 let activeUsers = {};
 const initialRoomID = generateID();
-let counters = [{
+let counters = [
+    {
         roomID: initialRoomID,
         countdown: false
-    }];
-let gameInfos = [{
+    }
+];
+let gameInfos = [
+    {
         roomID: initialRoomID,
         timer: 10,
         users: [],
         playingUser: chooseRandomUser(),
         scores: [0, 0],
         minesArray: createMinesArray(),
-    }];
+    }
+];
 app.get('/', function (res) {
     res.sendFile(__dirname + '/index.html');
 });
@@ -132,7 +136,11 @@ socketIO.of("/").adapter.on('join-room', (roomID, id) => {
         const info = getGameInfo(roomID);
         if (info.users.length === 2) {
             console.log("starting game for room ", info.roomID);
+            info.users.forEach((user) => {
+                activeUsers[user.name].inGame = true;
+            });
             socketIO.to(info.roomID).emit('start game', info);
+            setTimeout(() => socketIO.emit("active user update", activeUsers), 500);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
                 console.log('set countdown');
@@ -158,8 +166,8 @@ socketIO.of("/").adapter.on('leave-room', (roomID, id) => {
 socketIO.on('connection', (socket) => {
     console.log('Connected!', socket.id, socketIO.of("/").sockets.size);
     socket.on('name register', (user) => {
-        activeUsers[user.name] = user.id;
-        socketIO.emit('active user update', activeUsers);
+        activeUsers[user.name] = { id: user.id, name: user.name, inGame: user.inGame };
+        socketIO.emit("active user update", activeUsers);
     });
     socket.on('matching', (user) => {
         console.log('Matching request', user);
@@ -216,8 +224,12 @@ socketIO.on('connection', (socket) => {
         }
     });
     socket.on('leave room request', (roomID) => {
+        const updatedUser = Object.keys(activeUsers).find((key) => activeUsers[key].id === socket.id);
+        if (updatedUser !== undefined) {
+            activeUsers[updatedUser].inGame = false;
+            socketIO.emit("active user update", activeUsers);
+        }
         socket.leave(roomID);
-        socketIO.to(roomID).emit("other user left");
     });
     socket.on('reconnect game', ({ roomID }) => {
         socket.join(roomID);
@@ -233,9 +245,9 @@ socketIO.on('connection', (socket) => {
         resetCountdown(info, roomID);
     });
     socket.on('disconnect', () => {
-        const user = Object.keys(activeUsers).find((key) => activeUsers[key] === socket.id);
+        const user = Object.keys(activeUsers).find((key) => activeUsers[key].id === socket.id);
         if (user !== undefined) {
-            console.log(user + ' has left the chat');
+            console.log(user + ' has disconnected', socketIO.of("/").sockets.size);
             delete activeUsers[user];
         }
         socketIO.emit('active user update', activeUsers);
