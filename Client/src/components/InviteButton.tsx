@@ -8,18 +8,17 @@ interface InviteButtonPropsType {
 }
 
 export default function InviteButton({ user }:InviteButtonPropsType) {
-    const { global_state } = React.useContext(GlobalContext)
-    const { socket } = React.useContext(SocketContext)
-    const { activeUsers, name } = global_state
+    const { global_state } = React.useContext(GlobalContext);
+    const { socket } = React.useContext(SocketContext);
+    const { activeUsers, name } = global_state;
     const handleOnClick = () => {
-        socket.emit("invite request",{ senderName:name, receiverName:user.name })
-    }
+        socket.emit("invite request",{ senderName:name, receiverName:user.name });
+    };
     const checkCanInvite = () => {
         return (!activeUsers.find((activeUser:UserType)=>
             activeUser.name === user.name)?.inGame
-        )
-
-    }
+        );
+    };
     return (
         user.name !== name?
         <button
@@ -31,5 +30,5 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
             +
         </button>
         :<div />
-    )
+    );
 }

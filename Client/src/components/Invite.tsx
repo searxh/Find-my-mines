@@ -3,32 +3,34 @@ import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
 
 export default function Invite() {
-    const { socket } = React.useContext(SocketContext)
-    const { global_state } = React.useContext(GlobalContext)
-    const { name } = global_state
-    const [ mode, setMode ] = React.useState<number>(0)
-    const [ senderName, setSenderName ] = React.useState<string>("")
-    const [ decision, setDecision ] = React.useState<boolean>(false)
+    const { socket } = React.useContext(SocketContext);
+    const { global_state } = React.useContext(GlobalContext);
+    const { name } = global_state;
+    const [ mode, setMode ] = React.useState<number>(0);
+    const [ senderName, setSenderName ] = React.useState<string>("");
+    const [ decision, setDecision ] = React.useState<boolean>(false);
     const handleOnClickDecision = (bool:boolean) => {
         socket.emit("invite reply",{ 
             senderName:senderName,
             receiverName:name,
             decision:bool,
         });
-        setMode(0)
+        setMode(0);
     }
     const handleOnClickClose = () => {
-        setMode(0)
+        setMode(0);
     }
     React.useEffect(()=>{
-        socket.on("request incoming", (senderName:string) => {
-            setSenderName(senderName);
-            setMode(1);
-        });
-        socket.on("reply incoming", (decision:boolean) => {
-            setDecision(decision);
-            setMode(2);
-        });
+        if (socket !== undefined) {
+            socket.on("request incoming", (senderName:string) => {
+                setSenderName(senderName);
+                setMode(1);
+            });
+            socket.on("reply incoming", (decision:boolean) => {
+                setDecision(decision);
+                setMode(2);
+            });
+        }
     },[])
     return (
         mode!==0?

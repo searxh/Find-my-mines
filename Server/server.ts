@@ -247,6 +247,7 @@ socketIO.on("connection", (socket:any)=>{
             socketIO.socketsLeave(roomID);
             removeInvitedRoom(senderName);
         }
+        cleanGameInfos();
     });
     socket.on("chat message", ({ msg, name }:{ msg:string, name:string })=>{
         chatHistory.push({ 
