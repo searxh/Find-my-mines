@@ -26,8 +26,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 			socket.on("connect", () => {
 				dispatch({
 					type: "set",
-					field: "connected",
-					payload: socket.connected,
+					field: "socketID",
+					payload: socket.id,
 				});
 				socket.emit("name register", {
 					name: name,
@@ -42,12 +42,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: chat,
 				});
 			});
-			socket.on("active user update", (activeUsers: Array<UserType>) => {
-				dispatch({
-					type: "set",
-					field: "activeUsers",
-					payload: activeUsers,
-				});
+			socket.on("active user update", (activeUsers: any) => {
+				const users:Array<UserType> = Object.values(activeUsers)
+        dispatch({
+            type:"set",
+            field:"activeUsers",
+            payload:users
+        })
 			});
 			socket.on("start game", (gameInfo: GameInfoType) => {
 				const newFlags = { ...flags, resultVisible: false };
