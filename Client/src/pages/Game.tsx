@@ -23,13 +23,9 @@ export default function Game() {
             <div className="flex-1 flex justify-evenly p-2">
                 <div className="flex basis-[30%] h-[70vh] m-auto">
                     <div className="w-[90%] m-auto">
-                        <div className="font-allerta text-4xl text-white 
-                        w-[70%] rounded-2xl mx-auto">
-                           FIND MY MINES
-                        </div>
-                        <div className="text-3xl text-white bg-pink-800 
-                        w-[70%] rounded-2xl shadow-md mb-10 mx-auto">
-                            PLAYER {name.toUpperCase()}
+                        <div className="text-4xl text-white
+                        w-[70%] rounded-2xl mb-10 mx-auto">
+                            {name.toUpperCase()}
                         </div>
                         <UserScore 
                             name={users[0].name} 

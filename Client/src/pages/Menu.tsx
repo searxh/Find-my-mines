@@ -15,7 +15,9 @@ export default function Menu() {
                     </div>
                     <div className="flex flex-col h-full justify-evenly bg-neutral-600 p-5 rounded-3xl">
                         <ActiveUsers />
+                        <div className="flex py-2">
                         <MatchingButton />
+                        </div>
                     </div>
                 </div>
                 <div className="basis-1/3 h-[70vh]">

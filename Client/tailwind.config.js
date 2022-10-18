@@ -22,6 +22,9 @@ module.exports = {
         'quicksand':'Quicksand',
         'allerta':'Allerta Stencil'
       },
+      animation:{
+        'pulse-slow': 'pulse 5s ease-in-out infinite'
+      }
     },
   },
   plugins: [],

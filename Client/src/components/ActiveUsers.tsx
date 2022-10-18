@@ -13,8 +13,7 @@ export default function ActiveUsers() {
 						<div
 							className={` flex justify-between ${
 								user.inGame ? "text-yellow-400" : "text-green-400"
-							} p-2 
-                            bg-neutral-800 rounded-full my-2 shadow-md`}
+							} p-2 bg-neutral-800 rounded-full my-2 shadow-md`}
 						>
 							<div
 								className={`h-3 w-3 ${
@@ -22,7 +21,7 @@ export default function ActiveUsers() {
 								} rounded-full my-auto mr-2`}
 							/>
 							<div>{user.name.toString()}</div>
-							<div>{user.inGame ? "In Game" : "Online"}</div>
+							<div>{user.inGame ? "In-Game" : "Online"}</div>
 							<div />
 						</div>
 					);
