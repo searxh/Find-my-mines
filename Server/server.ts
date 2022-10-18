@@ -1,10 +1,10 @@
 "use strict";
-const uuid = require('uuid');
-const app = require('express')();
-const http = require('http').Server(app);
-const socketIO = require('socket.io')(http,{
+const uuid = require("uuid");
+const app = require("express")();
+const http = require("http").Server(app);
+const socketIO = require("socket.io")(http,{
     cors: {
-      origin: '*'
+      origin: "*"
     }
 });
 
@@ -64,12 +64,12 @@ const resetCountdown = (info:GameInfoType,roomID:string) => {
     const counter = getCounter(roomID)
     if (counter !== undefined) {
         counter.countdown = setInterval(()=>{
-            socketIO.to(roomID).emit('counter', info.timer)
+            socketIO.to(roomID).emit("counter", info.timer)
             info.timer--
             if (info.timer === -1) {
                 switchUser(roomID)
                 info.timer = 10
-                socketIO.to(roomID).emit('gameInfo update',info)
+                socketIO.to(roomID).emit("gameInfo update",info)
             }
         }, 1000)
     }
@@ -89,7 +89,7 @@ const removeRoomUser = (user:UserType,callback:Function) => {
         }
     })
     if (info === undefined) {
-        console.log('undefined info')
+        console.log("undefined info")
     } else {
         info.users = info.users.filter((userObj:UserType)=>user.name!==userObj.name)
         console.log(info)
@@ -125,15 +125,15 @@ let gameInfos:Array<GameInfoType> = [
     }
 ];
 
-app.get('/', function(res:any) {
-    res.sendFile(__dirname + '/index.html');
+app.get("/", function(res:any) {
+    res.sendFile(__dirname + "/index.html");
 });
 
-http.listen(9000,'0.0.0.0', ()=>{
-   console.log('listening on *:9000');
+http.listen(9000,"0.0.0.0", ()=>{
+   console.log("listening on *:9000");
 });
 
-socketIO.of("/").adapter.on('join-room',(roomID:string,id:string) => {
+socketIO.of("/").adapter.on("join-room",(roomID:string,id:string) => {
     console.log(`${id} has joined room ${roomID}`)
     if (roomID.length > 20) {
         const info = getGameInfo(roomID)
@@ -142,18 +142,18 @@ socketIO.of("/").adapter.on('join-room',(roomID:string,id:string) => {
             info.users.forEach((user) => {
 				activeUsers[user.name].inGame = true;
 			});
-            socketIO.to(info.roomID).emit('start game',info)
+            socketIO.to(info.roomID).emit("start game",info)
             setTimeout(()=>socketIO.emit("active user update", activeUsers), 500)
             const counter = getCounter(info.roomID)
             if (!counter.countdown) {
-                console.log('set countdown')
+                console.log("set countdown")
                 counter.countdown = setInterval(()=>{
-                    socketIO.to(info.roomID).emit('counter', info.timer)
+                    socketIO.to(info.roomID).emit("counter", info.timer)
                     info.timer--
                     if (info.timer === -1) {
                         switchUser(info.roomID)
                         info.timer = 10
-                        socketIO.to(info.roomID).emit('gameInfo update',info)
+                        socketIO.to(info.roomID).emit("gameInfo update",info)
                     }
                 }, 1000)
             }
@@ -161,21 +161,21 @@ socketIO.of("/").adapter.on('join-room',(roomID:string,id:string) => {
     }
 });
 
-socketIO.of("/").adapter.on('leave-room',(roomID:string,id:string) => {
+socketIO.of("/").adapter.on("leave-room",(roomID:string,id:string) => {
     console.log(`${id} has left room ${roomID}`)
     if (roomID.length > 20) {
         socketIO.to(roomID).emit("other user left")
     }
 });
 
-socketIO.on('connection', (socket:any)=>{
-    console.log('Connected!',socket.id, socketIO.of("/").sockets.size)
-    socket.on('name register', (user:UserType)=>{
+socketIO.on("connection", (socket:any)=>{
+    console.log("Connected!",socket.id, socketIO.of("/").sockets.size)
+    socket.on("name register", (user:UserType)=>{
         activeUsers[user.name] = { id:user.id, name:user.name, inGame:user.inGame };
 		socketIO.emit("active user update", activeUsers);
     })
-    socket.on('matching',(user:UserType)=>{
-        console.log('Matching request',user)
+    socket.on("matching",(user:UserType)=>{
+        console.log("Matching request",user)
         while (true) {
             for (let i = 0; i < gameInfos.length; i++) {
                 const info = gameInfos[i]
@@ -186,30 +186,30 @@ socketIO.on('connection', (socket:any)=>{
                     return
                 }
             }
-            console.log('full rooms, creating new room...')
+            console.log("full rooms, creating new room...")
             generateGameInfo(gameInfos,counters)
         }
     });
-    socket.on('unmatching',(user:UserType)=>{
-        console.log('Unmatching request',user)
+    socket.on("unmatching",(user:UserType)=>{
+        console.log("Unmatching request",user)
         removeRoomUser(user,(roomID:string)=>socket.leave(roomID))
     });
-    socket.on('chat message', ({ msg, name }:{ msg:string, name:string })=>{
+    socket.on("chat message", ({ msg, name }:{ msg:string, name:string })=>{
         chatHistory.push({ 
             from:name,
             message:msg,
             at:Date.now()
         })
-        socketIO.emit('chat update', chatHistory)
+        socketIO.emit("chat update", chatHistory)
     });
-    socket.on('active user request', ()=>{
-        socketIO.emit('active user update', activeUsers)
-        console.log(Object.keys(activeUsers).length+' users are registered')
+    socket.on("active user request", ()=>{
+        socketIO.emit("active user update", activeUsers)
+        console.log(Object.keys(activeUsers).length+" users are registered")
     });
-    socket.on('chat request', ()=>{
-        socketIO.emit('chat update', chatHistory)
+    socket.on("chat request", ()=>{
+        socketIO.emit("chat update", chatHistory)
     });
-    socket.on('select block', ({ 
+    socket.on("select block", ({ 
         index, roomID
     }:{ 
         index:number, roomID:string
@@ -220,7 +220,7 @@ socketIO.on('connection', (socket:any)=>{
            info.scores[info.playingUser]++
         }
         if (checkEndGame(roomID)) {
-            socketIO.to(roomID).emit('end game',info)
+            socketIO.to(roomID).emit("end game",info)
             const counter = getCounter(roomID)
             clearInterval(counter.countdown as ReturnType<typeof setInterval>)
             counter.countdown = false
@@ -228,10 +228,10 @@ socketIO.on('connection', (socket:any)=>{
         } else {
             switchUser(roomID)
             info.timer = 10
-            socketIO.to(roomID).emit('gameInfo update',info)
+            socketIO.to(roomID).emit("gameInfo update",info)
         }
     })
-    socket.on('leave room request',(roomID:string)=>{
+    socket.on("leave room request",(roomID:string)=>{
         const updatedUser = Object.keys(activeUsers).find(
             (key)=>activeUsers[key].id===socket.id
         )
@@ -241,32 +241,32 @@ socketIO.on('connection', (socket:any)=>{
         }
 		socket.leave(roomID);
     })
-    socket.on('reconnect game',({ roomID }:{ roomID:string })=>{
+    socket.on("reconnect game",({ roomID }:{ roomID:string })=>{
         socket.join(roomID)
     })
-    socket.on('play again', ({ 
+    socket.on("play again", ({ 
         gameInfo, requester
     }:{ 
         gameInfo:GameInfoType, requester:UserType
     })=>{
         const { roomID } = gameInfo
-        console.log('play again',roomID)
-        socketIO.to(roomID).emit('rematch request', requester)
+        console.log("play again",roomID)
+        socketIO.to(roomID).emit("rematch request", requester)
     })
-    socket.on('rematch accepted', (roomID:string)=>{
+    socket.on("rematch accepted", (roomID:string)=>{
         const info = resetRoom(roomID)
-        socketIO.to(roomID).emit('start game',info)
+        socketIO.to(roomID).emit("start game",info)
         resetCountdown(info,roomID)
     })
-    socket.on('disconnect', ()=>{
+    socket.on("disconnect", ()=>{
         const user = Object.keys(activeUsers).find(
             (key:any)=>activeUsers[key].id===socket.id
         )
         if (user !== undefined) {
-            console.log(user+ ' has disconnected', socketIO.of("/").sockets.size)
+            console.log(user+ " has disconnected", socketIO.of("/").sockets.size)
             delete activeUsers[user]
         }
-        socketIO.emit('active user update', activeUsers)
+        socketIO.emit("active user update", activeUsers)
     })
 })
 interface MessageType {
