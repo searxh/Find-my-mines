@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const uuid = require("uuid");
 const app = require("express")();
 const http = require("http").Server(app);
@@ -33,20 +34,22 @@ const chooseRandomUser = () => {
 const generateID = () => {
     return uuid.v4();
 };
-const generateGameInfo = (gameInfos, counters) => {
-    const id = generateID();
-    counters.push({
-        roomID: id,
-        countdown: false,
-    });
-    gameInfos.push({
+const generateGameInfo = (gameInfos, counters, roomID) => {
+    const id = roomID !== undefined ? roomID : generateID();
+    const newGameInfo = {
         roomID: id,
         timer: 10,
         users: [],
         playingUser: chooseRandomUser(),
         scores: [0, 0],
         minesArray: createMinesArray(),
+    };
+    counters.push({
+        roomID: id,
+        countdown: false,
     });
+    gameInfos.push(newGameInfo);
+    return newGameInfo;
 };
 const resetRoom = (roomID) => {
     const info = getGameInfo(roomID);
@@ -108,8 +111,15 @@ const checkEndGame = (roomID) => {
     const info = getGameInfo(roomID);
     return info.scores[0] + info.scores[1] === WINNING_SCORE;
 };
+const addInvitedRoom = (key, value) => {
+    invitedRooms[key] = value;
+};
+const removeInvitedRoom = (key) => {
+    delete invitedRooms[key];
+};
 let chatHistory = [];
 let activeUsers = {};
+let invitedRooms = {};
 const initialRoomID = generateID();
 let counters = [
     {
@@ -195,15 +205,28 @@ socketIO.on("connection", (socket) => {
     });
     socket.on("invite request", ({ senderName, receiverName }) => {
         socket.to(activeUsers[receiverName].id).emit("request incoming", senderName);
+        //there will be only 1 valid sender request due to it being a key
+        addInvitedRoom(senderName, { roomID: generateID(), receiverName: receiverName });
+        const roomID = invitedRooms[senderName].roomID;
+        console.log(invitedRooms);
+        const info = generateGameInfo(gameInfos, counters, roomID);
+        info.users.push(activeUsers[senderName]);
+        socket.join(roomID);
     });
     socket.on("invite reply", ({ senderName, receiverName, decision }) => {
         socket.to(activeUsers[senderName].id).emit("reply incoming", decision);
+        const roomID = invitedRooms[senderName].roomID;
         if (decision) {
-            console.log('request from', senderName, 'accepted by', receiverName);
-            console.log('create a room for two');
+            console.log('request from', senderName, 'accepted by', receiverName, socket.id);
+            const info = getGameInfo(roomID);
+            info.users.push(activeUsers[receiverName]);
+            socket.join(roomID);
+            removeInvitedRoom(senderName);
         }
         else {
-            console.log('request from', senderName, 'declined by', receiverName);
+            console.log('request from', senderName, 'declined by', receiverName, socket.id);
+            socketIO.socketsLeave(roomID);
+            removeInvitedRoom(senderName);
         }
     });
     socket.on("chat message", ({ msg, name }) => {

@@ -15,6 +15,7 @@ export default function Invite() {
             receiverName:name,
             decision:bool,
         });
+        setMode(0)
     }
     const handleOnClickClose = () => {
         setMode(0)
