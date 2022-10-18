@@ -35,6 +35,12 @@ export default function Result() {
             navigate('/menu')
         }
     }
+    const checkWinner = (name:string) => {
+        return getWinner()===name
+    }
+    const getWinner = () => {
+        return (scores[0] > scores[1])?users[0].name:users[1].name
+    }
     React.useEffect(()=>{
         if (flags.userLeft) {
             setPlayAgainVisible(false)
@@ -48,30 +54,38 @@ export default function Result() {
     },[flags])
     return (flags.resultVisible?
         <div
-            className="absolute top-0 bottom-0 left-0 right-0 w-1/2 h-1/2 text-white
-            text-2xl bg-slate-800 rounded-lg p-5 z-50 flex m-auto">
-            <div className="m-auto">
-                The winner is {
-                    (scores[0] > scores[1])?
-                    users[0].name:users[1].name
-                } !
-                <div>{users[0].name} score: {scores[0]}</div>
-                <div>{users[1].name} score: {scores[1]}</div>
+            className={`absolute top-0 bottom-0 left-0 right-0 w-1/2 h-[70%] text-white
+            text-2xl bg-gradient-to-t from-neutral-800 ${checkWinner(name)?"to-teal-800":"to-red-800"}
+            rounded-3xl z-50 flex m-auto`}>
+            <div className="m-auto w-[70%]">
+                <div className={`font-allerta text-5xl
+                ${checkWinner(name)?"text-green-400":"text-red-400"} `}>
+                    {checkWinner(name)?
+                        "VICTORY!":"DEFEAT!"
+                    }
+                </div>
+                <div className="text-cyan-300 text-2xl">
+                    {getWinner().toUpperCase()} WINS!
+                </div>
+                <div>{users[0].name}'s score: {scores[0]}</div>
+                <div>{users[1].name}'s score: {scores[1]}</div>
                 <RematchStatus />
-                <div className="flex">
+                <div className="flex justify-evenly pt-10">
                     {playAgainVisible &&
                         <button
                             onClick={handleOnClickPlayAgain}
-                            className="bg-green-600 text-white p-5 rounded-lg text-xl"
+                            className="basis-[40%] bg-green-700 text-white p-4
+                            rounded-full text-xl hover:scale-105 transition"
                         >
-                            Play Again
+                            PLAY AGAIN
                         </button>
                     }
                     <button
                         onClick={handleOnClickMenu}
-                        className="bg-slate-600 text-white p-5 rounded-lg text-xl"
+                        className="basis-[40%] bg-red-700 text-white p-4
+                        rounded-full text-xl hover:scale-105 transition"
                     >
-                        Back to menu
+                        LEAVE
                     </button>
                 </div>
             </div>
