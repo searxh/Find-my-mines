@@ -206,13 +206,16 @@ socketIO.on("connection", (socket:any)=>{
         socket.to(activeUsers[receiverName].id).emit("request incoming",senderName)
     });
     socket.on("invite reply",({
-        senderName, decision
+        senderName, receiverName, decision
     }:{
-        senderName:string, decision:boolean
+        senderName:string, receiverName:string, decision:boolean
     })=>{
         socket.to(activeUsers[senderName].id).emit("reply incoming",decision);
         if (decision) {
+            console.log('request from', senderName, 'accepted by', receiverName)
             console.log('create a room for two');
+        } else {
+            console.log('request from', senderName, 'declined by', receiverName)
         }
     });
     socket.on("chat message", ({ msg, name }:{ msg:string, name:string })=>{
