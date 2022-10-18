@@ -25,7 +25,7 @@ export default function MatchingButton() {
             disabled={cooldown}
             onClick={handleOnClick}
             className={`flex m-auto ${isMatching?"bg-green-600":"bg-neutral-800"} rounded-full p-3 px-10 text-center
-            text-white hover:scale-105 transition shadow-md text-xl`}
+            text-white hover:scale-105 transition shadow-md text-xl my-auto`}
         >
             <div>MATCH</div>
             {isMatching && 

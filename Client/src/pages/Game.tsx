@@ -5,10 +5,11 @@ import Result from '../components/Result'
 import { GlobalContext } from '../states'
 import SocketID from '../components/SocketID'
 import Backdrop from '../components/Backdrop'
+import UserScore from '../components/UserScore'
 
 export default function Game() {
     const { global_state } = React.useContext(GlobalContext)
-    const { gameInfo } = global_state
+    const { gameInfo, name } = global_state
     const { 
         users,
         scores,
@@ -16,24 +17,43 @@ export default function Game() {
         timer
     } = gameInfo
     return (
-        <div className="">
-            <div className="text-2xl text-white">
-                {users[0].name} vs. {users[1].name}
-            </div>
-            <div className="text-2xl text-white">
-                {scores[0]} vs. {scores[1]}
-            </div>
-            <div className="text-xl text-cyan-400">
-                {users[playingUser].name}
-            </div>
-            <div className="text-2xl text-cyan-400">
-                Timer: {timer}
-            </div>
-            <SocketID />
-            <MinesGrid />
+        <div className="flex flex-col h-screen overflow-hidden text-center font-quicksand bg-neutral-800">
             <Result />
             <Backdrop />
-            <Chat />
+            <div className="flex-1 flex justify-evenly p-2">
+                <div className="flex basis-[30%] h-[70vh] m-auto">
+                    <div className="w-[90%] m-auto">
+                        <div className="text-4xl text-white
+                        w-[70%] rounded-2xl mb-10 mx-auto">
+                            {name.toUpperCase()}
+                        </div>
+                        <UserScore 
+                            name={users[0].name} 
+                            score={scores[0]} 
+                            isPlaying={playingUser===0?true:false}
+                            className="my-3"
+                        />
+                        <UserScore 
+                            name={users[1].name} 
+                            score={scores[1]} 
+                            isPlaying={playingUser===1?true:false}
+                            className="my-3"
+                        />
+                        <div className="font-allerta text-5xl text-white p-5">
+                            TIMER: {timer}
+                        </div>
+                    </div>
+                </div>
+                <div className="flex basis-[40%] h-[70vh] m-auto">
+                    <MinesGrid />
+                </div>
+                <div className="flex basis-[30%] h-[70vh] m-auto">
+                    <div className="w-[90%] h-full bg-neutral-600 p-5 rounded-3xl m-auto">
+                        <Chat />
+                    </div>
+                </div>
+            </div>
+            <SocketID />
         </div>
     )
 }

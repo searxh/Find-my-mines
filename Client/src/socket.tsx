@@ -44,11 +44,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 			});
 			socket.on("active user update", (activeUsers: any) => {
 				const users:Array<UserType> = Object.values(activeUsers)
-        dispatch({
-            type:"set",
-            field:"activeUsers",
-            payload:users
-        })
+				dispatch({
+					type:"set",
+					field:"activeUsers",
+					payload:users
+				})
 			});
 			socket.on("start game", (gameInfo: GameInfoType) => {
 				const newFlags = { ...flags, resultVisible: false };
