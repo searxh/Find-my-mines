@@ -70,6 +70,7 @@ const resetRoom = (roomID:string) => {
 };
 const removeRoom = (roomID:string) => {
     gameInfos = gameInfos.filter((gameInfo:GameInfoType)=>gameInfo.roomID !== roomID)
+    console.log("REMOVED ROOM", gameInfos)
 }
 const resetCountdown = (info:GameInfoType,roomID:string) => {
     const counter = getCounter(roomID)
@@ -108,8 +109,7 @@ const removeRoomUser = (user:UserType, callback:Function) => {
 };
 const cleanGameInfos = () => {
     gameInfos = gameInfos.filter((gameInfo)=>
-        gameInfo.scores[0]+gameInfo.scores[1]!==WINNING_SCORE ||
-        (gameInfo.scores[0]+gameInfo.scores[1]!==0 && gameInfo.users.length !== 2)
+        gameInfo.scores[0]+gameInfo.scores[1]!==WINNING_SCORE
     );
     console.log('cleared unused rooms',gameInfos);
 };
@@ -137,9 +137,14 @@ const removeExpiredInvitation = () => {
     const expiredKeys = Object.keys(invitation)
         .filter((key:string)=>compareAsc(Date.now(),invitation[key].validUntil)===1?true:false)
     console.log("EXPIRED_KEYS",expiredKeys);
-    expiredKeys.forEach(
-        (key:string)=>delete invitation[key]
-    )
+    expiredKeys.forEach((key:string)=>{
+        //removes the room that is created as well if room doesn't have 2 people
+        const roomID = invitation[key].roomID;
+        const info = getGameInfo(roomID);
+        console.log("INFO USER LENGTH AUTO EXPIRE", info.users);
+        if (info.users.length < 2) removeRoom(roomID);
+        delete invitation[key];
+    })
     console.log("FILTERED EXPIRED",invitation);
 };
 const expireInvitation = (senderName:string) => {
@@ -147,7 +152,13 @@ const expireInvitation = (senderName:string) => {
         .filter((key:string)=>
             invitation[key].senderName === senderName);
     if (expiredKeys!==undefined) {
-        expiredKeys.forEach((key:string)=> delete invitation[key]);
+        expiredKeys.forEach((key:string)=>{
+            const roomID = invitation[key].roomID;
+            const info = getGameInfo(roomID);
+            console.log("INFO USER LENGTH MANUAL EXPIRE", info.users);
+            if (info.users.length < 2) removeRoom(roomID);
+            delete invitation[key];
+        });
     }
     console.log("FILTERED EXPIRE MANUAL",invitation);
 };
@@ -159,7 +170,7 @@ const getMostRecentInvitation = (senderName:string, receiverName:string) => {
         .find((key:string)=>
             invitation[key].senderName === senderName &&
             invitation[key].receiverName === receiverName
-        )
+        );
     if (mostRecentInvitation !== undefined) {
         console.log("MOST RECENT INVITATION", mostRecentInvitation);
         return invitation[mostRecentInvitation];
@@ -299,7 +310,6 @@ socketIO.on("connection", (socket:any)=>{
                 .emit("request incoming", { error:true }), 300);
             //tear down room because invitation was expired
             socketIO.socketsLeave(roomID);
-            removeRoom(roomID);
             //manually expire all invitation of one sender (since invitation was successful)
             expireInvitation(senderName);
         //invitation was found
@@ -316,7 +326,6 @@ socketIO.on("connection", (socket:any)=>{
                 console.log('request from', senderName, 'declined by', receiverName, socket.id);
                 //tear down room because invitation was declined
                 socketIO.socketsLeave(roomID);
-                removeRoom(roomID);
                 expireInvitation(senderName);
             }
             cleanGameInfos();
