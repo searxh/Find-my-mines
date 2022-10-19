@@ -24,13 +24,13 @@ export default function Result() {
     }
     const handleOnClickMenu = () => {
         if (socket !== undefined) {
+            socket.emit("leave room request", gameInfo.roomID)
             const newFlags = { ...flags, resultVisible:false }
             dispatch({ 
-                type:"set", 
-                field:"flags", 
-                payload:newFlags
+                type:"multi-set", 
+                field:["flags", "gameInfo"], 
+                payload:[newFlags, []]
             })
-            socket.emit("leave room request", gameInfo.roomID)
             setPlayAgainVisible(true)
             navigate('/menu')
         }
