@@ -34,6 +34,7 @@ export interface GameInfoType {
 export interface FlagsType {
 	userLeft: boolean;
 	resultVisible: boolean;
+	isMatching: boolean;
 }
 export interface GlobalStateKeys {
 	[key: string]: any;

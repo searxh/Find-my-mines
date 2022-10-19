@@ -81,7 +81,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				});
 			});
 			socket.on("other user left", () => {
-				const newFlags = { resultVisible: true, userLeft: true };
+				const newFlags = { 
+					...flags, 
+					resultVisible: true, 
+					userLeft: true
+				};
 				dispatch({
 					type: "set",
 					field: "flags",

@@ -10,14 +10,14 @@ interface InviteButtonPropsType {
 export default function InviteButton({ user }:InviteButtonPropsType) {
     const { global_state } = React.useContext(GlobalContext);
     const { socket } = React.useContext(SocketContext);
-    const { activeUsers, name } = global_state;
+    const { activeUsers, name, flags } = global_state;
     const handleOnClick = () => {
         socket.emit("invite request",{ senderName:name, receiverName:user.name });
     };
     const checkCanInvite = () => {
         return (!activeUsers.find((activeUser:UserType)=>
             activeUser.name === user.name)?.inGame
-        );
+        ) && !flags.isMatching
     };
     return (
         user.name !== name?
