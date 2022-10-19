@@ -60,6 +60,9 @@ const resetRoom = (roomID) => {
     }
     return info;
 };
+const removeRoom = (roomID) => {
+    gameInfos = gameInfos.filter((gameInfo) => gameInfo.roomID !== roomID);
+};
 const resetCountdown = (info, roomID) => {
     const counter = getCounter(roomID);
     if (counter !== undefined) {
@@ -98,7 +101,8 @@ const removeRoomUser = (user, callback) => {
     }
 };
 const cleanGameInfos = () => {
-    gameInfos = gameInfos.filter((gameInfo) => gameInfo.scores[0] + gameInfo.scores[1] !== WINNING_SCORE);
+    gameInfos = gameInfos.filter((gameInfo) => gameInfo.scores[0] + gameInfo.scores[1] !== WINNING_SCORE ||
+        (gameInfo.scores[0] + gameInfo.scores[1] !== 0 && gameInfo.users.length !== 2));
     console.log('cleared unused rooms', gameInfos);
 };
 const switchUser = (roomID) => {
@@ -110,15 +114,15 @@ const checkEndGame = (roomID) => {
     const info = getGameInfo(roomID);
     return info.scores[0] + info.scores[1] === WINNING_SCORE;
 };
-const addInvitedRoom = (key, value) => {
-    invitedRooms[key] = value;
+const addInvitation = (key, value) => {
+    invitation[key] = value;
 };
-const removeInvitedRoom = (key) => {
-    delete invitedRooms[key];
+const removeInvitation = (key) => {
+    delete invitation[key];
 };
 let chatHistory = [];
 let activeUsers = {};
-let invitedRooms = {};
+let invitation = {};
 const initialRoomID = generateID();
 let counters = [
     {
@@ -203,31 +207,47 @@ socketIO.on("connection", (socket) => {
         removeRoomUser(user, (roomID) => socket.leave(roomID));
     });
     socket.on("invite request", ({ senderName, receiverName }) => {
-        socket.to(activeUsers[receiverName].id).emit("request incoming", senderName);
+        socketIO.to(activeUsers[receiverName].id).emit("request incoming", senderName);
         //there will be only 1 valid sender request due to it being a key
-        addInvitedRoom(senderName, { roomID: generateID(), receiverName: receiverName });
-        const roomID = invitedRooms[senderName].roomID;
-        console.log(invitedRooms);
+        addInvitation(senderName, { roomID: generateID(), receiverName: receiverName });
+        console.log(invitation);
+        const roomID = invitation[senderName].roomID;
         const info = generateGameInfo(gameInfos, counters, roomID);
         info.users.push(activeUsers[senderName]);
         socket.join(roomID);
     });
     socket.on("invite reply", ({ senderName, receiverName, decision }) => {
-        socket.to(activeUsers[senderName].id).emit("reply incoming", decision);
-        const roomID = invitedRooms[senderName].roomID;
-        if (decision) {
-            console.log('request from', senderName, 'accepted by', receiverName, socket.id);
-            const info = getGameInfo(roomID);
-            info.users.push(activeUsers[receiverName]);
-            socket.join(roomID);
-            removeInvitedRoom(senderName);
+        var _a;
+        socketIO.to(activeUsers[senderName].id).emit("reply incoming", decision);
+        console.log(invitation);
+        //we don't care about which receiver receives it because both are valid receivers
+        //first person who accept invitation will join the room and the invitation is removed
+        const roomID = (_a = invitation[senderName]) === null || _a === void 0 ? void 0 : _a.roomID;
+        console.log('accept', roomID);
+        if (roomID === undefined) {
+            setTimeout(() => socketIO.to(activeUsers[receiverName].id)
+                .emit("request incoming", { error: true }), 300);
+            socketIO.socketsLeave(roomID);
+            removeRoom(roomID);
+            removeInvitation(senderName);
+            console.log(gameInfos);
         }
         else {
-            console.log('request from', senderName, 'declined by', receiverName, socket.id);
-            socketIO.socketsLeave(roomID);
-            removeInvitedRoom(senderName);
+            if (decision) {
+                console.log('request from', senderName, 'accepted by', receiverName, socket.id);
+                const info = getGameInfo(roomID);
+                info.users.push(activeUsers[receiverName]);
+                socket.join(roomID);
+                removeInvitation(senderName);
+            }
+            else {
+                console.log('request from', senderName, 'declined by', receiverName, socket.id);
+                socketIO.socketsLeave(roomID);
+                removeRoom(roomID);
+                removeInvitation(senderName);
+            }
+            cleanGameInfos();
         }
-        cleanGameInfos();
     });
     socket.on("chat message", ({ msg, name }) => {
         chatHistory.push({

@@ -7,6 +7,10 @@ export default function Invite() {
     const { global_state } = React.useContext(GlobalContext);
     const { name } = global_state;
     const [ mode, setMode ] = React.useState<number>(0);
+    //mode 0 = not visible
+    //mode 1 = (sender) gets invitation request
+    //mode 2 = (sender) gets accepted or decline
+    //mode 3 = error occured
     const [ senderName, setSenderName ] = React.useState<string>("");
     const [ decision, setDecision ] = React.useState<boolean>(false);
     const handleOnClickDecision = (bool:boolean) => {
@@ -22,16 +26,23 @@ export default function Invite() {
     }
     React.useEffect(()=>{
         if (socket !== undefined) {
-            socket.on("request incoming", (senderName:string) => {
-                setSenderName(senderName);
-                setMode(1);
+            console.log('listening for request')
+            socket.on("request incoming", (senderName:string | { error:true }) => {
+                console.log(senderName)
+                if (typeof senderName === "string") {
+                    setSenderName(senderName);
+                    setMode(1);
+                } else {
+                    console.log('undefined')
+                    setMode(3);
+                }
             });
             socket.on("reply incoming", (decision:boolean) => {
                 setDecision(decision);
                 setMode(2);
             });
         }
-    },[])
+    },[socket])
     return (
         mode!==0?
             <div
@@ -62,6 +73,11 @@ export default function Invite() {
                 {mode===2 &&
                     <div className="">
                         Your invitation was {decision?"accepted":"declined"}
+                    </div>
+                }
+                {mode===3 &&
+                    <div className="">
+                        The invitation is already invalid.
                     </div>
                 }
             </div>
