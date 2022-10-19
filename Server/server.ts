@@ -301,9 +301,9 @@ socketIO.on("connection", (socket:any)=>{
         });
     });
     socket.on("invite reply",({
-        senderName, receiverName, room_ID, decision
+        senderName, receiverName, decision
     }:{
-        senderName:string, receiverName:string, room_ID:string, decision:boolean
+        senderName:string, receiverName:string, decision:boolean
     })=>{
         //remove any expired invitation (by timeout)
         removeExpiredInvitation();

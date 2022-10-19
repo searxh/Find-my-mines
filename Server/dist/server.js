@@ -274,7 +274,7 @@ socketIO.on("connection", (socket) => {
             roomID: roomID,
         });
     });
-    socket.on("invite reply", ({ senderName, receiverName, room_ID, decision }) => {
+    socket.on("invite reply", ({ senderName, receiverName, decision }) => {
         //remove any expired invitation (by timeout)
         removeExpiredInvitation();
         //get the most recent invitation of sender and receiver 

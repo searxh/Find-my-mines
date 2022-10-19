@@ -16,7 +16,6 @@ export interface UserType {
 }
 export interface InviteStorageType {
 	senderName:string;
-	room_ID:string;
 }
 export interface InviteInfoType {
 	senderName?:string;

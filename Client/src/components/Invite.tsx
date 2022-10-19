@@ -13,8 +13,7 @@ export default function Invite() {
     //mode 2 = (sender) gets accepted or decline
     //mode 3 = error occured
     const [ inviteStorage, setInviteStorage ] = React.useState<InviteStorageType>({
-        senderName:"",
-        room_ID:"",
+        senderName:""
     });
     const [ decision, setDecision ] = React.useState<boolean>(false);
     const handleOnClickDecision = (bool:boolean) => {
@@ -24,7 +23,6 @@ export default function Invite() {
             socket.emit("invite reply",{ 
                 senderName:inviteStorage.senderName,
                 receiverName:name,
-                room_ID:inviteStorage.room_ID,
                 decision:bool,
             });
             setMode(0);
@@ -43,7 +41,7 @@ export default function Invite() {
             }:InviteInfoType) => {
                 console.log(senderName, roomID, error)
                 if (error===undefined && senderName!==undefined && roomID!==undefined) {
-                    setInviteStorage({ senderName:senderName, room_ID:roomID });
+                    setInviteStorage({ senderName:senderName });
                     setMode(1);
                 } else {
                     console.log('undefined')
