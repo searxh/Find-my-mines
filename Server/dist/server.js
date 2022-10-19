@@ -336,6 +336,7 @@ socketIO.on("connection", (socket) => {
         else {
             selectedChatHistory = chatHistory.global;
         }
+        console.log("CHAT HISTORY REQUEST", selectedChatHistory, roomID);
         socketIO.emit("chat update", selectedChatHistory);
     });
     socket.on("select block", ({ index, roomID }) => {
