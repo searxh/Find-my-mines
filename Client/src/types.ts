@@ -14,6 +14,15 @@ export interface UserType {
 	id: string;
 	inGame: boolean;
 }
+export interface InviteStorageType {
+	senderName:string;
+	room_ID:string;
+}
+export interface InviteInfoType {
+	senderName?:string;
+	roomID?:string,
+	error?:boolean,
+}
 export interface GameInfoType {
 	roomID: string;
 	timer: number;

@@ -1,6 +1,7 @@
 import React from 'react'
 import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
+import { InviteInfoType, InviteStorageType } from '../types';
 
 export default function Invite() {
     const { socket } = React.useContext(SocketContext);
@@ -11,15 +12,25 @@ export default function Invite() {
     //mode 1 = (sender) gets invitation request
     //mode 2 = (sender) gets accepted or decline
     //mode 3 = error occured
-    const [ senderName, setSenderName ] = React.useState<string>("");
+    const [ inviteStorage, setInviteStorage ] = React.useState<InviteStorageType>({
+        senderName:"",
+        room_ID:"",
+    });
     const [ decision, setDecision ] = React.useState<boolean>(false);
     const handleOnClickDecision = (bool:boolean) => {
-        socket.emit("invite reply",{ 
-            senderName:senderName,
-            receiverName:name,
-            decision:bool,
-        });
-        setMode(0);
+        if (socket !== undefined && 
+            inviteStorage.senderName+inviteStorage.senderName!==""
+        ) {
+            socket.emit("invite reply",{ 
+                senderName:inviteStorage.senderName,
+                receiverName:name,
+                room_ID:inviteStorage.room_ID,
+                decision:bool,
+            });
+            setMode(0);
+        } else {
+            console.log('error occured at invite onClick()')
+        }
     }
     const handleOnClickClose = () => {
         setMode(0);
@@ -27,10 +38,12 @@ export default function Invite() {
     React.useEffect(()=>{
         if (socket !== undefined) {
             console.log('listening for request')
-            socket.on("request incoming", (senderName:string | { error:true }) => {
-                console.log(senderName)
-                if (typeof senderName === "string") {
-                    setSenderName(senderName);
+            socket.on("request incoming", ({ 
+                senderName, roomID, error
+            }:InviteInfoType) => {
+                console.log(senderName, roomID, error)
+                if (error===undefined && senderName!==undefined && roomID!==undefined) {
+                    setInviteStorage({ senderName:senderName, room_ID:roomID });
                     setMode(1);
                 } else {
                     console.log('undefined')
@@ -57,7 +70,7 @@ export default function Invite() {
                 </button>
                 {mode===1 &&
                     <div className="">
-                        You have received an invitation by {senderName}
+                        You have received an invitation by {inviteStorage.senderName}
                         <button
                             onClick={()=>handleOnClickDecision(true)}
                         >

@@ -7,6 +7,8 @@ const socketIO = require("socket.io")(http, {
         origin: "*"
     }
 });
+const addSeconds = require("date-fns/addSeconds");
+const compareAsc = require("date-fns/compareAsc");
 const WINNING_SCORE = 3;
 const createMinesArray = () => {
     let nums = new Set();
@@ -103,7 +105,7 @@ const removeRoomUser = (user, callback) => {
 const cleanGameInfos = () => {
     gameInfos = gameInfos.filter((gameInfo) => gameInfo.scores[0] + gameInfo.scores[1] !== WINNING_SCORE ||
         (gameInfo.scores[0] + gameInfo.scores[1] !== 0 && gameInfo.users.length !== 2));
-    console.log('cleared unused rooms', gameInfos);
+    //console.log('cleared unused rooms',gameInfos);
 };
 const switchUser = (roomID) => {
     const info = getGameInfo(roomID);
@@ -117,8 +119,35 @@ const checkEndGame = (roomID) => {
 const addInvitation = (key, value) => {
     invitation[key] = value;
 };
-const removeInvitation = (key) => {
-    delete invitation[key];
+const removeExpiredInvitation = () => {
+    const expiredKeys = Object.keys(invitation)
+        .filter((key) => compareAsc(Date.now(), invitation[key].validUntil) === 1 ? true : false);
+    console.log("EXPIRED_KEYS", expiredKeys);
+    expiredKeys.forEach((key) => delete invitation[key]);
+    console.log("FILTERED EXPIRED", invitation);
+};
+const expireInvitation = (senderName) => {
+    const expiredKeys = Object.keys(invitation)
+        .filter((key) => invitation[key].senderName === senderName);
+    if (expiredKeys !== undefined) {
+        expiredKeys.forEach((key) => delete invitation[key]);
+    }
+    console.log("FILTERED EXPIRE MANUAL", invitation);
+};
+const getMostRecentInvitation = (senderName, receiverName) => {
+    const mostRecentInvitation = Object.keys(invitation)
+        .sort((a, b) => {
+        return compareAsc(invitation[b].validUntil, invitation[a].validUntil);
+    })
+        .find((key) => invitation[key].senderName === senderName &&
+        invitation[key].receiverName === receiverName);
+    if (mostRecentInvitation !== undefined) {
+        console.log("MOST RECENT INVITATION", mostRecentInvitation);
+        return invitation[mostRecentInvitation];
+    }
+    else {
+        return;
+    }
 };
 let chatHistory = [];
 let activeUsers = {};
@@ -207,44 +236,57 @@ socketIO.on("connection", (socket) => {
         removeRoomUser(user, (roomID) => socket.leave(roomID));
     });
     socket.on("invite request", ({ senderName, receiverName }) => {
-        socketIO.to(activeUsers[receiverName].id).emit("request incoming", senderName);
-        //there will be only 1 valid sender request due to it being a key
-        addInvitation(senderName, { roomID: generateID(), receiverName: receiverName });
-        console.log(invitation);
-        const roomID = invitation[senderName].roomID;
+        const roomID = generateID();
+        addInvitation(roomID, {
+            roomID: roomID,
+            senderName: senderName,
+            receiverName: receiverName,
+            validUntil: addSeconds(Date.now(), 15)
+        });
+        console.log("INVITATION", invitation);
         const info = generateGameInfo(gameInfos, counters, roomID);
         info.users.push(activeUsers[senderName]);
         socket.join(roomID);
+        socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
+            senderName: senderName,
+            roomID: roomID,
+        });
     });
-    socket.on("invite reply", ({ senderName, receiverName, decision }) => {
-        var _a;
-        socketIO.to(activeUsers[senderName].id).emit("reply incoming", decision);
-        console.log(invitation);
-        //we don't care about which receiver receives it because both are valid receivers
-        //first person who accept invitation will join the room and the invitation is removed
-        const roomID = (_a = invitation[senderName]) === null || _a === void 0 ? void 0 : _a.roomID;
-        console.log('accept', roomID);
+    socket.on("invite reply", ({ senderName, receiverName, room_ID, decision }) => {
+        //remove any expired invitation (by timeout)
+        removeExpiredInvitation();
+        //get the most recent invitation of sender and receiver 
+        //(prvevents multiple invitations of same pair of sender and receiver)
+        const inviteInfo = getMostRecentInvitation(senderName, receiverName);
+        const roomID = inviteInfo !== undefined ? inviteInfo.roomID : undefined;
+        socketIO.to(roomID).emit("reply incoming", decision);
+        //no invitation was found (expired)
         if (roomID === undefined) {
             setTimeout(() => socketIO.to(activeUsers[receiverName].id)
                 .emit("request incoming", { error: true }), 300);
+            //tear down room because invitation was expired
             socketIO.socketsLeave(roomID);
             removeRoom(roomID);
-            removeInvitation(senderName);
-            console.log(gameInfos);
+            //manually expire all invitation of one sender (since invitation was successful)
+            expireInvitation(senderName);
+            //invitation was found
         }
         else {
+            //invitation was accepted
             if (decision) {
                 console.log('request from', senderName, 'accepted by', receiverName, socket.id);
                 const info = getGameInfo(roomID);
                 info.users.push(activeUsers[receiverName]);
                 socket.join(roomID);
-                removeInvitation(senderName);
+                expireInvitation(senderName);
+                //invitation was declined
             }
             else {
                 console.log('request from', senderName, 'declined by', receiverName, socket.id);
+                //tear down room because invitation was declined
                 socketIO.socketsLeave(roomID);
                 removeRoom(roomID);
-                removeInvitation(senderName);
+                expireInvitation(senderName);
             }
             cleanGameInfos();
         }
