@@ -14,6 +14,15 @@ export interface UserType {
 	id: string;
 	inGame: boolean;
 }
+export interface InviteStorageType {
+	senderName:string;
+	room_ID:string;
+}
+export interface InviteInfoType {
+	senderName?:string;
+	roomID?:string,
+	error?:boolean,
+}
 export interface GameInfoType {
 	roomID: string;
 	timer: number;
@@ -25,6 +34,7 @@ export interface GameInfoType {
 export interface FlagsType {
 	userLeft: boolean;
 	resultVisible: boolean;
+	isMatching: boolean;
 }
 export interface GlobalStateKeys {
 	[key: string]: any;

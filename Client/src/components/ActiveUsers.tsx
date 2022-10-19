@@ -1,6 +1,7 @@
 import React from "react";
 import { GlobalContext } from "../states";
 import { UserType } from "../types";
+import InviteButton from "./InviteButton";
 
 export default function ActiveUsers() {
 	const { global_state } = React.useContext(GlobalContext);
@@ -22,7 +23,7 @@ export default function ActiveUsers() {
 							/>
 							<div>{user.name.toString()}</div>
 							<div>{user.inGame ? "In-Game" : "Online"}</div>
-							<div />
+							<InviteButton user={user} />
 						</div>
 					);
 				})}

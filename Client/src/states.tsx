@@ -20,6 +20,7 @@ export const initialState: GlobalStateType = {
 	flags: {
 		resultVisible: false,
 		userLeft: false,
+		isMatching: false,
 	},
 };
 
