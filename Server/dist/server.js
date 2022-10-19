@@ -232,6 +232,7 @@ socketIO.on("connection", (socket) => {
     socket.on("name register", (user) => {
         activeUsers[user.name] = { id: user.id, name: user.name, inGame: user.inGame };
         socketIO.emit("active user update", activeUsers);
+        socket.join("global");
     });
     socket.on("matching", (user) => {
         console.log("Matching request", user);
@@ -241,6 +242,7 @@ socketIO.on("connection", (socket) => {
                 if ((info.scores[0] + info.scores[1] !== WINNING_SCORE) && info.users.length < 2) {
                     info.users.push(user);
                     socket.join(info.roomID);
+                    socket.leave("global");
                     console.log(gameInfos);
                     return;
                 }
@@ -266,6 +268,7 @@ socketIO.on("connection", (socket) => {
         const info = generateGameInfo(gameInfos, counters, chatHistory, roomID);
         info.users.push(activeUsers[senderName]);
         socket.join(roomID);
+        socket.leave("global");
         socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
             senderName: senderName,
             roomID: roomID,
@@ -296,6 +299,7 @@ socketIO.on("connection", (socket) => {
                 const info = getGameInfo(roomID);
                 info.users.push(activeUsers[receiverName]);
                 socket.join(roomID);
+                socket.leave("global");
                 expireInvitation(senderName);
                 //invitation was declined
             }
@@ -308,36 +312,31 @@ socketIO.on("connection", (socket) => {
             cleanGameInfos();
         }
     });
-    socket.on("chat message", ({ msg, name, roomID }) => {
-        //server selects and sends the chat history according to user status (online or in-game)
-        //chat histories are private (different roomID will not have access to each other's chat history)
-        let selectedChatHistory = null;
-        if (activeUsers[name].inGame && roomID !== undefined) {
-            chatHistory.local[roomID].push(msg);
-            selectedChatHistory = chatHistory.local[roomID];
-        }
-        else {
-            chatHistory.global.push(msg);
-            selectedChatHistory = chatHistory.global;
-        }
-        socketIO.emit("chat update", selectedChatHistory);
-    });
     socket.on("active user request", () => {
         socketIO.emit("active user update", activeUsers);
         console.log(Object.keys(activeUsers).length + " users are registered");
     });
+    socket.on("chat message", ({ msg, name, roomID }) => {
+        //server selects and sends the chat history according to user status (online or in-game)
+        //chat histories are private (different roomID will not have access to each other's chat history)
+        if (activeUsers[name].inGame && roomID !== undefined) {
+            chatHistory.local[roomID].push(msg);
+            socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
+        }
+        else {
+            chatHistory.global.push(msg);
+            socketIO.to("global").emit("chat update", chatHistory.global);
+        }
+    });
     socket.on("chat request", ({ name, roomID }) => {
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
-        let selectedChatHistory = null;
         if (activeUsers[name].inGame && roomID !== undefined) {
-            selectedChatHistory = chatHistory.local[roomID];
+            socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         }
         else {
-            selectedChatHistory = chatHistory.global;
+            socketIO.to("global").emit("chat update", chatHistory.global);
         }
-        console.log("CHAT HISTORY REQUEST", selectedChatHistory, roomID);
-        socketIO.emit("chat update", selectedChatHistory);
     });
     socket.on("select block", ({ index, roomID }) => {
         const info = getGameInfo(roomID);
@@ -365,6 +364,7 @@ socketIO.on("connection", (socket) => {
             socketIO.emit("active user update", activeUsers);
         }
         socket.leave(roomID);
+        socket.join("global");
     });
     socket.on("reconnect game", ({ roomID }) => {
         socket.join(roomID);

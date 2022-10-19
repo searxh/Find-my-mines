@@ -254,8 +254,9 @@ socketIO.on("connection", (socket:any)=>{
     socket.on("name register", (user:UserType)=>{
         activeUsers[user.name] = { id:user.id, name:user.name, inGame:user.inGame };
 		socketIO.emit("active user update", activeUsers);
+        socket.join("global");
     });
-    socket.on("matching",(user:UserType)=>{
+    socket.on("matching", (user:UserType)=>{
         console.log("Matching request",user);
         while (true) {
             for (let i = 0; i < gameInfos.length; i++) {
@@ -263,6 +264,7 @@ socketIO.on("connection", (socket:any)=>{
                 if ((info.scores[0]+info.scores[1] !== WINNING_SCORE) && info.users.length < 2) {
                     info.users.push(user);
                     socket.join(info.roomID);
+                    socket.leave("global")
                     console.log(gameInfos);
                     return;
                 }
@@ -276,7 +278,7 @@ socketIO.on("connection", (socket:any)=>{
         console.log("Unmatching request",user);
         removeRoomUser(user,(roomID:string)=>socket.leave(roomID));
     });
-    socket.on("invite request",({
+    socket.on("invite request", ({
         senderName, receiverName
     }:{
         senderName:string, receiverName:string
@@ -292,6 +294,7 @@ socketIO.on("connection", (socket:any)=>{
         const info = generateGameInfo(gameInfos,counters,chatHistory,roomID);
         info.users.push(activeUsers[senderName]);
         socket.join(roomID);
+        socket.leave("global");
         socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
             senderName:senderName,
             roomID:roomID,
@@ -325,6 +328,7 @@ socketIO.on("connection", (socket:any)=>{
                 const info = getGameInfo(roomID);
                 info.users.push(activeUsers[receiverName]);
                 socket.join(roomID);
+                socket.leave("global");
                 expireInvitation(senderName);
             //invitation was declined
             } else {
@@ -336,6 +340,10 @@ socketIO.on("connection", (socket:any)=>{
             cleanGameInfos();
         }
     });
+    socket.on("active user request", ()=>{
+        socketIO.emit("active user update", activeUsers);
+        console.log(Object.keys(activeUsers).length+" users are registered");
+    });
     socket.on("chat message", ({
         msg, name, roomID
     }:{ 
@@ -343,19 +351,13 @@ socketIO.on("connection", (socket:any)=>{
     })=>{
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
-        let selectedChatHistory = null;
         if (activeUsers[name].inGame && roomID !== undefined) {
             chatHistory.local[roomID].push(msg);
-            selectedChatHistory = chatHistory.local[roomID];
+            socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         } else {
             chatHistory.global.push(msg);
-            selectedChatHistory = chatHistory.global;
+            socketIO.to("global").emit("chat update", chatHistory.global);
         }
-        socketIO.emit("chat update", selectedChatHistory);
-    });
-    socket.on("active user request", ()=>{
-        socketIO.emit("active user update", activeUsers);
-        console.log(Object.keys(activeUsers).length+" users are registered");
     });
     socket.on("chat request", ({
         name, roomID
@@ -364,14 +366,11 @@ socketIO.on("connection", (socket:any)=>{
     })=>{
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
-        let selectedChatHistory = null;
         if (activeUsers[name].inGame && roomID !== undefined) {
-            selectedChatHistory = chatHistory.local[roomID];
+            socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         } else {
-            selectedChatHistory = chatHistory.global;
+            socketIO.to("global").emit("chat update", chatHistory.global);
         }
-        console.log("CHAT HISTORY REQUEST",selectedChatHistory,roomID)
-        socketIO.emit("chat update", selectedChatHistory);
     });
     socket.on("select block", ({
         index, roomID
@@ -395,42 +394,43 @@ socketIO.on("connection", (socket:any)=>{
             socketIO.to(roomID).emit("gameInfo update",info);
         }
     })
-    socket.on("leave room request",(roomID:string)=>{
+    socket.on("leave room request", (roomID:string)=>{
         const updatedUser = Object.keys(activeUsers).find(
             (key)=>activeUsers[key].id===socket.id
         )
         if (updatedUser !== undefined) {
-            activeUsers[updatedUser].inGame = false
-		    socketIO.emit("active user update", activeUsers)
+            activeUsers[updatedUser].inGame = false;
+		    socketIO.emit("active user update", activeUsers);
         }
 		socket.leave(roomID);
+        socket.join("global");
     })
     socket.on("reconnect game",({ roomID }:{ roomID:string })=>{
-        socket.join(roomID)
+        socket.join(roomID);
     })
     socket.on("play again", ({ 
         gameInfo, requester
     }:{ 
         gameInfo:GameInfoType, requester:UserType
     })=>{
-        const { roomID } = gameInfo
-        console.log("play again",roomID)
-        socketIO.to(roomID).emit("rematch request", requester)
+        const { roomID } = gameInfo;
+        console.log("play again",roomID);
+        socketIO.to(roomID).emit("rematch request", requester);
     })
     socket.on("rematch accepted", (roomID:string)=>{
-        const info = resetRoom(roomID)
-        socketIO.to(roomID).emit("start game",info)
-        resetCountdown(info,roomID)
+        const info = resetRoom(roomID);
+        socketIO.to(roomID).emit("start game",info);
+        resetCountdown(info,roomID);
     })
     socket.on("disconnect", ()=>{
         const user = Object.keys(activeUsers).find(
             (key:any)=>activeUsers[key].id===socket.id
-        )
+        );
         if (user !== undefined) {
-            console.log(user+ " has disconnected", socketIO.of("/").sockets.size)
-            delete activeUsers[user]
+            console.log(user+ " has disconnected", socketIO.of("/").sockets.size);
+            delete activeUsers[user];
         }
-        socketIO.emit("active user update", activeUsers)
+        socketIO.emit("active user update", activeUsers);
     })
 })
 interface MessageType {
