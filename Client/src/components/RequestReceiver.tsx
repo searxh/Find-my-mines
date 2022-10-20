@@ -57,7 +57,7 @@ export default function RequestReceiver() {
                 <button 
                     onClick={handleOnClickClose}
                     className="absolute -top-1 -left-1 w-10 h-10 bg-neutral-500
-                    text-center rounded-full font-righteous"
+                    text-center rounded-full font-righteous hover:scale-110 transition"
                 >
                     X
                 </button>
@@ -67,21 +67,23 @@ export default function RequestReceiver() {
                             YOU HAVE RECEIVED A GAME INVITATION
                         </div>
                         <div className="text-lg font-quicksand pt-2 px-12">
-                            The game will start immediately after you accept, this
-                            invite will expire in 15 seconds
+                            The game will start immediately after you accept, otherwise
+                            this invite will expire in 15 seconds
                         </div>
                         <div className="py-5 text-cyan-300">
                             Inviter: {inviteStorage.senderName}
                         </div>
                         <div className="flex w-full justify-evenly">
                             <button
-                                className="bg-green-800 px-8 py-2 text-white rounded-full"
+                                className="bg-green-800 px-8 py-2 text-white 
+                                rounded-full hover:scale-105 transition"
                                 onClick={()=>handleOnClickDecision(true)}
                             >
                                 Accept
                             </button>
                             <button
-                                className="bg-pink-800 px-8 py-2 text-white rounded-full"
+                                className="bg-pink-800 px-8 py-2 text-white 
+                                rounded-full hover:scale-105 transition"
                                 onClick={()=>handleOnClickDecision(false)}
                             >
                                 Decline
