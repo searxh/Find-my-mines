@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { GlobalContext } from "../states";
 
 export default function ActiveUsers() {
 	const { global_state } = React.useContext(GlobalContext);
 	const { activeUsers } = global_state;
-	useEffect(() => {}, [activeUsers]);
 
 	return (
 		<div className='flex-1 overflow-y-scroll'>
@@ -12,6 +11,7 @@ export default function ActiveUsers() {
 				{Object.values(activeUsers).map((user: any) => {
 					return (
 						<div
+							key={Math.random()}
 							className={` flex justify-between ${
 								user[2] ? "text-yellow-400" : "text-green-400"
 							} p-2 

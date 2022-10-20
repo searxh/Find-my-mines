@@ -95,16 +95,21 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				} else if (location.pathname.includes("menu") && socket === undefined) {
 					console.log("setting socket");
 					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
+				} else if (
+					location.pathname.includes("admin") &&
+					socket === undefined
+				) {
+					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
 				}
 			}, 300);
 		}
-	}, [socket, location.pathname]);
+	}, [socket, location.pathname, dispatch, name, flags, navigate]);
 	React.useEffect(() => {
 		if (reconnectInGame && socket !== undefined) {
 			socket.emit("reconnect game", { roomID: gameInfo.roomID });
 			setReconnectInGame(false);
 		}
-	}, [reconnectInGame]);
+	}, [gameInfo.roomID, reconnectInGame, socket]);
 	return (
 		<SocketContext.Provider
 			value={{ socket: socket, setSocket: setSocket } as SocketContextType}
