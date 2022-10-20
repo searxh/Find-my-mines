@@ -311,11 +311,15 @@ socketIO.on("connection", (socket:any)=>{
     })=>{
         //remove any expired invitation (by timeout)
         removeExpiredInvitation();
-        //get the most recent invitation of sender and receiver 
+        //gets the most recent invitation of sender and receiver 
         //(prevents multiple invitations of same pair of sender and receiver)
-        const inviteInfo = getMostRecentInvitation(senderName,receiverName);
+        const inviteInfo = getMostRecentInvitation(senderName, receiverName);
         const roomID = inviteInfo!==undefined?inviteInfo.roomID:undefined;
-        socketIO.to(roomID).emit("reply incoming", decision);
+        socketIO.to(roomID).emit("reply incoming", {
+            senderName:senderName,
+            receiverName:receiverName,
+            decision:decision
+        });
         //no invitation was found (expired)
         if (roomID===undefined) {
             setTimeout(()=>socketIO.to(activeUsers[receiverName].id)

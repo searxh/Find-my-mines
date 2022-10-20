@@ -29,7 +29,7 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
         >
             <div className="text-white">Invite</div>
             <svg
-                className="fill-white w-7 h-7 m-auto mx-2"
+                className="fill-white w-6 h-6 m-auto mx-2"
                 xmlns="http://www.w3.org/2000/svg" 
                 viewBox="0 0 640 512"
             >

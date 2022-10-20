@@ -7,13 +7,19 @@ export default function ReplyReceiver() {
     //mode 0 = not visible
     //mode 1 = (sender) gets accepted or decline
     const [ decision, setDecision ] = React.useState<boolean>(false);
+    const [ receiverName, setReceiverName ] = React.useState<string>("");
     const handleOnClickClose = () => {
         setMode(0);
     }
     React.useEffect(()=>{
         if (socket !== undefined) {
-            socket.on("reply incoming", (decision:boolean) => {
+            socket.on("reply incoming", ({
+                senderName, receiverName, decision
+            }:{
+                senderName:string, receiverName:string, decision:boolean
+            }) => {
                 setDecision(decision);
+                setReceiverName(receiverName);
                 setMode(1);
             });
         }
@@ -27,7 +33,7 @@ export default function ReplyReceiver() {
                 <button 
                     onClick={handleOnClickClose}
                     className="absolute -top-1 -left-1 w-10 h-10 bg-neutral-500
-                    text-center rounded-full font-righteous"
+                    text-center rounded-full font-righteous shadow-md"
                 >
                     X
                 </button>
@@ -35,6 +41,9 @@ export default function ReplyReceiver() {
                     <div className="m-auto">
                         <div className="text-4xl font-righteous px-10">
                             YOUR INVITATION WAS {decision?"ACCEPTED":"DECLINED"}
+                        </div>
+                        <div className="py-5 text-cyan-300">
+                            By {receiverName}
                         </div>
                     </div>
                 }

@@ -32,12 +32,12 @@ export default function ActiveUsers() {
 							} p-2 bg-neutral-800 rounded-full my-2 shadow-md`}
 						>
 							<div
-								className={`h-3 w-3 ${
+								className={`h-4 w-4 ${
 									user.inGame ? "bg-yellow-400" : "bg-green-400"
 								} rounded-full my-auto mr-2`}
 							/>
-							<div>{user.name.toString()}</div>
-							<div>{user.inGame ? "In-Game" : "Online"}</div>
+							<div className="my-auto">{user.name.toString()}</div>
+							<div className="my-auto">{user.inGame ? "In-Game" : "Online"}</div>
 							<InviteButton user={user} />
 						</div>
 					);
