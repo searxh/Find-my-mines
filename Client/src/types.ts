@@ -17,6 +17,12 @@ export interface UserType {
 export interface InviteStorageType {
 	senderName:string;
 }
+export interface PriorityType {
+	name: string;
+	id: string;
+	inGame: boolean;
+	priority: number;
+}
 export interface InviteInfoType {
 	senderName?:string;
 	roomID?:string,
@@ -42,6 +48,7 @@ export interface GlobalStateType extends GlobalStateKeys {
     name:string;
     chatHistory:Array<MessageType>;
     activeUsers:Array<UserType>;
+	receiver: any;
     gameInfo:GameInfoType;
     socketID:string;
     flags:FlagsType;

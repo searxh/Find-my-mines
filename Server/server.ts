@@ -38,11 +38,13 @@ const generateID = ():string => {
     return uuid.v4();
 };
 const generateGameInfo = (
-    roomID?:string
+    type:string, roomID?:string
 ) => {
     const id = roomID!==undefined?roomID:generateID();
-    const newGameInfo = {
+    const newGameInfo:GameInfoType = {
         roomID:id,
+        //type 0 = 
+        type:type,
         timer:10,
         users:[] as Array<UserType>,
         playingUser:chooseRandomUser(),
@@ -55,6 +57,7 @@ const generateGameInfo = (
         countdown:false,
     })
     chatHistory.local[id] = []
+    console.log("GENERATED CHAT INFO",chatHistory.local)
     return newGameInfo;
 };
 const resetRoom = (roomID:string) => {
@@ -70,7 +73,7 @@ const resetRoom = (roomID:string) => {
 const removeRoom = (roomID:string) => {
     gameInfos = gameInfos.filter((gameInfo:GameInfoType)=>gameInfo.roomID !== roomID);
     delete chatHistory.local[roomID];
-    console.log("REMOVED ROOM",roomID)
+    console.log("REMOVED ROOM",roomID);
 }
 const resetCountdown = (info:GameInfoType,roomID:string) => {
     const counter = getCounter(roomID)
@@ -193,6 +196,7 @@ let chatHistory:ChatHistoryType = {
 let activeUsers:any= {};
 let invitation:any = {};
 const initialRoomID = generateID();
+chatHistory.local[initialRoomID] = []
 let counters:Array<CounterType> = [
     {
         roomID:initialRoomID,
@@ -202,6 +206,7 @@ let counters:Array<CounterType> = [
 let gameInfos:Array<GameInfoType> = [
     {
         roomID:initialRoomID,
+        type:"matching",
         timer:10,
         users:[] as Array<UserType>,
         playingUser:chooseRandomUser() as number,
@@ -265,7 +270,8 @@ socketIO.on("connection", (socket:any)=>{
         while (true) {
             for (let i = 0; i < gameInfos.length; i++) {
                 const info = gameInfos[i];
-                if ((info.scores[0]+info.scores[1] !== WINNING_SCORE) && info.users.length < 2) {
+                if ((info.scores[0]+info.scores[1] !== WINNING_SCORE) 
+                && (info.users.length < 2) && info.type==="matching") {
                     info.users.push(user);
                     socket.join(info.roomID);
                     socket.leave("global")
@@ -275,7 +281,7 @@ socketIO.on("connection", (socket:any)=>{
             }
             console.log("full rooms, creating new room...");
             cleanGameInfos();
-            generateGameInfo();
+            generateGameInfo("matching");
         }
     });
     socket.on("unmatching",(user:UserType)=>{
@@ -295,7 +301,7 @@ socketIO.on("connection", (socket:any)=>{
             validUntil:addSeconds(Date.now(),15)
         });
         console.log("INVITATION",invitation);
-        const info = generateGameInfo(roomID);
+        const info = generateGameInfo("invitation",roomID);
         info.users.push(activeUsers[senderName]);
         socket.join(roomID);
         socket.leave("global");
@@ -311,11 +317,14 @@ socketIO.on("connection", (socket:any)=>{
     })=>{
         //remove any expired invitation (by timeout)
         removeExpiredInvitation();
-        //get the most recent invitation of sender and receiver 
+        //gets the most recent invitation of sender and receiver 
         //(prevents multiple invitations of same pair of sender and receiver)
-        const inviteInfo = getMostRecentInvitation(senderName,receiverName);
+        const inviteInfo = getMostRecentInvitation(senderName, receiverName);
         const roomID = inviteInfo!==undefined?inviteInfo.roomID:undefined;
-        socketIO.to(roomID).emit("reply incoming", decision);
+        socketIO.to(roomID).emit("reply incoming", {
+            receiverName:receiverName, 
+            decision:decision
+        });
         //no invitation was found (expired)
         if (roomID===undefined) {
             setTimeout(()=>socketIO.to(activeUsers[receiverName].id)
@@ -454,6 +463,7 @@ interface UserType {
 interface GameInfoType {
     roomID:string;
     timer:number;
+    type:string;
     users:Array<UserType>;
     playingUser:number;
     scores:Array<number>;
