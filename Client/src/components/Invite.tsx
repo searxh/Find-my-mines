@@ -61,40 +61,58 @@ export default function Invite() {
     return (
         mode!==0?
             <div
-                className="absolute top-0 bottom-0 left-0 right-0 w-1/2 h-[70%] text-white
-                text-2xl bg-black rounded-3xl z-50 flex m-auto"
+                className="absolute top-0 bottom-0 left-0 right-0 w-[30%] h-1/2 text-white
+                text-2xl bg-neutral-700 rounded-3xl z-50 flex m-auto shadow-md" 
             >
                 <button 
                     onClick={()=>handleOnClickClose(
                         mode===1?true:false
                     )}
-                    className="w-8 h-8 bg-neutral-500 text-center rounded-full"
+                    className="absolute -top-1 -left-1 w-10 h-10 bg-neutral-500
+                    text-center rounded-full font-righteous"
                 >
                     X
                 </button>
                 {mode===1 &&
-                    <div className="">
-                        You have received an invitation by {inviteStorage.senderName}
-                        <button
-                            onClick={()=>handleOnClickDecision(true)}
-                        >
-                            Accept
-                        </button>
-                        <button
-                            onClick={()=>handleOnClickDecision(false)}
-                        >
-                            Decline
-                        </button>
+                    <div className="flex flex-col m-auto">
+                        <div className="text-3xl font-righteous px-10">
+                            YOU HAVE RECEIVED A GAME INVITATION
+                        </div>
+                        <div className="text-lg font-quicksand pt-2 px-10">
+                            The game will start immediately after you accept, this
+                            invite will expire in 15 seconds
+                        </div>
+                        <div className="py-5 text-cyan-300">
+                            Inviter: {inviteStorage.senderName}
+                        </div>
+                        <div className="flex w-full justify-evenly">
+                            <button
+                                className="bg-green-800 px-8 py-2 text-white rounded-full"
+                                onClick={()=>handleOnClickDecision(true)}
+                            >
+                                Accept
+                            </button>
+                            <button
+                                className="bg-pink-800 px-8 py-2 text-white rounded-full"
+                                onClick={()=>handleOnClickDecision(false)}
+                            >
+                                Decline
+                            </button>
+                        </div>
                     </div>
                 }
                 {mode===2 &&
-                    <div className="">
-                        Your invitation was {decision?"accepted":"declined"}
+                    <div className="m-auto">
+                        <div className="text-4xl font-righteous px-10">
+                            YOUR INVITATION WAS {decision?"ACCEPTED":"DECLINED"}
+                        </div>
                     </div>
                 }
                 {mode===3 &&
-                    <div className="">
-                        The invitation is already invalid.
+                    <div className="m-auto">
+                        <div className="text-4xl font-righteous px-10">
+                            THE INVITATION IS ALREADY INVALID
+                        </div>
                     </div>
                 }
             </div>
