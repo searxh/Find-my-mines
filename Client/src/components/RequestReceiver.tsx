@@ -12,7 +12,7 @@ export default function RequestReceiver() {
     const [ trigger, setTrigger ] = React.useState<boolean>(false);
     //mode 0 = not visible
     //mode 1 = (sender) gets invitation request
-    //mode 2 = error occured
+    //mode 2 = error occured (ex:someone accepted before you can, in multi-inv)
     const [ inviteStorage, setInviteStorage ] = React.useState<InviteStorageType>({
         senderName:""
     });
@@ -27,11 +27,15 @@ export default function RequestReceiver() {
             });
             setMode(0);
         } else {
-            console.log('error occured at invite onClick()')
+            console.log('error occured at invite onClick()');
         }
     }
     const handleOnClickClose = () => {
-        handleOnClickDecision(false);
+        if (mode === 2) {
+            setMode(0);
+        } else {
+            handleOnClickDecision(false);
+        }
     }
     React.useEffect(()=>{
         if (socket !== undefined) {
@@ -47,10 +51,11 @@ export default function RequestReceiver() {
                     setTimeout(()=>setTrigger(false),15000);
                 } else {
                     console.log('undefined');
+                    setMode(2);
                 }
             });
         }
-    },[socket])
+    },[socket]);
     return (
         mode!==0?
             <div
@@ -73,6 +78,7 @@ export default function RequestReceiver() {
                             The game will start immediately after you accept, otherwise
                             this invite will expire in
                             <Countdown
+                                seconds={15}
                                 trigger={trigger}
                                 callback={()=>setMode(0)}
                             />

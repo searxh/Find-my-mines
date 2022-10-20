@@ -316,8 +316,7 @@ socketIO.on("connection", (socket:any)=>{
         const inviteInfo = getMostRecentInvitation(senderName, receiverName);
         const roomID = inviteInfo!==undefined?inviteInfo.roomID:undefined;
         socketIO.to(roomID).emit("reply incoming", {
-            senderName:senderName,
-            receiverName:receiverName,
+            receiverName:receiverName, 
             decision:decision
         });
         //no invitation was found (expired)

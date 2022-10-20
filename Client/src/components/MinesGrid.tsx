@@ -48,7 +48,7 @@ function Block({ block, index }:{ block:BlockType, index:number }) {
             {block.value===1 && block.selected &&
                 <img
                     className="w-full object-contain"
-                    src="assets/images/mine.png"
+                    src="assets/images/CommonMine.png"
                     alt=""
                 />
             }

@@ -1,8 +1,11 @@
 import React from 'react'
 import { SocketContext } from '../socket'
+import { GlobalContext } from '../states';
 
 export default function ReplyReceiver() {
+    const { global_state, dispatch } = React.useContext(GlobalContext) ;
     const { socket } = React.useContext(SocketContext);
+    const { receiver } = global_state;
     const [ mode, setMode ] = React.useState<number>(0);
     //mode 0 = not visible
     //mode 1 = (sender) gets accepted or decline
@@ -14,12 +17,19 @@ export default function ReplyReceiver() {
     React.useEffect(()=>{
         if (socket !== undefined) {
             socket.on("reply incoming", ({
-                senderName, receiverName, decision
+                receiverName, decision
             }:{
-                senderName:string, receiverName:string, decision:boolean
+                receiverName:string, decision:boolean
             }) => {
                 setDecision(decision);
                 setReceiverName(receiverName);
+                const newReceiver = { ...receiver };
+                newReceiver[receiverName] = decision;
+                dispatch({
+                    type:"set",
+                    field:"receiver",
+                    payload:newReceiver,
+                })
                 setMode(1);
             });
         }
@@ -42,8 +52,8 @@ export default function ReplyReceiver() {
                         <div className="text-4xl font-righteous px-10">
                             YOUR INVITATION WAS {decision?"ACCEPTED":"DECLINED"}
                         </div>
-                        <div className="py-5 text-cyan-300">
-                            By {receiverName}
+                        <div className="text-3xl text-cyan-400 font-quicksand px-10">
+                            (to {receiverName})
                         </div>
                     </div>
                 }

@@ -48,6 +48,7 @@ export interface GlobalStateType extends GlobalStateKeys {
     name:string;
     chatHistory:Array<MessageType>;
     activeUsers:Array<UserType>;
+	receiver: any;
     gameInfo:GameInfoType;
     socketID:string;
     flags:FlagsType;

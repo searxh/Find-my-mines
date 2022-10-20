@@ -15,6 +15,7 @@ export const initialState: GlobalStateType = {
 	name: "",
 	chatHistory: [],
 	activeUsers: [],
+	receiver: {},
 	gameInfo: {} as GameInfoType,
 	socketID: "",
 	flags: {

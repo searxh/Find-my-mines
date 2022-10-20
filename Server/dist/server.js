@@ -292,7 +292,6 @@ socketIO.on("connection", (socket) => {
         const inviteInfo = getMostRecentInvitation(senderName, receiverName);
         const roomID = inviteInfo !== undefined ? inviteInfo.roomID : undefined;
         socketIO.to(roomID).emit("reply incoming", {
-            senderName: senderName,
             receiverName: receiverName,
             decision: decision
         });
