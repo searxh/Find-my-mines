@@ -35,7 +35,7 @@ const chooseRandomUser = () => {
 const generateID = () => {
     return uuid.v4();
 };
-const generateGameInfo = (gameInfos, counters, chatHistory, roomID) => {
+const generateGameInfo = (roomID) => {
     const id = roomID !== undefined ? roomID : generateID();
     const newGameInfo = {
         roomID: id,
@@ -65,7 +65,8 @@ const resetRoom = (roomID) => {
 };
 const removeRoom = (roomID) => {
     gameInfos = gameInfos.filter((gameInfo) => gameInfo.roomID !== roomID);
-    console.log("REMOVED ROOM", gameInfos);
+    delete chatHistory.local[roomID];
+    console.log("REMOVED ROOM", roomID);
 };
 const resetCountdown = (info, roomID) => {
     const counter = getCounter(roomID);
@@ -87,7 +88,7 @@ const getGameInfo = (roomID) => {
 const getCounter = (roomID) => {
     return counters.find((counterObj) => counterObj.roomID === roomID);
 };
-const removeRoomUser = (user, callback) => {
+const removeUser = (user, callback) => {
     let info = gameInfos.find((infoObj) => {
         if (infoObj.scores[0] + infoObj.scores[1] !== WINNING_SCORE) {
             return infoObj.users.find((userObj) => userObj.name === user.name) !== undefined;
@@ -105,7 +106,15 @@ const removeRoomUser = (user, callback) => {
     }
 };
 const cleanGameInfos = () => {
-    gameInfos = gameInfos.filter((gameInfo) => gameInfo.scores[0] + gameInfo.scores[1] !== WINNING_SCORE);
+    gameInfos = gameInfos.filter((gameInfo) => {
+        if (gameInfo.scores[0] + gameInfo.scores[1] === WINNING_SCORE) {
+            delete chatHistory.local[gameInfo.roomID];
+            return false;
+        }
+        else {
+            return true;
+        }
+    });
     console.log('cleared unused rooms', gameInfos);
 };
 const switchUser = (roomID) => {
@@ -125,10 +134,10 @@ const removeExpiredInvitation = () => {
         .filter((key) => compareAsc(Date.now(), invitation[key].validUntil) === 1 ? true : false);
     console.log("EXPIRED_KEYS", expiredKeys);
     expiredKeys.forEach((key) => {
-        //removes the room that is created as well if room doesn't have 2 people
         const roomID = invitation[key].roomID;
         const info = getGameInfo(roomID);
         console.log("INFO USER LENGTH AUTO EXPIRE", info.users);
+        //removes the room that is created as well if room doesn't have 2 people
         if (info.users.length < 2)
             removeRoom(roomID);
         delete invitation[key];
@@ -143,6 +152,7 @@ const expireInvitation = (senderName) => {
             const roomID = invitation[key].roomID;
             const info = getGameInfo(roomID);
             console.log("INFO USER LENGTH MANUAL EXPIRE", info.users);
+            //removes the room that is created as well if room doesn't have 2 people
             if (info.users.length < 2)
                 removeRoom(roomID);
             delete invitation[key];
@@ -249,12 +259,12 @@ socketIO.on("connection", (socket) => {
             }
             console.log("full rooms, creating new room...");
             cleanGameInfos();
-            generateGameInfo(gameInfos, counters, chatHistory);
+            generateGameInfo();
         }
     });
     socket.on("unmatching", (user) => {
         console.log("Unmatching request", user);
-        removeRoomUser(user, (roomID) => socket.leave(roomID));
+        removeUser(user, (roomID) => socket.leave(roomID));
     });
     socket.on("invite request", ({ senderName, receiverName }) => {
         const roomID = generateID();
@@ -265,7 +275,7 @@ socketIO.on("connection", (socket) => {
             validUntil: addSeconds(Date.now(), 15)
         });
         console.log("INVITATION", invitation);
-        const info = generateGameInfo(gameInfos, counters, chatHistory, roomID);
+        const info = generateGameInfo(roomID);
         info.users.push(activeUsers[senderName]);
         socket.join(roomID);
         socket.leave("global");
@@ -307,7 +317,6 @@ socketIO.on("connection", (socket) => {
                 console.log('request from', senderName, 'declined by', receiverName, socket.id);
                 //tear down room because invitation was declined
                 socketIO.socketsLeave(roomID);
-                expireInvitation(senderName);
             }
             cleanGameInfos();
         }
@@ -331,10 +340,13 @@ socketIO.on("connection", (socket) => {
     socket.on("chat request", ({ name, roomID }) => {
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
+        console.log("CHAT REQUEST ARG", name, roomID);
         if (activeUsers[name].inGame && roomID !== undefined) {
+            console.log("CHAT HISTORY LOCAL", chatHistory.local[roomID]);
             socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         }
         else {
+            console.log(chatHistory.global);
             socketIO.to("global").emit("chat update", chatHistory.global);
         }
     });
