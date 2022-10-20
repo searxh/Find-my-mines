@@ -46,8 +46,8 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
         user.name !== name?
         <div className="relative">
             <div className={`font-righteous absolute ${trigger?"-translate-x-11":"translate-x-0"}  text-lg
-            left-0 top-0 h-full p-1 pr-16 text-white bg-teal-600 text-center z-10 w-full
-            rounded-full transition-transform duration-100`}>
+            left-0 top-0 h-full p-1 pr-16 text-white ${checkCanInvite()?"bg-teal-600":"opacity-0"} 
+            text-center z-10 w-full rounded-full transition-transform duration-100`}>
                 <Countdown
                     seconds={15}
                     trigger={trigger}
@@ -57,7 +57,7 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
             <button
                 disabled={!checkCanInvite()}
                 className={`relative flex px-3 py-1 justify-evenly hover:scale-110 transition rounded-full
-                ${checkCanInvite()?"bg-green-800":"opacity-50 bg-neutral-500"} text-lg z-20`}
+                ${checkCanInvite()?"bg-green-800":"opacity-70 bg-neutral-500"} text-lg z-20`}
                 onClick={handleOnClick}
             >
                 <div className="text-white">Invite</div>

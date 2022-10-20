@@ -6,10 +6,14 @@ import { SocketContext } from '../socket'
 
 export default function MinesGrid() {
     const { global_state } = React.useContext(GlobalContext)
-    const { gameInfo } = global_state
+    const { gameInfo, name } = global_state
+    const checkPlayerCanInteract = () => {
+        const playingUser =  gameInfo.users[gameInfo.playingUser]
+        return playingUser.name === name
+    }
     return (
-        <div className="w-fit grid grid-cols-6 gap-2 m-auto bg-gradient-to-r
-        from-teal-200 to-sky-200 p-5 rounded-3xl">
+        <div className={`w-fit grid grid-cols-6 gap-2 m-auto p-5 rounded-3xl
+        ${checkPlayerCanInteract()?"bg-gradient-to-r from-teal-200 to-sky-200":"bg-neutral-400"}`}>
             {gameInfo.minesArray.map(
                 (block:BlockType,index:number)=>{
                     return <Block block={block} index={index} />
