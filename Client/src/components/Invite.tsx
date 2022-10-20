@@ -30,8 +30,12 @@ export default function Invite() {
             console.log('error occured at invite onClick()')
         }
     }
-    const handleOnClickClose = () => {
-        setMode(0);
+    const handleOnClickClose = (dismiss:boolean) => {
+        if (dismiss) {
+            handleOnClickDecision(false);
+        } else {
+            setMode(0);
+        }
     }
     React.useEffect(()=>{
         if (socket !== undefined) {
@@ -61,7 +65,9 @@ export default function Invite() {
                 text-2xl bg-black rounded-3xl z-50 flex m-auto"
             >
                 <button 
-                    onClick={handleOnClickClose}
+                    onClick={()=>handleOnClickClose(
+                        mode===1?true:false
+                    )}
                     className="w-8 h-8 bg-neutral-500 text-center rounded-full"
                 >
                     X
