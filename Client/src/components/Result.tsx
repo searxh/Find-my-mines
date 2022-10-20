@@ -55,7 +55,7 @@ export default function Result() {
     return (flags.resultVisible?
         <div
             className={`absolute top-0 bottom-0 left-0 right-0 w-1/2 h-[70%] text-white
-            text-2xl bg-gradient-to-t from-neutral-800 rounded-3xl z-50 flex m-auto`}
+            text-2xl bg-gradient-to-t bg-neutral-800 rounded-3xl z-50 flex m-auto`}
         >
             <div className="m-auto w-[70%]">
                 <div className={`font-righteous text-5xl

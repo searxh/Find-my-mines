@@ -78,7 +78,7 @@ export default function Invite() {
                         <div className="text-3xl font-righteous px-10">
                             YOU HAVE RECEIVED A GAME INVITATION
                         </div>
-                        <div className="text-lg font-quicksand pt-2 px-10">
+                        <div className="text-lg font-quicksand pt-2 px-12">
                             The game will start immediately after you accept, this
                             invite will expire in 15 seconds
                         </div>
