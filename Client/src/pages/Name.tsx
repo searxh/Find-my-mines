@@ -22,7 +22,7 @@ export default function Name() {
         <div className="flex bg-neutral-800 w-full h-screen p-5">
             <form className="flex flex-col m-auto p-2">
                 <div className="relative mb-10">
-                    <div className="font-allerta text-6xl text-white text-center animate-pulse-slow">
+                    <div className="font-righteous text-6xl text-white text-center animate-pulse-slow">
                         FIND MY MINES
                         <div className="font-quicksand absolute left-0 right-0 top-20 text-3xl">
                             GROUP 6

@@ -39,7 +39,7 @@ export default function Game() {
                             isPlaying={playingUser===1?true:false}
                             className="my-3"
                         />
-                        <div className="font-allerta text-5xl text-white p-5">
+                        <div className="font-righteous text-5xl text-white p-5">
                             TIMER: {timer}
                         </div>
                     </div>
