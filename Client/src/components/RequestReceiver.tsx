@@ -2,12 +2,14 @@ import React from 'react'
 import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
 import { InviteInfoType, InviteStorageType } from '../types';
+import Countdown from './Countdown';
 
 export default function RequestReceiver() {
     const { socket } = React.useContext(SocketContext);
     const { global_state } = React.useContext(GlobalContext);
     const { name } = global_state;
     const [ mode, setMode ] = React.useState<number>(0);
+    const [ trigger, setTrigger ] = React.useState<boolean>(false);
     //mode 0 = not visible
     //mode 1 = (sender) gets invitation request
     //mode 2 = error occured
@@ -37,13 +39,14 @@ export default function RequestReceiver() {
             socket.on("request incoming", ({ 
                 senderName, roomID, error
             }:InviteInfoType) => {
-                console.log(senderName, roomID, error)
+                console.log(senderName, roomID, error);
                 if (error===undefined && senderName!==undefined && roomID!==undefined) {
                     setInviteStorage({ senderName:senderName });
                     setMode(1);
+                    setTrigger(true);
+                    setTimeout(()=>setTrigger(false),15000);
                 } else {
-                    console.log('undefined')
-                    setMode(2);
+                    console.log('undefined');
                 }
             });
         }
@@ -68,7 +71,12 @@ export default function RequestReceiver() {
                         </div>
                         <div className="text-lg font-quicksand pt-2 px-12">
                             The game will start immediately after you accept, otherwise
-                            this invite will expire in 15 seconds
+                            this invite will expire in
+                            <Countdown
+                                trigger={trigger}
+                                callback={()=>setMode(0)}
+                            />
+                            seconds
                         </div>
                         <div className="py-5 text-cyan-300">
                             Inviter: {inviteStorage.senderName}
