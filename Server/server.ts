@@ -371,10 +371,8 @@ socketIO.on("connection", (socket:any)=>{
         //chat histories are private (different roomID will not have access to each other's chat history)
         console.log("CHAT REQUEST ARG", name, roomID)
         if (activeUsers[name].inGame && roomID !== undefined) {
-            console.log("CHAT HISTORY LOCAL", chatHistory.local[roomID])
             socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         } else {
-            console.log(chatHistory.global)
             socketIO.to("global").emit("chat update", chatHistory.global);
         }
     });
