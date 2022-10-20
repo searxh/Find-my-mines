@@ -17,6 +17,12 @@ export interface UserType {
 export interface InviteStorageType {
 	senderName:string;
 }
+export interface PriorityType {
+	name: string;
+	id: string;
+	inGame: boolean;
+	priority: number;
+}
 export interface InviteInfoType {
 	senderName?:string;
 	roomID?:string,

@@ -1,15 +1,30 @@
 import React from "react";
 import { GlobalContext } from "../states";
-import { UserType } from "../types";
+import { PriorityType, UserType } from "../types";
 import InviteButton from "./InviteButton";
 
 export default function ActiveUsers() {
 	const { global_state } = React.useContext(GlobalContext);
-	const { activeUsers } = global_state;
+	const { activeUsers, name } = global_state;
+	const [ priorities, setPriorities ] = React.useState<Array<PriorityType>>([])
+	React.useEffect(()=>{
+		if (activeUsers !== undefined) {
+			const prioritiesArr = activeUsers.map((user:UserType)=>{
+				if (user.name === name) {
+					return { ...user, priority:1 }
+				} else {
+					return { ...user, priority:0 }
+				}
+			})
+			setPriorities(prioritiesArr.sort(
+				(a:PriorityType,b:PriorityType)=>b.priority-a.priority
+			))
+		}
+	},[activeUsers])
 	return (
 		<div className='flex-1 overflow-y-scroll'>
 			<div className='flex flex-col text-xl'>
-				{activeUsers.map((user: UserType) => {
+				{priorities.map((user: UserType) => {
 					return (
 						<div
 							className={` flex justify-between ${
