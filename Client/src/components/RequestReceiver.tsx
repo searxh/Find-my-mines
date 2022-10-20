@@ -3,19 +3,17 @@ import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
 import { InviteInfoType, InviteStorageType } from '../types';
 
-export default function Invite() {
+export default function RequestReceiver() {
     const { socket } = React.useContext(SocketContext);
     const { global_state } = React.useContext(GlobalContext);
     const { name } = global_state;
     const [ mode, setMode ] = React.useState<number>(0);
     //mode 0 = not visible
     //mode 1 = (sender) gets invitation request
-    //mode 2 = (sender) gets accepted or decline
-    //mode 3 = error occured
+    //mode 2 = error occured
     const [ inviteStorage, setInviteStorage ] = React.useState<InviteStorageType>({
         senderName:""
     });
-    const [ decision, setDecision ] = React.useState<boolean>(false);
     const handleOnClickDecision = (bool:boolean) => {
         if (socket !== undefined && 
             inviteStorage.senderName+inviteStorage.senderName!==""
@@ -30,12 +28,8 @@ export default function Invite() {
             console.log('error occured at invite onClick()')
         }
     }
-    const handleOnClickClose = (dismiss:boolean) => {
-        if (dismiss) {
-            handleOnClickDecision(false);
-        } else {
-            setMode(0);
-        }
+    const handleOnClickClose = () => {
+        handleOnClickDecision(false);
     }
     React.useEffect(()=>{
         if (socket !== undefined) {
@@ -49,12 +43,8 @@ export default function Invite() {
                     setMode(1);
                 } else {
                     console.log('undefined')
-                    setMode(3);
+                    setMode(2);
                 }
-            });
-            socket.on("reply incoming", (decision:boolean) => {
-                setDecision(decision);
-                setMode(2);
             });
         }
     },[socket])
@@ -65,9 +55,7 @@ export default function Invite() {
                 text-2xl bg-neutral-700 rounded-3xl z-50 flex m-auto shadow-md" 
             >
                 <button 
-                    onClick={()=>handleOnClickClose(
-                        mode===1?true:false
-                    )}
+                    onClick={handleOnClickClose}
                     className="absolute -top-1 -left-1 w-10 h-10 bg-neutral-500
                     text-center rounded-full font-righteous"
                 >
@@ -102,13 +90,6 @@ export default function Invite() {
                     </div>
                 }
                 {mode===2 &&
-                    <div className="m-auto">
-                        <div className="text-4xl font-righteous px-10">
-                            YOUR INVITATION WAS {decision?"ACCEPTED":"DECLINED"}
-                        </div>
-                    </div>
-                }
-                {mode===3 &&
                     <div className="m-auto">
                         <div className="text-4xl font-righteous px-10">
                             THE INVITATION IS ALREADY INVALID
