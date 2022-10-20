@@ -35,10 +35,12 @@ const chooseRandomUser = () => {
 const generateID = () => {
     return uuid.v4();
 };
-const generateGameInfo = (roomID) => {
+const generateGameInfo = (type, roomID) => {
     const id = roomID !== undefined ? roomID : generateID();
     const newGameInfo = {
         roomID: id,
+        //type 0 = 
+        type: type,
         timer: 10,
         users: [],
         playingUser: chooseRandomUser(),
@@ -51,6 +53,7 @@ const generateGameInfo = (roomID) => {
         countdown: false,
     });
     chatHistory.local[id] = [];
+    console.log("GENERATED CHAT INFO", chatHistory.local);
     return newGameInfo;
 };
 const resetRoom = (roomID) => {
@@ -182,6 +185,7 @@ let chatHistory = {
 let activeUsers = {};
 let invitation = {};
 const initialRoomID = generateID();
+chatHistory.local[initialRoomID] = [];
 let counters = [
     {
         roomID: initialRoomID,
@@ -191,6 +195,7 @@ let counters = [
 let gameInfos = [
     {
         roomID: initialRoomID,
+        type: "matching",
         timer: 10,
         users: [],
         playingUser: chooseRandomUser(),
@@ -249,7 +254,8 @@ socketIO.on("connection", (socket) => {
         while (true) {
             for (let i = 0; i < gameInfos.length; i++) {
                 const info = gameInfos[i];
-                if ((info.scores[0] + info.scores[1] !== WINNING_SCORE) && info.users.length < 2) {
+                if ((info.scores[0] + info.scores[1] !== WINNING_SCORE)
+                    && (info.users.length < 2) && info.type === "matching") {
                     info.users.push(user);
                     socket.join(info.roomID);
                     socket.leave("global");
@@ -259,7 +265,7 @@ socketIO.on("connection", (socket) => {
             }
             console.log("full rooms, creating new room...");
             cleanGameInfos();
-            generateGameInfo();
+            generateGameInfo("matching");
         }
     });
     socket.on("unmatching", (user) => {
@@ -275,7 +281,7 @@ socketIO.on("connection", (socket) => {
             validUntil: addSeconds(Date.now(), 15)
         });
         console.log("INVITATION", invitation);
-        const info = generateGameInfo(roomID);
+        const info = generateGameInfo("invitation", roomID);
         info.users.push(activeUsers[senderName]);
         socket.join(roomID);
         socket.leave("global");
