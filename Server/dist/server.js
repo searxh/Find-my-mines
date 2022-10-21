@@ -60,7 +60,7 @@ const resetRoom = (roomID) => {
     const info = getGameInfo(roomID);
     if (info !== undefined) {
         info.timer = 10;
-        info.playingUser = chooseRandomUser();
+        info.playingUser = info.scores[0] > info.scores[1] ? 0 : 1;
         info.scores = [0, 0];
         info.minesArray = createMinesArray();
     }
@@ -247,7 +247,6 @@ socketIO.on("connection", (socket) => {
     socket.on("name register", (user) => {
         activeUsers[user.name] = { id: user.id, name: user.name, inGame: user.inGame };
         socketIO.emit("active user update", activeUsers);
-        socket.join("global");
     });
     socket.on("matching", (user) => {
         console.log("Matching request", user);
@@ -258,7 +257,6 @@ socketIO.on("connection", (socket) => {
                     && (info.users.length < 2) && info.type === "matching") {
                     info.users.push(user);
                     socket.join(info.roomID);
-                    socket.leave("global");
                     console.log(gameInfos);
                     return;
                 }
@@ -284,7 +282,6 @@ socketIO.on("connection", (socket) => {
         const info = generateGameInfo("invitation", roomID);
         info.users.push(activeUsers[senderName]);
         socket.join(roomID);
-        socket.leave("global");
         socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
             senderName: senderName,
             roomID: roomID,
@@ -343,7 +340,8 @@ socketIO.on("connection", (socket) => {
         }
         else {
             chatHistory.global.push(msg);
-            socketIO.to("global").emit("chat update", chatHistory.global);
+            socketIO.except(gameInfos.map((gameInfo) => gameInfo.roomID))
+                .emit("chat update", chatHistory.global);
         }
     });
     socket.on("chat request", ({ name, roomID }) => {
@@ -354,7 +352,8 @@ socketIO.on("connection", (socket) => {
             socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         }
         else {
-            socketIO.to("global").emit("chat update", chatHistory.global);
+            socketIO.except(gameInfos.map((gameInfo) => gameInfo.roomID))
+                .emit("chat update", chatHistory.global);
         }
     });
     socket.on("select block", ({ index, roomID }) => {
@@ -383,7 +382,6 @@ socketIO.on("connection", (socket) => {
             socketIO.emit("active user update", activeUsers);
         }
         socket.leave(roomID);
-        socket.join("global");
     });
     socket.on("reconnect game", ({ roomID }) => {
         socket.join(roomID);
