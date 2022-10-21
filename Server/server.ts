@@ -165,7 +165,9 @@ socketIO.of("/").adapter.on("join-room", (roomID: string, id: string) => {
 		if (info.users.length === 2) {
 			console.log("starting game for room ", info.roomID);
 
-			info.users.forEach((user) => (user.inGame = true));
+			info.users.forEach((user) => {
+				activeUsers[user.name][2] = true;
+			});
 
 			socketIO.to(info.roomID).emit("start game", info);
 			const counter = getCounter(info.roomID);
@@ -186,7 +188,10 @@ socketIO.of("/").adapter.on("join-room", (roomID: string, id: string) => {
 });
 
 socketIO.of("/").adapter.on("leave-room", (roomID: string, id: string) => {
+	const info = getGameInfo(roomID);
 	console.log(`${id} has left room ${roomID}`);
+	info.users.forEach((user) => (user.inGame = false));
+
 	if (roomID.length > 20) {
 		socketIO.to(roomID).emit("other user left");
 	}
@@ -219,6 +224,7 @@ socketIO.on("connection", (socket: any) => {
 		}
 	});
 	socket.on("unmatching", (user: UserType) => {
+		user.inGame = false;
 		console.log("Unmatching request", user);
 		removeRoomUser(user, (roomID: string) => socket.leave(roomID));
 	});

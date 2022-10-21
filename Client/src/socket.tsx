@@ -51,6 +51,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 			});
 			socket.on("start game", (gameInfo: GameInfoType) => {
 				const newFlags = { ...flags, resultVisible: false };
+
 				dispatch({
 					type: "multi-set",
 					field: ["gameInfo", "flags"],
@@ -95,10 +96,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				} else if (location.pathname.includes("menu") && socket === undefined) {
 					console.log("setting socket");
 					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
-				} else if (
-					location.pathname.includes("admin") &&
-					socket === undefined
-				) {
+				} else if (location.pathname.includes("admin")) {
 					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
 				}
 			}, 300);
