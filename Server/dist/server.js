@@ -13,13 +13,13 @@ const WINNING_SCORE = 3;
 const createMinesArray = () => {
     let nums = new Set();
     while (nums.size < 11) {
-        nums.add(Math.floor(Math.random() * 36 + 1));
+        nums.add(Math.floor(Math.random() * 36));
     }
     const types = generateArrayFrom([1, 2, 3, 5], [...nums]);
     const bombIndexes = [];
     nums.forEach((num) => bombIndexes.push(num));
     const arr = [...Array(36)].map((value, index) => {
-        return bombIndexes.includes(index + 1) ?
+        return bombIndexes.includes(index) ?
             {
                 selected: false,
                 value: 1,
@@ -27,9 +27,10 @@ const createMinesArray = () => {
             } : {
             selected: false,
             value: 0,
-            type: types[index],
+            type: null,
         };
     });
+    console.log(arr);
     return arr;
 };
 const generateArrayFrom = (amountArray, arr) => {

@@ -3,6 +3,7 @@ import { GlobalContext } from '../states'
 import { playAudio } from '../lib/utility/Audio'
 import { BlockType } from '../types'
 import { SocketContext } from '../socket'
+import Image from './Image'
 
 export default function MinesGrid() {
     const { global_state } = React.useContext(GlobalContext)
@@ -16,6 +17,7 @@ export default function MinesGrid() {
         ${checkPlayerCanInteract()?"bg-gradient-to-r from-teal-200 to-sky-200":"bg-neutral-400"}`}>
             {gameInfo.minesArray.map(
                 (block:BlockType,index:number)=>{
+                    console.log(block);
                     return <Block block={block} index={index} />
                 })
             }
@@ -24,18 +26,18 @@ export default function MinesGrid() {
 }
 
 function Block({ block, index }:{ block:BlockType, index:number }) {
-    const { global_state } = React.useContext(GlobalContext)
-    const { socket } = React.useContext(SocketContext) 
-    const { gameInfo, name } = global_state
+    const { global_state } = React.useContext(GlobalContext);
+    const { socket } = React.useContext(SocketContext);
+    const { gameInfo, name } = global_state;
     const handleOnClick = () => {
         if (socket !== undefined) {
-            socket.emit('select block',{ index:index, roomID:gameInfo.roomID })
-            playAudio('pop.wav')
+            socket.emit('select block',{ index:index, roomID:gameInfo.roomID });
+            playAudio('pop.wav');
         }
     }
     const checkPlayerCanInteract = () => {
-        const playingUser =  gameInfo.users[gameInfo.playingUser]
-        return playingUser.name === name
+        const playingUser =  gameInfo.users[gameInfo.playingUser];
+        return playingUser.name === name;
     }
     return (
         <button
@@ -49,14 +51,9 @@ function Block({ block, index }:{ block:BlockType, index:number }) {
                 ${block.selected?"bg-white":"bg-slate-700 hover:scale-110"} 
                 transition rounded-md shadow-md`}
         >
-            {block.value===1 && block.selected &&
-                <img
-                    className="w-full object-contain"
-                    src="assets/images/CommonMine.png"
-                    alt=""
-                />
+            {block.value === 1 && block.selected &&
+                <Image type={block.type as string} />
             }
-
         </button>
     )
 }

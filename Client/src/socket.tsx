@@ -60,6 +60,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				setTimeout(() => navigate("/game"), 1000);
 			});
 			socket.on("gameInfo update", (gameInfo: GameInfoType) => {
+				console.log(gameInfo)
 				dispatch({
 					type: "set",
 					field: "gameInfo",
