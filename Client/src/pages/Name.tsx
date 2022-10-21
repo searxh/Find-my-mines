@@ -39,8 +39,12 @@ export default function Name() {
 				field: "name",
 				payload: nameRef.current.value,
 			});
+			if (nameRef.current.value.toLocaleLowerCase() === "admin") {
+				navigate("admin");
+			} else {
+				if (inputState.isValid) navigate("menu");
+			}
 			nameRef.current.value = "";
-			if (inputState.isValid) navigate("menu");
 		}
 	};
 	const changeHandler = (event: any) => {
