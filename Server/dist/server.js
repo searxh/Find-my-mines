@@ -60,7 +60,7 @@ const resetRoom = (roomID) => {
     const info = getGameInfo(roomID);
     if (info !== undefined) {
         info.timer = 10;
-        info.playingUser = chooseRandomUser();
+        info.playingUser = info.scores[0] > info.scores[1] ? 0 : 1;
         info.scores = [0, 0];
         info.minesArray = createMinesArray();
     }
