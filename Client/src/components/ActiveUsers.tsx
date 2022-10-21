@@ -10,22 +10,24 @@ export default function ActiveUsers() {
 			<div className='flex flex-col text-xl'>
 				{Object.values(activeUsers).map((user: any) => {
 					return (
-						<div
-							key={Math.random()}
-							className={` flex justify-between ${
-								user[2] ? "text-yellow-400" : "text-green-400"
-							} p-2 
-                            bg-neutral-800 rounded-full my-2 shadow-md`}
-						>
+						user[1].toLocaleLowerCase() !== "admin" && (
 							<div
-								className={`h-3 w-3 ${
-									user[2] ? "bg-yellow-400" : "bg-green-400"
-								} rounded-full my-auto mr-2`}
-							/>
-							<div>{user[1].toString()}</div>
-							<div>{user[2] ? "In Game" : "Online"}</div>
-							<div />
-						</div>
+								key={Math.random()}
+								className={` flex justify-between ${
+									user[2] ? "text-yellow-400" : "text-green-400"
+								} p-2 
+                            bg-neutral-800 rounded-full my-2 shadow-md`}
+							>
+								<div
+									className={`h-3 w-3 ${
+										user[2] ? "bg-yellow-400" : "bg-green-400"
+									} rounded-full my-auto mr-2`}
+								/>
+								<div>{user[1].toString()}</div>
+								<div>{user[2] ? "In Game" : "Online"}</div>
+								<div />
+							</div>
+						)
 					);
 				})}
 			</div>
