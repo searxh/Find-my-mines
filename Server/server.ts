@@ -273,8 +273,21 @@ socketIO.of("/").adapter.on("join-room",(roomID:string,id:string) => {
 
 socketIO.of("/").adapter.on("leave-room",(roomID:string,id:string) => {
     console.log(`${id} has left room ${roomID}`);
+    //only for leave events that are game room ids
     if (roomID.length > 20) {
-        socketIO.to(roomID).emit("other user left");
+        //saves the name of the user according to id
+        //(since id will change after reconnect)
+        const saveUser = Object.keys(activeUsers).find((value:any)=>{
+            return activeUsers[value].id===id
+        }) as string;
+        //delay for 2 seconds to allow user to reconnect
+        setTimeout(()=>{
+            //checks if the user has reconnected, 
+            //if not notify other user that they have left
+            if (activeUsers[saveUser]===undefined ||
+                activeUsers[saveUser].inGame===false) 
+                    socketIO.to(roomID).emit("other user left");
+        },1500)
     }
 });
 
@@ -460,7 +473,8 @@ socketIO.on("connection", (socket:any)=>{
 		socket.leave(roomID);
     })
     socket.on("reconnect game",({ roomID }:{ roomID:string })=>{
-        socket.join(roomID);
+        //delay to allow active users array to update before joining room
+        setTimeout(()=>socket.join(roomID),500);
     })
     socket.on("play again", ({ 
         gameInfo, requester
