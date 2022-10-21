@@ -16,20 +16,41 @@ const createMinesArray = () => {
     while (nums.size < 11) {
         nums.add(Math.floor(Math.random()*36+1));
     }
+    const types = generateArrayFrom([1,2,3,5], [...nums]);
     const bombIndexes:Array<number> = [];
     nums.forEach((num:number)=>bombIndexes.push(num));
-    const arr = [...Array(36)].map((value:number,index:number)=>{
+    const arr:Array<BlockType> = [...Array(36)].map((value:number,index:number)=>{
         return bombIndexes.includes(index+1)?
             {
                 selected:false,
-                value:1
+                value:1,
+                type:types[index],
             }:{
                 selected:false,
-                value:0
+                value:0,
+                type:types[index],
             };
         
     });
     return arr;
+};
+const generateArrayFrom = (amountArray:Array<number>, arr:Array<number>) => {
+    const typesArray:any = {}
+    amountArray.forEach((value:number,index:number)=>{
+        for (let i = 0; i < value; i++) {
+            const selectedNum = getRandomInt(0,arr.length-1);
+            typesArray[arr[selectedNum]] = index===0?"Legendary":
+                index===1?"Epic":
+                index===2?"Rare":
+                index===3?"Common"
+                :null;
+            arr = arr.filter((num:number)=>num!==arr[selectedNum]);
+        }
+    })
+    return typesArray;
+};
+const getRandomInt = (min:number, max:number) => {
+    return Math.round(Math.random() * (max - min) + min);
 };
 const chooseRandomUser = () => {
     return Math.random()>0.5?1:0;
@@ -43,7 +64,6 @@ const generateGameInfo = (
     const id = roomID!==undefined?roomID:generateID();
     const newGameInfo:GameInfoType = {
         roomID:id,
-        //type 0 = 
         type:type,
         timer:10,
         users:[] as Array<UserType>,
@@ -236,7 +256,7 @@ socketIO.of("/").adapter.on("join-room",(roomID:string,id:string) => {
             setTimeout(()=>socketIO.emit("active user update", activeUsers), 500);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
-                console.log("set countdown")
+                console.log("set countdown");
                 counter.countdown = setInterval(()=>{
                     socketIO.to(info.roomID).emit("counter", info.timer);
                     info.timer--;
@@ -452,6 +472,7 @@ interface MessageType {
 interface BlockType {
     selected:boolean;
     value:number;
+    type:string | undefined;
 }
 interface UserType {
     name:string;

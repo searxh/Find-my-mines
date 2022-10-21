@@ -15,19 +15,40 @@ const createMinesArray = () => {
     while (nums.size < 11) {
         nums.add(Math.floor(Math.random() * 36 + 1));
     }
+    const types = generateArrayFrom([1, 2, 3, 5], [...nums]);
     const bombIndexes = [];
     nums.forEach((num) => bombIndexes.push(num));
     const arr = [...Array(36)].map((value, index) => {
         return bombIndexes.includes(index + 1) ?
             {
                 selected: false,
-                value: 1
+                value: 1,
+                type: types[index],
             } : {
             selected: false,
-            value: 0
+            value: 0,
+            type: types[index],
         };
     });
     return arr;
+};
+const generateArrayFrom = (amountArray, arr) => {
+    const typesArray = {};
+    amountArray.forEach((value, index) => {
+        for (let i = 0; i < value; i++) {
+            const selectedNum = getRandomInt(0, arr.length - 1);
+            typesArray[arr[selectedNum]] = index === 0 ? "Legendary" :
+                index === 1 ? "Epic" :
+                    index === 2 ? "Rare" :
+                        index === 3 ? "Common"
+                            : null;
+            arr = arr.filter((num) => num !== arr[selectedNum]);
+        }
+    });
+    return typesArray;
+};
+const getRandomInt = (min, max) => {
+    return Math.round(Math.random() * (max - min) + min);
 };
 const chooseRandomUser = () => {
     return Math.random() > 0.5 ? 1 : 0;
@@ -39,7 +60,6 @@ const generateGameInfo = (type, roomID) => {
     const id = roomID !== undefined ? roomID : generateID();
     const newGameInfo = {
         roomID: id,
-        //type 0 = 
         type: type,
         timer: 10,
         users: [],
