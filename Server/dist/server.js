@@ -9,25 +9,46 @@ const socketIO = require("socket.io")(http, {
 });
 const addSeconds = require("date-fns/addSeconds");
 const compareAsc = require("date-fns/compareAsc");
-const WINNING_SCORE = 3;
+const WINNING_SCORE = 21;
 const createMinesArray = () => {
     let nums = new Set();
     while (nums.size < 11) {
-        nums.add(Math.floor(Math.random() * 36 + 1));
+        nums.add(Math.floor(Math.random() * 36));
     }
+    const types = generateTypesIndexesFrom([1, 2, 3, 5], [...nums]);
     const bombIndexes = [];
     nums.forEach((num) => bombIndexes.push(num));
     const arr = [...Array(36)].map((value, index) => {
-        return bombIndexes.includes(index + 1) ?
+        return bombIndexes.includes(index) ?
             {
                 selected: false,
-                value: 1
+                value: 1,
+                type: types[index],
             } : {
             selected: false,
-            value: 0
+            value: 0,
+            type: null,
         };
     });
     return arr;
+};
+const generateTypesIndexesFrom = (amountArray, arr) => {
+    const types = {};
+    amountArray.forEach((value, index) => {
+        for (let i = 0; i < value; i++) {
+            const selectedNum = getRandomInt(0, arr.length - 1);
+            types[arr[selectedNum]] = index === 0 ? "Legendary" :
+                index === 1 ? "Epic" :
+                    index === 2 ? "Rare" :
+                        index === 3 ? "Common"
+                            : null;
+            arr = arr.filter((num) => num !== arr[selectedNum]);
+        }
+    });
+    return types;
+};
+const getRandomInt = (min, max) => {
+    return Math.round(Math.random() * (max - min) + min);
 };
 const chooseRandomUser = () => {
     return Math.random() > 0.5 ? 1 : 0;
@@ -39,7 +60,6 @@ const generateGameInfo = (type, roomID) => {
     const id = roomID !== undefined ? roomID : generateID();
     const newGameInfo = {
         roomID: id,
-        //type 0 = 
         type: type,
         timer: 10,
         users: [],
@@ -238,8 +258,21 @@ socketIO.of("/").adapter.on("join-room", (roomID, id) => {
 });
 socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
     console.log(`${id} has left room ${roomID}`);
+    //only for leave events that are game room ids
     if (roomID.length > 20) {
-        socketIO.to(roomID).emit("other user left");
+        //saves the name of the user according to id
+        //(since id will change after reconnect)
+        const saveUser = Object.keys(activeUsers).find((value) => {
+            return activeUsers[value].id === id;
+        });
+        //delay for 2 seconds to allow user to reconnect
+        setTimeout(() => {
+            //checks if the user has reconnected, 
+            //if not notify other user that they have left
+            if (activeUsers[saveUser] === undefined ||
+                activeUsers[saveUser].inGame === false)
+                socketIO.to(roomID).emit("other user left");
+        }, 1500);
     }
 });
 socketIO.on("connection", (socket) => {
@@ -280,6 +313,9 @@ socketIO.on("connection", (socket) => {
         });
         console.log("INVITATION", invitation);
         const info = generateGameInfo("invitation", roomID);
+        //removes user if they are in a room
+        //(this can happen if player is matching and acccepted an invitation)
+        removeUser(activeUsers[senderName], (roomID) => socket.leave(roomID));
         info.users.push(activeUsers[senderName]);
         socket.join(roomID);
         socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
@@ -313,9 +349,11 @@ socketIO.on("connection", (socket) => {
             if (decision) {
                 console.log('request from', senderName, 'accepted by', receiverName, socket.id);
                 const info = getGameInfo(roomID);
+                //removes user if they are in a room
+                //(this can happen if player is matching and acccepted an invitation)
+                removeUser(activeUsers[receiverName], (roomID) => socket.leave(roomID));
                 info.users.push(activeUsers[receiverName]);
                 socket.join(roomID);
-                socket.leave("global");
                 expireInvitation(senderName);
                 //invitation was declined
             }
@@ -360,7 +398,25 @@ socketIO.on("connection", (socket) => {
         const info = getGameInfo(roomID);
         info.minesArray[index].selected = true;
         if (info.minesArray[index].value === 1) {
-            info.scores[info.playingUser]++;
+            let score = 0;
+            switch (info.minesArray[index].type) {
+                case "Legendary":
+                    score = 4;
+                    break;
+                case "Epic":
+                    score = 3;
+                    break;
+                case "Rare":
+                    score = 2;
+                    break;
+                case "Common":
+                    score = 1;
+                    break;
+                default:
+                    console.log("[ERROR] SELECT BLOCK NO TYPE");
+                    break;
+            }
+            info.scores[info.playingUser] += score;
         }
         if (checkEndGame(roomID)) {
             socketIO.to(roomID).emit("end game", info);
@@ -384,7 +440,8 @@ socketIO.on("connection", (socket) => {
         socket.leave(roomID);
     });
     socket.on("reconnect game", ({ roomID }) => {
-        socket.join(roomID);
+        //delay to allow active users array to update before joining room
+        setTimeout(() => socket.join(roomID), 500);
     });
     socket.on("play again", ({ gameInfo, requester }) => {
         const { roomID } = gameInfo;

@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { Dispatch, SetStateAction } from 'react'
+import { addSeconds, differenceInSeconds } from 'date-fns'
 
 interface CountdownPropsType {
     seconds:number;
@@ -7,15 +8,33 @@ interface CountdownPropsType {
 }
 
 export default function Countdown({ seconds, trigger, callback }:CountdownPropsType) {
+    const [ endTime, setEndTime ] = React.useState<Date>(addSeconds(Date.now(),seconds));
     const [ countdown, setCountdown ] = React.useState<number>(seconds);
+    const [ start, setStart ] = React.useState<boolean>(false);
     React.useEffect(()=>{
         if (trigger) {
-            setTimeout(()=>setCountdown(countdown-1),1000);
+            setStart(true);
+            setEndTime(addSeconds(Date.now(),seconds));
         } else {
-            callback();
-            setCountdown(seconds);
+            setStart(false);
         }
-    },[countdown,trigger])
+    },[trigger])
+    React.useEffect(()=>{
+        let interval:any = null;
+        if (start) {
+            interval = setInterval(()=>{
+                const diff = differenceInSeconds(endTime,Date.now());
+                if (diff > 0) {
+                    setCountdown(diff);
+                } else {
+                    setStart(false);
+                    callback();
+                    setCountdown(seconds);
+                }
+            },500)
+        }
+        return ()=>clearInterval(interval);
+    },[start]);
     return (
         <> {countdown} </>
     )

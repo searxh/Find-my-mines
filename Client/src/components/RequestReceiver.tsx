@@ -48,7 +48,6 @@ export default function RequestReceiver() {
                     setInviteStorage({ senderName:senderName });
                     setMode(1);
                     setTrigger(true);
-                    setTimeout(()=>setTrigger(false),15000);
                 } else {
                     console.log('undefined');
                     setMode(2);
@@ -80,7 +79,10 @@ export default function RequestReceiver() {
                             <Countdown
                                 seconds={15}
                                 trigger={trigger}
-                                callback={()=>setMode(0)}
+                                callback={()=>{
+                                    setTrigger(false);
+                                    setMode(0);
+                                }}
                             />
                             seconds
                         </div>
