@@ -1,3 +1,4 @@
+"use strict";
 const uuid = require("uuid");
 const app = require("express")();
 const http = require("http").Server(app);
@@ -6,6 +7,8 @@ const socketIO = require("socket.io")(http, {
 		origin: "*",
 	},
 });
+const addSeconds = require("date-fns/addSeconds");
+const compareAsc = require("date-fns/compareAsc");
 
 const WINNING_SCORE = 3;
 
@@ -130,7 +133,6 @@ const checkEndGame = (roomID: string) => {
 
 let chatHistory: Array<MessageType> = [];
 let activeUsers: any = {};
-let inGameUser: any = {};
 const initialRoomID = generateID();
 let counters: Array<CounterType> = [
 	{
@@ -161,18 +163,12 @@ socketIO.of("/").adapter.on("join-room", (roomID: string, id: string) => {
 	console.log(`${id} has joined room ${roomID}`);
 	if (roomID.length > 20) {
 		const info = getGameInfo(roomID);
-
 		if (info.users.length === 2) {
 			console.log("starting game for room ", info.roomID);
-
-			info.users.forEach((user) => {
-				activeUsers[user.name][2] = true;
-			});
-
 			socketIO.to(info.roomID).emit("start game", info);
 			const counter = getCounter(info.roomID);
 			if (!counter.countdown) {
-				console.log("set countdown", info.users);
+				console.log("set countdown");
 				counter.countdown = setInterval(() => {
 					socketIO.to(info.roomID).emit("counter", info.timer);
 					info.timer--;
@@ -188,10 +184,7 @@ socketIO.of("/").adapter.on("join-room", (roomID: string, id: string) => {
 });
 
 socketIO.of("/").adapter.on("leave-room", (roomID: string, id: string) => {
-	const info = getGameInfo(roomID);
 	console.log(`${id} has left room ${roomID}`);
-	info.users.forEach((user) => (user.inGame = false));
-
 	if (roomID.length > 20) {
 		socketIO.to(roomID).emit("other user left");
 	}
@@ -201,11 +194,10 @@ socketIO.on("connection", (socket: any) => {
 	console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
 	socket.on("name register", (user: UserType) => {
 		activeUsers[user.name] = user.id;
-		activeUsers[user.name] = user.inGame;
 		socketIO.emit("active user update", activeUsers);
 	});
 	socket.on("matching", (user: UserType) => {
-		console.log("Matching request", user.inGame);
+		console.log("Matching request", user);
 		while (true) {
 			for (let i = 0; i < gameInfos.length; i++) {
 				const info = gameInfos[i];
@@ -224,7 +216,6 @@ socketIO.on("connection", (socket: any) => {
 		}
 	});
 	socket.on("unmatching", (user: UserType) => {
-		user.inGame = false;
 		console.log("Unmatching request", user);
 		removeRoomUser(user, (roomID: string) => socket.leave(roomID));
 	});
@@ -264,8 +255,7 @@ socketIO.on("connection", (socket: any) => {
 			}
 		}
 	);
-	socket.on("leave room request", (roomID: string, user: any) => {
-		user["inGame"] = false;
+	socket.on("leave room request", (roomID: string) => {
 		socket.leave(roomID);
 		socketIO.to(roomID).emit("other user left");
 	});
@@ -312,7 +302,6 @@ interface BlockType {
 	value: number;
 }
 interface UserType {
-	inGame: boolean;
 	name: string;
 	id: string;
 }

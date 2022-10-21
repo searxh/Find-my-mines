@@ -14,13 +14,14 @@ export const GlobalContext = createContext<GlobalContextType>(
 export const initialState: GlobalStateType = {
 	name: "",
 	chatHistory: [],
-	activeUsers: {} as any,
-	inGameUser: {} as any,
+	activeUsers: [],
+	receiver: {},
 	gameInfo: {} as GameInfoType,
-	connected: false,
+	socketID: "",
 	flags: {
 		resultVisible: false,
 		userLeft: false,
+		isMatching: false,
 	},
 };
 

@@ -3,8 +3,8 @@ import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
 
 export default function MatchingButton() {
-    const { global_state } = React.useContext(GlobalContext)
-    const { name } = global_state
+    const { global_state, dispatch } = React.useContext(GlobalContext)
+    const { name, flags } = global_state
     const { socket } = React.useContext(SocketContext)
     const [ isMatching, setIsMatching ] = React.useState<boolean>(false)
     const [ cooldown, setCooldown ] = React.useState<boolean>(false)
@@ -16,6 +16,12 @@ export default function MatchingButton() {
                 id:socket.id
             })
             setIsMatching(newIsMatching)
+            const newFlags = { ...flags, isMatching:newIsMatching }
+            dispatch({
+                type:'set',
+                field:'flags',
+                payload:newFlags,
+            })
             setCooldown(true)
             setTimeout(()=>setCooldown(false),1000)
         }
@@ -25,7 +31,7 @@ export default function MatchingButton() {
             disabled={cooldown}
             onClick={handleOnClick}
             className={`flex m-auto ${isMatching?"bg-green-600":"bg-neutral-800"} rounded-full p-3 px-10 text-center
-            text-white hover:scale-105 transition shadow-md text-xl`}
+            text-white hover:scale-105 transition shadow-md text-xl my-auto`}
         >
             <div>MATCH</div>
             {isMatching && 

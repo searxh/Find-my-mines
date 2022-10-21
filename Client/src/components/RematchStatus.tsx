@@ -22,10 +22,10 @@ export default function RematchStatus() {
             socket.on('rematch request',(requester:UserType)=>{
                 if (requester.name !== name) {
                     setMode(1)
-                    setStatus(requester.name+" is requesting for a rematch")
+                    setStatus(requester.name+" is requesting for a rematch!")
                 } else {
                     setMode(2)
-                    setStatus("Waiting for the other player...")
+                    setStatus("Waiting for other player's response...")
                 }
             })
         }
@@ -38,20 +38,23 @@ export default function RematchStatus() {
         }
     },[flags])
     return (mode===1||mode===2?
-        <div>
-            {status}
+        <div className="flex flex-col mt-10">
+            <div className="text-yellow-500">
+                {status}
+            </div>
 
             {mode===1 &&
                 <button
                     onClick={handleOnClick}
-                    className="bg-red-500 text-white px-5 py-2 rounded-lg"
+                    className="bg-cyan-600 text-white px-10 py-2 
+                    rounded-full m-auto mt-2 text-xl"
                 >
-                    Accept
+                    ACCEPT
                 </button>
             }
         </div>:
         mode===3?
-        <div>
+        <div className="text-yellow-500">
             {status}
         </div>
         :null

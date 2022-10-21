@@ -1,21 +1,27 @@
 import React, { FormEvent } from 'react'
 import { SocketContext } from '../socket';
 import { GlobalContext } from '../states';
+import { MessageType } from '../types';
 
 export default function ChatInput() {
-    const { global_state } = React.useContext(GlobalContext)
-    const { socket } = React.useContext(SocketContext)
-    const { name } = global_state
+    const { global_state } = React.useContext(GlobalContext);
+    const { socket } = React.useContext(SocketContext);
+    const { name, gameInfo } = global_state;
     const messageRef = React.useRef<any>(null);
     const handleOnSubmit = (e:FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
         if (messageRef.current !== null) {
+            const messageObj: MessageType = { 
+                message:messageRef.current.value,
+                from:name,
+                at:Date.now(),
+            }
             socket.emit('chat message',{ 
-                msg:messageRef.current.value,
+                msg:messageObj,
                 name:name,
-                id:socket.id,
+                roomID:gameInfo?.roomID,
             });
-            messageRef.current.value = ""
+            messageRef.current.value = "";
         }
     }
     return (

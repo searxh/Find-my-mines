@@ -20,8 +20,11 @@ module.exports = {
     extend: {
       fontFamily:{
         'quicksand':'Quicksand',
-        'allerta':'Allerta Stencil'
+        'righteous':'Righteous'
       },
+      animation:{
+        'pulse-slow': 'pulse 5s ease-in-out infinite'
+      }
     },
   },
   plugins: [],
