@@ -9,6 +9,7 @@ const inputReducer = (state: any, action: any) => {
 				...state,
 				value: action.val,
 				isValid: action.val.length > 0,
+				isTouched: true,
 			};
 
 		case "TOUCHED":
@@ -24,6 +25,10 @@ const inputReducer = (state: any, action: any) => {
 
 export default function Name() {
 	const { dispatch } = React.useContext(GlobalContext);
+	const [inputState, inputDispatch] = useReducer(inputReducer, {
+		isValid: false,
+		isTouched: false,
+	});
 	const navigate = useNavigate();
 	const nameRef = React.useRef<HTMLInputElement>(null);
 	const handleOnSubmit = (e: FormEvent) => {
@@ -35,8 +40,19 @@ export default function Name() {
 				payload: nameRef.current.value,
 			});
 			nameRef.current.value = "";
-			navigate("menu");
+			if (inputState.isValid) navigate("menu");
 		}
+	};
+	const changeHandler = (event: any) => {
+		inputDispatch({
+			type: "CHANGE",
+			val: event.target.value,
+		});
+	};
+	const touchHandler = () => {
+		inputDispatch({
+			type: "TOUCHED",
+		});
 	};
 	return (
 		<div className='flex bg-neutral-800 w-full h-screen p-5'>
@@ -51,10 +67,14 @@ export default function Name() {
 				</div>
 				<input
 					placeholder='Enter Your Name'
-					className='rounded-full text-center p-2 font-quicksand 
-                    bg-neutral-500 text-white placeholder-white shadow-md my-5
-                    hover:bg-neutral-700 transition duration-[2000ms]'
+					className={
+						inputState.isValid
+							? "rounded-full text-center p-2 font-quicksand bg-neutral-500 text-white placeholder-white shadow-md my-5 hover:bg-neutral-700 transition duration-[2000ms]"
+							: "rounded-full text-center p-2 font-quicksand bg-rose-500 text-white placeholder-white shadow-md my-5"
+					}
 					ref={nameRef}
+					onBlur={touchHandler}
+					onChange={changeHandler}
 				/>
 				<div className='flex justify-center p-5'>
 					<button

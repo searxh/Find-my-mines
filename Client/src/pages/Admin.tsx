@@ -10,7 +10,7 @@ const Admin = () => {
 	useEffect(
 		() =>
 			setUsersArray(
-				Object.keys(activeUsers).map((key) => [key, activeUsers[key]])
+				Object.keys(activeUsers).map((key: any) => [key, activeUsers[key]])
 			),
 
 		[activeUsers, global_state]
@@ -28,7 +28,7 @@ const Admin = () => {
 					{usersArray[0]?.length > 0 &&
 						usersArray.map((user) => (
 							<li key={Math.random()} className='mx-5'>
-								{user[0]} <br />
+								{user[1].name} <br />
 								<span>
 									Status:&nbsp;&nbsp;
 									<span
