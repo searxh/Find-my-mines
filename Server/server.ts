@@ -10,13 +10,13 @@ const socketIO = require("socket.io")(http,{
 const addSeconds = require("date-fns/addSeconds");
 const compareAsc = require("date-fns/compareAsc");
 
-const WINNING_SCORE = 3;
+const WINNING_SCORE = 21;
 const createMinesArray = () => {
     let nums = new Set<number>();
     while (nums.size < 11) {
         nums.add(Math.floor(Math.random()*36));
     }
-    const types = generateArrayFrom([1,2,3,5], [...nums]);
+    const types = generateTypesIndexesFrom([1,2,3,5], [...nums]);
     const bombIndexes:Array<number> = [];
     nums.forEach((num:number)=>bombIndexes.push(num));
     const arr:Array<BlockType> = [...Array(36)].map((value:number,index:number)=>{
@@ -32,15 +32,14 @@ const createMinesArray = () => {
             };
         
     });
-    console.log(arr)
     return arr;
 };
-const generateArrayFrom = (amountArray:Array<number>, arr:Array<number>) => {
-    const typesArray:any = {}
+const generateTypesIndexesFrom = (amountArray:Array<number>, arr:Array<number>) => {
+    const types:any = {}
     amountArray.forEach((value:number,index:number)=>{
         for (let i = 0; i < value; i++) {
             const selectedNum = getRandomInt(0,arr.length-1);
-            typesArray[arr[selectedNum]] = index===0?"Legendary":
+            types[arr[selectedNum]] = index===0?"Legendary":
                 index===1?"Epic":
                 index===2?"Rare":
                 index===3?"Common"
@@ -48,7 +47,7 @@ const generateArrayFrom = (amountArray:Array<number>, arr:Array<number>) => {
             arr = arr.filter((num:number)=>num!==arr[selectedNum]);
         }
     })
-    return typesArray;
+    return types;
 };
 const getRandomInt = (min:number, max:number) => {
     return Math.round(Math.random() * (max - min) + min);
@@ -413,7 +412,25 @@ socketIO.on("connection", (socket:any)=>{
         const info = getGameInfo(roomID) 
         info.minesArray[index].selected = true;
         if (info.minesArray[index].value === 1) {
-           info.scores[info.playingUser]++;
+            let score = 0;
+            switch (info.minesArray[index].type) {
+                case "Legendary":
+                    score = 4;
+                    break;
+                case "Epic":
+                    score = 3;
+                    break;
+                case "Rare":
+                    score = 2;
+                    break;
+                case "Common":
+                    score = 1;
+                    break;
+                default:
+                    console.log("[ERROR] SELECT BLOCK NO TYPE");
+                    break;
+            }
+           info.scores[info.playingUser] += score;
         }
         if (checkEndGame(roomID)) {
             socketIO.to(roomID).emit("end game",info);
