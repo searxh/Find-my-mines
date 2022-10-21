@@ -300,6 +300,9 @@ socketIO.on("connection", (socket) => {
         });
         console.log("INVITATION", invitation);
         const info = generateGameInfo("invitation", roomID);
+        //removes user if they are in a room
+        //(this can happen if player is matching and acccepted an invitation)
+        removeUser(activeUsers[senderName], (roomID) => socket.leave(roomID));
         info.users.push(activeUsers[senderName]);
         socket.join(roomID);
         socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
@@ -333,9 +336,11 @@ socketIO.on("connection", (socket) => {
             if (decision) {
                 console.log('request from', senderName, 'accepted by', receiverName, socket.id);
                 const info = getGameInfo(roomID);
+                //removes user if they are in a room
+                //(this can happen if player is matching and acccepted an invitation)
+                removeUser(activeUsers[receiverName], (roomID) => socket.leave(roomID));
                 info.users.push(activeUsers[receiverName]);
                 socket.join(roomID);
-                socket.leave("global");
                 expireInvitation(senderName);
                 //invitation was declined
             }
