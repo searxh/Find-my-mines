@@ -25,7 +25,7 @@ export default function Game() {
             <Backdrop />
             <div className="flex-1 flex justify-evenly p-2">
                 <div className="flex basis-[30%] h-[70vh] m-auto">
-                    <div className="w-[90%] m-auto">
+                    <div className="w-full m-auto">
                         <div className="text-4xl text-white
                         w-[70%] rounded-2xl mb-10 mx-auto">
                             {name.toUpperCase()}
@@ -45,6 +45,11 @@ export default function Game() {
                         <div className="font-righteous text-5xl text-white p-5">
                             TIMER: {timer}
                         </div>
+                        <img
+                            className="w-52 h-52 brightness-150 m-auto"
+                            src="/assets/images/bird.gif"
+                            alt=""
+                        />
                     </div>
                 </div>
                 <div className="flex basis-[40%] h-[70vh] m-auto">

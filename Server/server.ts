@@ -10,7 +10,7 @@ const socketIO = require("socket.io")(http,{
 const addSeconds = require("date-fns/addSeconds");
 const compareAsc = require("date-fns/compareAsc");
 
-const WINNING_SCORE = 21;
+const WINNING_SCORE = 2100;
 const createMinesArray = () => {
     let nums = new Set<number>();
     while (nums.size < 11) {
@@ -433,16 +433,16 @@ socketIO.on("connection", (socket:any)=>{
             let score = 0;
             switch (info.minesArray[index].type) {
                 case "Legendary":
-                    score = 4;
+                    score = 400;
                     break;
                 case "Epic":
-                    score = 3;
+                    score = 300;
                     break;
                 case "Rare":
-                    score = 2;
+                    score = 200;
                     break;
                 case "Common":
-                    score = 1;
+                    score = 100;
                     break;
                 default:
                     console.log("[ERROR] SELECT BLOCK NO TYPE");
