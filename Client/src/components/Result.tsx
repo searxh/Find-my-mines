@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import RematchStatus from './RematchStatus'
 import { GlobalContext } from '../states'
 import { SocketContext } from '../socket'
+import { playAudio } from '../lib/utility/Audio'
 
 export default function Result() {
     const { global_state, dispatch } = React.useContext(GlobalContext);
@@ -13,6 +14,7 @@ export default function Result() {
     const navigate = useNavigate();
     const handleOnClickPlayAgain = () => {
         if (socket !== undefined) {
+            playAudio('pop.wav');
             socket.emit("play again", { 
                 gameInfo:gameInfo,
                 requester:{
@@ -24,6 +26,7 @@ export default function Result() {
     }
     const handleOnClickMenu = () => {
         if (socket !== undefined) {
+            playAudio('pop.wav');
             socket.emit("leave room request", gameInfo.roomID);
             const newFlags = { 
                 ...flags, 
@@ -44,7 +47,7 @@ export default function Result() {
     }
     const getWinner = () => {
         //if other user left mid-way
-        if (flags.userLeft && scores[0]+scores[1]!==21) {
+        if (flags.userLeft && scores[0]+scores[1]!==2100) {
             return name;
         } else {
             return (scores[0] > scores[1])?users[0].name:users[1].name;
@@ -58,7 +61,7 @@ export default function Result() {
     return (flags.resultVisible?
         <div
             className={`absolute top-0 bottom-0 left-0 right-0 w-1/2 h-[70%] text-white
-            text-2xl bg-gradient-to-t bg-neutral-800 rounded-3xl z-50 flex m-auto`}
+            text-2xl bg-neutral-800 rounded-3xl z-50 flex m-auto`}
         >
             <div className="m-auto w-[70%]">
                 <div className={`font-righteous text-5xl

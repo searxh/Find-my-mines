@@ -2,6 +2,7 @@ import React from 'react'
 import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
 import { UserType } from '../types'
+import { playAudio } from '../lib/utility/Audio'
 
 export default function RematchStatus() {
     const { global_state } = React.useContext(GlobalContext)
@@ -13,6 +14,7 @@ export default function RematchStatus() {
     const [ mode, setMode ] = React.useState<number>(0)
     const handleOnClick = () => {
         if (socket !== undefined) {
+            playAudio('pop.wav');
             socket.emit('rematch accepted', gameInfo.roomID)
             setMode(0)
         }

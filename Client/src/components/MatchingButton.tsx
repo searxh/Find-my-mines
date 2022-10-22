@@ -1,6 +1,7 @@
 import React from 'react'
 import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
+import { playAudio } from '../lib/utility/Audio'
 
 export default function MatchingButton() {
     const { global_state, dispatch } = React.useContext(GlobalContext)
@@ -10,6 +11,7 @@ export default function MatchingButton() {
     const [ cooldown, setCooldown ] = React.useState<boolean>(false)
     const handleOnClick = () => {
         if (socket !== undefined) {
+            playAudio('pop.wav');
             const newIsMatching = !isMatching
             socket.emit(newIsMatching?'matching':'unmatching',{
                 name:name,

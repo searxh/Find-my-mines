@@ -1,10 +1,11 @@
 import React from 'react'
 import { SocketContext } from '../socket'
 import { GlobalContext } from '../states';
+import { playAudio } from '../lib/utility/Audio';
 
 export default function ReplyReceiver() {
     const { global_state, dispatch } = React.useContext(GlobalContext) ;
-    const { socket } = React.useContext(SocketContext);
+    const { socket }:any = React.useContext(SocketContext);
     const { receiver } = global_state;
     const [ mode, setMode ] = React.useState<number>(0);
     //mode 0 = not visible
@@ -12,6 +13,7 @@ export default function ReplyReceiver() {
     const [ decision, setDecision ] = React.useState<boolean>(false);
     const [ receiverName, setReceiverName ] = React.useState<string>("");
     const handleOnClickClose = () => {
+        playAudio('pop.wav');
         setMode(0);
     }
     React.useEffect(()=>{
@@ -21,6 +23,7 @@ export default function ReplyReceiver() {
             }:{
                 receiverName:string, decision:boolean
             }) => {
+                console.log(receiverName,decision)
                 setDecision(decision);
                 setReceiverName(receiverName);
                 const newReceiver = { ...receiver };
@@ -31,14 +34,16 @@ export default function ReplyReceiver() {
                     payload:newReceiver,
                 })
                 setMode(1);
+                playAudio('noti.wav');
             });
+            return ()=>socket.off("reply incoming");
         }
     },[socket])
     return (
         mode!==0?
             <div
                 className="absolute top-0 bottom-0 left-0 right-0 w-[30%] h-1/2 text-white
-                text-2xl bg-neutral-700 rounded-3xl z-50 flex m-auto shadow-md" 
+                text-2xl bg-neutral-900 bg-opacity-90 rounded-3xl z-50 flex m-auto shadow-md" 
             >
                 <button 
                     onClick={handleOnClickClose}
