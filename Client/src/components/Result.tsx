@@ -43,7 +43,8 @@ export default function Result() {
         return getWinner()===name;
     }
     const getWinner = () => {
-        if (flags.userLeft) {
+        //if other user left mid-way
+        if (flags.userLeft && scores[0]+scores[1]!==21) {
             return name;
         } else {
             return (scores[0] > scores[1])?users[0].name:users[1].name;
