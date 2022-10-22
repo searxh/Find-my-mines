@@ -4,26 +4,25 @@ import { GlobalContext } from "../states";
 import SocketID from "../components/SocketID";
 const Admin = () => {
 	const { global_state } = React.useContext(GlobalContext);
-	const { activeUsers } = global_state;
+	const { activeUsers, gameInfo } = global_state;
 	const [usersArray, setUsersArray] = useState<any[][]>([[]]);
+	const [gamesArray, setGamesArray] = useState<any[][]>([[]]);
 
-	useEffect(
-		() =>
-			setUsersArray(
-				Object.keys(activeUsers).map((key: any) => [key, activeUsers[key]])
-			),
+	console.log(Object.values(gameInfo)[0]);
 
-		[activeUsers, global_state]
-	);
+	useEffect(() => {
+		setUsersArray(
+			Object.keys(activeUsers).map((key: any) => [key, activeUsers[key]])
+		);
+	}, [activeUsers, gameInfo, global_state]);
 	console.log(usersArray);
+	console.log(gamesArray);
 
 	return (
 		<div className='grid h-screen place-items-center'>
 			<Card additionalStyle='w-80 '>
 				<div className='text-slate-900'>
-					<h1 className='text-2xl'>
-						Current Users Online: {usersArray.length}
-					</h1>
+					<h1 className='text-2xl'>Current Users Online: 3</h1>
 
 					{usersArray[0]?.length > 0 &&
 						usersArray.map((user) => (
@@ -32,13 +31,31 @@ const Admin = () => {
 								<span>
 									Status:&nbsp;&nbsp;
 									<span
-										className={user[1][2] ? "text-yellow-400" : "text-lime-800"}
+										className={
+											user[1].inGame ? "text-yellow-400" : "text-lime-800"
+										}
 									>
-										{user[1][2] ? "In Game" : "Online"}
+										{user[1].inGame ? "In Game" : "Online"}
 									</span>
 								</span>
 							</li>
 						))}
+				</div>
+			</Card>
+			<Card additionalStyle='w-80 '>
+				<div className='text-slate-900'>
+					<h1 className='text-2xl'>
+						Current Games: {Object.keys(gameInfo).length}
+					</h1>
+					<li>
+						{Object.values(gameInfo).map((u) => (
+							<>
+								{u.users[0].name} VS {u.users[1].name}
+								&nbsp;&nbsp;
+								{u.scores[0]} : {u.scores[1]}
+							</>
+						))}
+					</li>
 				</div>
 			</Card>
 			<SocketID />

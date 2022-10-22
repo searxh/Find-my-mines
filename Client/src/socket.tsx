@@ -43,12 +43,12 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				});
 			});
 			socket.on("active user update", (activeUsers: any) => {
-				const users:Array<UserType> = Object.values(activeUsers)
+				const users: Array<UserType> = Object.values(activeUsers);
 				dispatch({
-					type:"set",
-					field:"activeUsers",
-					payload:users
-				})
+					type: "set",
+					field: "activeUsers",
+					payload: users,
+				});
 			});
 			socket.on("start game", (gameInfo: GameInfoType) => {
 				const newFlags = { ...flags, resultVisible: false };
@@ -59,6 +59,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: [gameInfo, newFlags],
 				});
 				setTimeout(() => navigate("/game"), 1000);
+			});
+			socket.on("game info admin", (gameInfo: GameInfoType) => {
+				dispatch({
+					type: "set",
+					field: ["gameInfo"],
+					payload: [gameInfo],
+				});
 			});
 			socket.on("gameInfo update", (gameInfo: GameInfoType) => {
 				console.log(gameInfo)
@@ -83,10 +90,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				});
 			});
 			socket.on("other user left", () => {
-				const newFlags = { 
-					...flags, 
-					resultVisible: true, 
-					userLeft: true
+				const newFlags = {
+					...flags,
+					resultVisible: true,
+					userLeft: true,
 				};
 				dispatch({
 					type: "set",
