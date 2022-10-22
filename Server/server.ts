@@ -354,7 +354,7 @@ socketIO.on("connection", (socket:any)=>{
         //(prevents multiple invitations of same pair of sender and receiver)
         const inviteInfo = getMostRecentInvitation(senderName, receiverName);
         const roomID = inviteInfo!==undefined?inviteInfo.roomID:undefined;
-        socketIO.to(roomID).emit("reply incoming", {
+        socketIO.to(activeUsers[senderName].id).emit("reply incoming", {
             receiverName:receiverName, 
             decision:decision
         });

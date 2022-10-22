@@ -6,7 +6,7 @@ import Countdown from './Countdown';
 import { playAudio } from '../lib/utility/Audio';
 
 export default function RequestReceiver() {
-    const { socket } = React.useContext(SocketContext);
+    const { socket }:any = React.useContext(SocketContext);
     const { global_state } = React.useContext(GlobalContext);
     const { name } = global_state;
     const [ mode, setMode ] = React.useState<number>(0);
@@ -57,6 +57,7 @@ export default function RequestReceiver() {
                     setMode(2);
                 }
             });
+            return ()=>socket.off("request incoming");
         }
     },[socket]);
     return (

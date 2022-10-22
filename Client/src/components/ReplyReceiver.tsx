@@ -5,7 +5,7 @@ import { playAudio } from '../lib/utility/Audio';
 
 export default function ReplyReceiver() {
     const { global_state, dispatch } = React.useContext(GlobalContext) ;
-    const { socket } = React.useContext(SocketContext);
+    const { socket }:any = React.useContext(SocketContext);
     const { receiver } = global_state;
     const [ mode, setMode ] = React.useState<number>(0);
     //mode 0 = not visible
@@ -23,7 +23,7 @@ export default function ReplyReceiver() {
             }:{
                 receiverName:string, decision:boolean
             }) => {
-                playAudio('noti.wav');
+                console.log(receiverName,decision)
                 setDecision(decision);
                 setReceiverName(receiverName);
                 const newReceiver = { ...receiver };
@@ -34,7 +34,9 @@ export default function ReplyReceiver() {
                     payload:newReceiver,
                 })
                 setMode(1);
+                playAudio('noti.wav');
             });
+            return ()=>socket.off("reply incoming");
         }
     },[socket])
     return (
