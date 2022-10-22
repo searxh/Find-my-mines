@@ -41,7 +41,7 @@ export default function ReplyReceiver() {
         mode!==0?
             <div
                 className="absolute top-0 bottom-0 left-0 right-0 w-[30%] h-1/2 text-white
-                text-2xl bg-neutral-700 rounded-3xl z-50 flex m-auto shadow-md" 
+                text-2xl bg-neutral-900 bg-opacity-90 rounded-3xl z-50 flex m-auto shadow-md" 
             >
                 <button 
                     onClick={handleOnClickClose}

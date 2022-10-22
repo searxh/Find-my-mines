@@ -24,6 +24,7 @@ module.exports = {
       },
       animation:{
         'pulse-slow': 'pulse 5s ease-in-out infinite',
+        'spin-slow': 'spin 35s infinite',
         'pulse-ultra-slow': 'pulse 20s ease-in-out infinite'
       }
     },
