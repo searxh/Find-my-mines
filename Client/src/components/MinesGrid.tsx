@@ -32,7 +32,12 @@ function Block({ block, index }:{ block:BlockType, index:number }) {
     const handleOnClick = () => {
         if (socket !== undefined) {
             socket.emit('select block',{ index:index, roomID:gameInfo.roomID });
-            playAudio('pop.wav');
+            playAudio('dig.wav');
+            if (block.value === 1) {
+                setTimeout(()=>playAudio("found.wav"),300);
+            } else {
+                setTimeout(()=>playAudio("wrong.mp3"),300);
+            }
         }
     }
     const checkPlayerCanInteract = () => {

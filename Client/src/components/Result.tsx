@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import RematchStatus from './RematchStatus'
 import { GlobalContext } from '../states'
 import { SocketContext } from '../socket'
+import { playAudio } from '../lib/utility/Audio'
 
 export default function Result() {
     const { global_state, dispatch } = React.useContext(GlobalContext);
@@ -13,6 +14,7 @@ export default function Result() {
     const navigate = useNavigate();
     const handleOnClickPlayAgain = () => {
         if (socket !== undefined) {
+            playAudio('pop.wav');
             socket.emit("play again", { 
                 gameInfo:gameInfo,
                 requester:{
@@ -24,6 +26,7 @@ export default function Result() {
     }
     const handleOnClickMenu = () => {
         if (socket !== undefined) {
+            playAudio('pop.wav');
             socket.emit("leave room request", gameInfo.roomID);
             const newFlags = { 
                 ...flags, 

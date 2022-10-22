@@ -3,6 +3,7 @@ import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
 import { InviteInfoType, InviteStorageType } from '../types';
 import Countdown from './Countdown';
+import { playAudio } from '../lib/utility/Audio';
 
 export default function RequestReceiver() {
     const { socket } = React.useContext(SocketContext);
@@ -17,6 +18,7 @@ export default function RequestReceiver() {
         senderName:""
     });
     const handleOnClickDecision = (bool:boolean) => {
+        playAudio('pop.wav');
         if (socket !== undefined && 
             inviteStorage.senderName+inviteStorage.senderName!==""
         ) {
@@ -31,6 +33,7 @@ export default function RequestReceiver() {
         }
     }
     const handleOnClickClose = () => {
+        playAudio('pop.wav');
         if (mode === 2) {
             setMode(0);
         } else {
@@ -43,6 +46,7 @@ export default function RequestReceiver() {
             socket.on("request incoming", ({ 
                 senderName, roomID, error
             }:InviteInfoType) => {
+                playAudio('noti.wav')
                 console.log(senderName, roomID, error);
                 if (error===undefined && senderName!==undefined && roomID!==undefined) {
                     setInviteStorage({ senderName:senderName });

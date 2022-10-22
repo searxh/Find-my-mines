@@ -1,6 +1,7 @@
 import React from 'react'
 import { SocketContext } from '../socket'
 import { GlobalContext } from '../states';
+import { playAudio } from '../lib/utility/Audio';
 
 export default function ReplyReceiver() {
     const { global_state, dispatch } = React.useContext(GlobalContext) ;
@@ -12,6 +13,7 @@ export default function ReplyReceiver() {
     const [ decision, setDecision ] = React.useState<boolean>(false);
     const [ receiverName, setReceiverName ] = React.useState<string>("");
     const handleOnClickClose = () => {
+        playAudio('pop.wav');
         setMode(0);
     }
     React.useEffect(()=>{
@@ -21,6 +23,7 @@ export default function ReplyReceiver() {
             }:{
                 receiverName:string, decision:boolean
             }) => {
+                playAudio('noti.wav');
                 setDecision(decision);
                 setReceiverName(receiverName);
                 const newReceiver = { ...receiver };

@@ -1,4 +1,5 @@
 import React from 'react'
+import { playAudio } from '../lib/utility/Audio';
 import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
 import { UserType } from '../types'
@@ -15,6 +16,7 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
     const [ trigger, setTrigger ] = React.useState<boolean>(false);
     const handleOnClick = () => {
         socket.emit("invite request",{ senderName:name, receiverName:user.name });
+        playAudio('pop.wav');
         setTrigger(true);
     };
     const checkCanInvite = () => {
@@ -43,7 +45,7 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
         user.name !== name?
         <div className="relative">
             <div className={`font-righteous absolute ${trigger?"-translate-x-11":"translate-x-0"}  text-lg
-            left-0 top-0 h-full p-1 pr-16 text-white ${checkCanInvite()?"bg-teal-600":"opacity-0"} 
+            left-0 top-0 h-full p-1 pr-16 text-white ${checkCanInvite()?"bg-green-600":"opacity-0"} 
             text-center z-10 w-full rounded-full transition-transform duration-100`}>
                 <Countdown
                     seconds={15}
