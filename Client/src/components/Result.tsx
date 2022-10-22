@@ -25,7 +25,11 @@ export default function Result() {
 	const handleOnClickMenu = () => {
 		if (socket !== undefined) {
 			socket.emit("leave room request", gameInfo.roomID);
-			const newFlags = { ...flags, resultVisible: false };
+			const newFlags = {
+				...flags,
+				resultVisible: false,
+				userLeft: false,
+			};
 			dispatch({
 				type: "multi-set",
 				field: ["flags", "gameInfo"],
@@ -39,17 +43,16 @@ export default function Result() {
 		return getWinner() === name;
 	};
 	const getWinner = () => {
-		return scores[0] > scores[1] ? users[0].name : users[1].name;
+		//if other user left mid-way
+		if (flags.userLeft && scores[0] + scores[1] !== 21) {
+			return name;
+		} else {
+			return scores[0] > scores[1] ? users[0].name : users[1].name;
+		}
 	};
 	React.useEffect(() => {
 		if (flags.userLeft) {
 			setPlayAgainVisible(false);
-			const newFlags = { ...flags, userLeft: false };
-			dispatch({
-				type: "set",
-				field: "flags",
-				payload: newFlags,
-			});
 		}
 	}, [flags]);
 	return flags.resultVisible ? (
@@ -67,12 +70,16 @@ export default function Result() {
 				<div className='text-cyan-300 text-2xl'>
 					{getWinner().toUpperCase()} WINS!
 				</div>
-				<div>
-					{users[0].name}'s score: {scores[0]}
-				</div>
-				<div>
-					{users[1].name}'s score: {scores[1]}
-				</div>
+				{!flags.userLeft && (
+					<>
+						<div>
+							{users[0].name}'s score: {scores[0]}
+						</div>
+						<div>
+							{users[1].name}'s score: {scores[1]}
+						</div>
+					</>
+				)}
 				<RematchStatus />
 				<div className='flex justify-evenly pt-10'>
 					{playAgainVisible && (

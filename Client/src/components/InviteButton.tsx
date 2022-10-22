@@ -14,11 +14,8 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
     const { activeUsers, name, flags, receiver } = global_state;
     const [ trigger, setTrigger ] = React.useState<boolean>(false);
     const handleOnClick = () => {
-        setTrigger(true);
         socket.emit("invite request",{ senderName:name, receiverName:user.name });
-        setTimeout(()=>{
-            setTrigger(false);
-        },15000);
+        setTrigger(true);
     };
     const checkCanInvite = () => {
         return (!activeUsers.find((activeUser:UserType)=>
@@ -51,7 +48,7 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
                 <Countdown
                     seconds={15}
                     trigger={trigger}
-                    callback={()=>{}}
+                    callback={()=>setTrigger(false)}
                 />
             </div>
             <button

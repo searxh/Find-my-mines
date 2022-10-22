@@ -10,27 +10,57 @@ const socketIO = require("socket.io")(http, {
 const addSeconds = require("date-fns/addSeconds");
 const compareAsc = require("date-fns/compareAsc");
 
-const WINNING_SCORE = 3;
-
+const WINNING_SCORE = 21;
 const createMinesArray = () => {
 	let nums = new Set<number>();
 	while (nums.size < 11) {
-		nums.add(Math.floor(Math.random() * 36 + 1));
+		nums.add(Math.floor(Math.random() * 36));
 	}
+	const types = generateTypesIndexesFrom([1, 2, 3, 5], [...nums]);
 	const bombIndexes: Array<number> = [];
 	nums.forEach((num: number) => bombIndexes.push(num));
-	const arr = [...Array(36)].map((value: number, index: number) => {
-		return bombIndexes.includes(index + 1)
-			? {
-					selected: false,
-					value: 1,
-			  }
-			: {
-					selected: false,
-					value: 0,
-			  };
-	});
+	const arr: Array<BlockType> = [...Array(36)].map(
+		(value: number, index: number) => {
+			return bombIndexes.includes(index)
+				? {
+						selected: false,
+						value: 1,
+						type: types[index],
+				  }
+				: {
+						selected: false,
+						value: 0,
+						type: null,
+				  };
+		}
+	);
 	return arr;
+};
+const generateTypesIndexesFrom = (
+	amountArray: Array<number>,
+	arr: Array<number>
+) => {
+	const types: any = {};
+	amountArray.forEach((value: number, index: number) => {
+		for (let i = 0; i < value; i++) {
+			const selectedNum = getRandomInt(0, arr.length - 1);
+			types[arr[selectedNum]] =
+				index === 0
+					? "Legendary"
+					: index === 1
+					? "Epic"
+					: index === 2
+					? "Rare"
+					: index === 3
+					? "Common"
+					: null;
+			arr = arr.filter((num: number) => num !== arr[selectedNum]);
+		}
+	});
+	return types;
+};
+const getRandomInt = (min: number, max: number) => {
+	return Math.round(Math.random() * (max - min) + min);
 };
 const chooseRandomUser = () => {
 	return Math.random() > 0.5 ? 1 : 0;
@@ -44,19 +74,24 @@ const generateGameInfo = (
 	gameInfos: Array<GameInfoType>,
 	counters: Array<CounterType>
 ) => {
-	const id = generateID();
+	const id = roomID !== undefined ? roomID : generateID();
+	const newGameInfo: GameInfoType = {
+		roomID: id,
+		type: type,
+		timer: 10,
+		users: [] as Array<UserType>,
+		playingUser: chooseRandomUser(),
+		scores: [0, 0],
+		minesArray: createMinesArray(),
+	};
+	gameInfos.push(newGameInfo);
 	counters.push({
 		roomID: id,
 		countdown: false,
 	});
-	gameInfos.push({
-		roomID: id,
-		timer: 10,
-		users: [],
-		playingUser: chooseRandomUser(),
-		scores: [0, 0],
-		minesArray: createMinesArray(),
-	});
+	chatHistory.local[id] = [];
+	console.log("GENERATED CHAT INFO", chatHistory.local);
+	return newGameInfo;
 };
 
 const resetRoom = (roomID: string) => {
@@ -165,7 +200,11 @@ socketIO.of("/").adapter.on("join-room", (roomID: string, id: string) => {
 		const info = getGameInfo(roomID);
 		if (info.users.length === 2) {
 			console.log("starting game for room ", info.roomID);
+			info.users.forEach((user) => {
+				activeUsers[user.name].inGame = true;
+			});
 			socketIO.to(info.roomID).emit("start game", info);
+			setTimeout(() => socketIO.emit("active user update", activeUsers), 500);
 			const counter = getCounter(info.roomID);
 			if (!counter.countdown) {
 				console.log("set countdown");
@@ -185,8 +224,23 @@ socketIO.of("/").adapter.on("join-room", (roomID: string, id: string) => {
 
 socketIO.of("/").adapter.on("leave-room", (roomID: string, id: string) => {
 	console.log(`${id} has left room ${roomID}`);
+	//only for leave events that are game room ids
 	if (roomID.length > 20) {
-		socketIO.to(roomID).emit("other user left");
+		//saves the name of the user according to id
+		//(since id will change after reconnect)
+		const saveUser = Object.keys(activeUsers).find((value: any) => {
+			return activeUsers[value].id === id;
+		}) as string;
+		//delay for 2 seconds to allow user to reconnect
+		setTimeout(() => {
+			//checks if the user has reconnected,
+			//if not notify other user that they have left
+			if (
+				activeUsers[saveUser] === undefined ||
+				activeUsers[saveUser].inGame === false
+			)
+				socketIO.to(roomID).emit("other user left");
+		}, 1500);
 	}
 });
 
@@ -203,7 +257,8 @@ socketIO.on("connection", (socket: any) => {
 				const info = gameInfos[i];
 				if (
 					info.scores[0] + info.scores[1] !== WINNING_SCORE &&
-					info.users.length < 2
+					info.users.length < 2 &&
+					info.type === "matching"
 				) {
 					info.users.push(user);
 					socket.join(info.roomID);
@@ -212,35 +267,183 @@ socketIO.on("connection", (socket: any) => {
 				}
 			}
 			console.log("full rooms, creating new room...");
-			generateGameInfo(gameInfos, counters);
+			cleanGameInfos();
+			generateGameInfo("matching");
 		}
 	});
 	socket.on("unmatching", (user: UserType) => {
 		console.log("Unmatching request", user);
-		removeRoomUser(user, (roomID: string) => socket.leave(roomID));
+		removeUser(user, (roomID: string) => socket.leave(roomID));
 	});
-	socket.on("chat message", ({ msg, name }: { msg: string; name: string }) => {
-		chatHistory.push({
-			from: name,
-			message: msg,
-			at: Date.now(),
-		});
-		socketIO.emit("chat update", chatHistory);
-	});
+	socket.on(
+		"invite request",
+		({
+			senderName,
+			receiverName,
+		}: {
+			senderName: string;
+			receiverName: string;
+		}) => {
+			const roomID = generateID();
+			addInvitation(roomID, {
+				roomID: roomID,
+				senderName: senderName,
+				receiverName: receiverName,
+				validUntil: addSeconds(Date.now(), 15),
+			});
+			console.log("INVITATION", invitation);
+			const info = generateGameInfo("invitation", roomID);
+			//removes user if they are in a room
+			//(this can happen if player is matching and acccepted an invitation)
+			removeUser(activeUsers[senderName], (roomID: string) =>
+				socket.leave(roomID)
+			);
+			info.users.push(activeUsers[senderName]);
+			socket.join(roomID);
+			socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
+				senderName: senderName,
+				roomID: roomID,
+			});
+		}
+	);
+	socket.on(
+		"invite reply",
+		({
+			senderName,
+			receiverName,
+			decision,
+		}: {
+			senderName: string;
+			receiverName: string;
+			decision: boolean;
+		}) => {
+			//remove any expired invitation (by timeout)
+			removeExpiredInvitation();
+			//gets the most recent invitation of sender and receiver
+			//(prevents multiple invitations of same pair of sender and receiver)
+			const inviteInfo = getMostRecentInvitation(senderName, receiverName);
+			const roomID = inviteInfo !== undefined ? inviteInfo.roomID : undefined;
+			socketIO.to(roomID).emit("reply incoming", {
+				receiverName: receiverName,
+				decision: decision,
+			});
+			//no invitation was found (expired)
+			if (roomID === undefined) {
+				setTimeout(
+					() =>
+						socketIO
+							.to(activeUsers[receiverName].id)
+							.emit("request incoming", { error: true }),
+					300
+				);
+				//tear down room because invitation was expired
+				socketIO.socketsLeave(roomID);
+				//manually expire all invitation of one sender (since invitation was successful)
+				expireInvitation(senderName);
+				//invitation was found
+			} else {
+				//invitation was accepted
+				if (decision) {
+					console.log(
+						"request from",
+						senderName,
+						"accepted by",
+						receiverName,
+						socket.id
+					);
+					const info = getGameInfo(roomID);
+					//removes user if they are in a room
+					//(this can happen if player is matching and acccepted an invitation)
+					removeUser(activeUsers[receiverName], (roomID: string) =>
+						socket.leave(roomID)
+					);
+					info.users.push(activeUsers[receiverName]);
+					socket.join(roomID);
+					expireInvitation(senderName);
+					//invitation was declined
+				} else {
+					console.log(
+						"request from",
+						senderName,
+						"declined by",
+						receiverName,
+						socket.id
+					);
+					//tear down room because invitation was declined
+					socketIO.socketsLeave(roomID);
+				}
+				cleanGameInfos();
+			}
+		}
+	);
 	socket.on("active user request", () => {
 		socketIO.emit("active user update", activeUsers);
 		console.log(Object.keys(activeUsers).length + " users are registered");
 	});
-	socket.on("chat request", () => {
-		socketIO.emit("chat update", chatHistory);
-	});
+	socket.on(
+		"chat message",
+		({
+			msg,
+			name,
+			roomID,
+		}: {
+			msg: MessageType;
+			name: string;
+			roomID: string | undefined;
+		}) => {
+			//server selects and sends the chat history according to user status (online or in-game)
+			//chat histories are private (different roomID will not have access to each other's chat history)
+			if (activeUsers[name].inGame && roomID !== undefined) {
+				chatHistory.local[roomID].push(msg);
+				socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
+			} else {
+				chatHistory.global.push(msg);
+				socketIO
+					.except(gameInfos.map((gameInfo: GameInfoType) => gameInfo.roomID))
+					.emit("chat update", chatHistory.global);
+			}
+		}
+	);
+	socket.on(
+		"chat request",
+		({ name, roomID }: { name: string; roomID: string | undefined }) => {
+			//server selects and sends the chat history according to user status (online or in-game)
+			//chat histories are private (different roomID will not have access to each other's chat history)
+			console.log("CHAT REQUEST ARG", name, roomID);
+			if (activeUsers[name].inGame && roomID !== undefined) {
+				socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
+			} else {
+				socketIO
+					.except(gameInfos.map((gameInfo: GameInfoType) => gameInfo.roomID))
+					.emit("chat update", chatHistory.global);
+			}
+		}
+	);
 	socket.on(
 		"select block",
 		({ index, roomID }: { index: number; roomID: string }) => {
 			const info = getGameInfo(roomID);
 			info.minesArray[index].selected = true;
 			if (info.minesArray[index].value === 1) {
-				info.scores[info.playingUser]++;
+				let score = 0;
+				switch (info.minesArray[index].type) {
+					case "Legendary":
+						score = 4;
+						break;
+					case "Epic":
+						score = 3;
+						break;
+					case "Rare":
+						score = 2;
+						break;
+					case "Common":
+						score = 1;
+						break;
+					default:
+						console.log("[ERROR] SELECT BLOCK NO TYPE");
+						break;
+				}
+				info.scores[info.playingUser] += score;
 			}
 			if (checkEndGame(roomID)) {
 				socketIO.to(roomID).emit("end game", info);
@@ -256,11 +459,18 @@ socketIO.on("connection", (socket: any) => {
 		}
 	);
 	socket.on("leave room request", (roomID: string) => {
+		const updatedUser = Object.keys(activeUsers).find(
+			(key) => activeUsers[key].id === socket.id
+		);
+		if (updatedUser !== undefined) {
+			activeUsers[updatedUser].inGame = false;
+			socketIO.emit("active user update", activeUsers);
+		}
 		socket.leave(roomID);
-		socketIO.to(roomID).emit("other user left");
 	});
 	socket.on("reconnect game", ({ roomID }: { roomID: string }) => {
-		socket.join(roomID);
+		//delay to allow active users array to update before joining room
+		setTimeout(() => socket.join(roomID), 500);
 	});
 	socket.on(
 		"play again",
@@ -283,10 +493,10 @@ socketIO.on("connection", (socket: any) => {
 	});
 	socket.on("disconnect", () => {
 		const user = Object.keys(activeUsers).find(
-			(key: any) => activeUsers[key] === socket.id
+			(key: any) => activeUsers[key].id === socket.id
 		);
 		if (user !== undefined) {
-			console.log(user + " has left the chat");
+			console.log(user + " has disconnected", socketIO.of("/").sockets.size);
 			delete activeUsers[user];
 		}
 		socketIO.emit("active user update", activeUsers);
@@ -300,6 +510,7 @@ interface MessageType {
 interface BlockType {
 	selected: boolean;
 	value: number;
+	type: string | undefined;
 }
 interface UserType {
 	name: string;
