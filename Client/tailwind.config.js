@@ -23,7 +23,8 @@ module.exports = {
         'righteous':'Righteous'
       },
       animation:{
-        'pulse-slow': 'pulse 5s ease-in-out infinite'
+        'pulse-slow': 'pulse 5s ease-in-out infinite',
+        'pulse-ultra-slow': 'pulse 20s ease-in-out infinite'
       }
     },
   },

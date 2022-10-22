@@ -17,7 +17,10 @@ export default function Game() {
         timer
     } = gameInfo
     return (
-        <div className="flex flex-col h-screen overflow-hidden text-center font-quicksand bg-neutral-800">
+        <div className="flex flex-col h-screen overflow-hidden text-center font-quicksand 
+        bg-gradient-to-t from-transparent to-slate-600">
+            <div className="absolute top-0 botom-0 left-0 right-0 -z-10 bg-cover animate-pulse-ultra-slow
+            bg-[url('../public/assets/images/bg.jpg')] flex-1 h-screen blur-3xl"/>
             <Result />
             <Backdrop />
             <div className="flex-1 flex justify-evenly p-2">
@@ -48,7 +51,7 @@ export default function Game() {
                     <MinesGrid />
                 </div>
                 <div className="flex basis-[30%] h-[70vh] m-auto">
-                    <div className="w-[90%] h-full bg-neutral-600 p-5 rounded-3xl m-auto">
+                    <div className="w-[90%] h-full bg-black bg-opacity-20 p-5 rounded-3xl m-auto">
                         <Chat />
                     </div>
                 </div>

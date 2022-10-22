@@ -19,7 +19,9 @@ export default function Name() {
         }
     }
     return (
-        <div className="flex bg-neutral-800 w-full h-screen p-5">
+        <div className="flex bg-gradient-to-t from-transparent to-slate-600 w-full h-screen p-5">
+            <div className="absolute top-0 botom-0 left-0 right-0 -z-10 bg-cover animate-pulse-ultra-slow
+            bg-[url('../public/assets/images/bg.jpg')] flex-1 h-screen blur-3xl"/>
             <form className="flex flex-col m-auto p-2">
                 <div className="relative mb-10">
                     <div className="font-righteous text-6xl text-white text-center animate-pulse-slow">

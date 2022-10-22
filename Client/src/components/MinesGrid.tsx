@@ -13,8 +13,8 @@ export default function MinesGrid() {
         return playingUser.name === name
     }
     return (
-        <div className={`w-fit grid grid-cols-6 gap-2 m-auto p-5 rounded-3xl
-        ${checkPlayerCanInteract()?"bg-gradient-to-r from-teal-200 to-sky-200":"bg-neutral-400"}`}>
+        <div className={`w-fit grid grid-cols-6 gap-2 m-auto p-5 rounded-3xl transition duration-500
+        ${checkPlayerCanInteract()?"bg-gradient-to-r from-teal-200 to-sky-300":"bg-neutral-500"}`}>
             {gameInfo.minesArray.map(
                 (block:BlockType,index:number)=>{
                     console.log(block);
