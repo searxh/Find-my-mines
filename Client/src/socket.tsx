@@ -74,12 +74,20 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				});
 			});
 			socket.on("end game", (gameInfo: GameInfoType) => {
-				const newFlags = { ...flags, resultVisible: true };
 				dispatch({
-					type: "multi-set",
-					field: ["gameInfo", "flags"],
-					payload: [gameInfo, newFlags],
+					type: "set",
+					field: "gameInfo",
+					payload: gameInfo,
 				});
+				//delay showing results (to allow users to see last mine first)
+				setTimeout(()=>{
+					const newFlags = { ...flags, resultVisible: true };
+					dispatch({
+						type: "set",
+						field: "flags",
+						payload: newFlags,
+					})
+				},2000)
 			});
 			socket.on("other user left", () => {
 				const newFlags = { 
