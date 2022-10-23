@@ -21,7 +21,7 @@ export default function Menu() {
                         ONLINE USERS
                     </div>
                     <div className="flex flex-col h-full justify-evenly shadow-md
-                    bg-neutral-600 bg-opacity-80 p-5 rounded-3xl">
+                    bg-zinc-600 bg-opacity-80 p-5 rounded-3xl">
                         <ActiveUsers />
                         <div className="flex py-2">
                         <MatchingButton />
@@ -32,7 +32,7 @@ export default function Menu() {
                     <div className="text-3xl font-righteous text-white w-full text-center mb-2">
                         CHAT
                     </div>
-                    <div className="h-full bg-neutral-600 bg-opacity-80 p-5 rounded-3xl shadow-md">
+                    <div className="h-full bg-zinc-600 bg-opacity-80 p-5 rounded-3xl shadow-md">
                         <Chat />
                     </div>
                 </div>

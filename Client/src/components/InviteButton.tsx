@@ -46,7 +46,7 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
         <div className="relative">
             <div className={`font-righteous absolute ${trigger?"-translate-x-11":"translate-x-0"}  text-lg
             left-0 top-0 h-full p-1 pr-16 text-white ${checkCanInvite()?"bg-green-600":"opacity-0"} 
-            text-center z-10 w-full rounded-full transition-transform duration-100`}>
+            text-center z-10 w-full rounded-full transition-transform duration-100 shadow-md`}>
                 <Countdown
                     seconds={15}
                     trigger={trigger}

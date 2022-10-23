@@ -59,7 +59,7 @@ export default function Chat() {
                                     color:getUserColor(activeUsers,msg.from)
                                 }}
                             >
-                                <div className="flex">
+                                <div className="flex brightness-125">
                                     <div>{msg.from}:</div>
                                     <div className="ml-3">
                                         {msg.message}
