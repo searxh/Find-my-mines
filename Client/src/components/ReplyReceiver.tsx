@@ -48,7 +48,7 @@ export default function ReplyReceiver() {
                 <button 
                     onClick={handleOnClickClose}
                     className="absolute -top-1 -left-1 w-10 h-10 bg-neutral-500
-                    text-center rounded-full font-righteous shadow-md"
+                    text-center rounded-full font-righteous shadow-md hover:scale-110 transition"
                 >
                     X
                 </button>

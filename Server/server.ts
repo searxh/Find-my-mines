@@ -60,10 +60,8 @@ const chooseRandomUser = () => {
 const generateID = ():string => {
     return uuid.v4();
 };
-const generateGameInfo = (
-    type:string, roomID?:string
-) => {
-    const id = roomID!==undefined?roomID:generateID();
+const generateGameInfo = (type:string) => {
+    const id = generateID();
     const newGameInfo:GameInfoType = {
         roomID:id,
         type:type,
@@ -119,7 +117,7 @@ const getCounter = (roomID:string) => {
 };
 const removeUser = (user:UserType, callback:Function) => {
     let info = gameInfos.find((infoObj:GameInfoType)=>{
-        if (infoObj.scores[0]+infoObj.scores[1] !== WINNING_SCORE) {
+        if (infoObj.scores[0]+infoObj.scores[1] !== WINNING_SCORE && infoObj.type==="matching") {
             return infoObj.users.find((userObj:UserType)=>userObj.name===user.name)!==undefined;
         } else {
             return false;
@@ -326,23 +324,24 @@ socketIO.on("connection", (socket:any)=>{
     }:{
         senderName:string, receiverName:string
     })=>{
-        const roomID = generateID();
-        addInvitation(roomID,{
-            roomID:roomID, 
+        const info = generateGameInfo("invitation");
+        addInvitation(info.roomID,{
+            roomID:info.roomID, 
             senderName:senderName,
             receiverName:receiverName,
             validUntil:addSeconds(Date.now(),15)
         });
         console.log("INVITATION",invitation);
-        const info = generateGameInfo("invitation",roomID);
+
         //removes user if they are in a room
         //(this can happen if player is matching and acccepted an invitation)
+        console.log("ACTIVE USERS",activeUsers);
         removeUser(activeUsers[senderName],(roomID:string)=>socket.leave(roomID));
         info.users.push(activeUsers[senderName]);
-        socket.join(roomID);
+        socket.join(info.roomID);
         socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
             senderName:senderName,
-            roomID:roomID,
+            roomID:info.roomID,
         });
     });
     socket.on("invite reply",({
@@ -351,6 +350,7 @@ socketIO.on("connection", (socket:any)=>{
         senderName:string, receiverName:string, decision:boolean
     })=>{
         //remove any expired invitation (by timeout)
+        console.log("ACTIVE USERS",activeUsers);
         removeExpiredInvitation();
         //gets the most recent invitation of sender and receiver 
         //(prevents multiple invitations of same pair of sender and receiver)
