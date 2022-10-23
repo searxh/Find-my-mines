@@ -8,12 +8,14 @@ export interface MessageType {
 export interface BlockType {
 	selected: boolean;
 	value: number;
+	selectedBy: string;
 	type: string | null;
 }
 export interface UserType {
 	name: string;
 	id: string;
 	inGame: boolean;
+	color: string;
 }
 export interface InviteStorageType {
 	senderName:string;

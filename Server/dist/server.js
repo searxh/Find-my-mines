@@ -7,6 +7,7 @@ const socketIO = require("socket.io")(http, {
         origin: "*"
     }
 });
+const Please = require("pleasejs");
 const addSeconds = require("date-fns/addSeconds");
 const compareAsc = require("date-fns/compareAsc");
 const WINNING_SCORE = 2100;
@@ -23,10 +24,12 @@ const createMinesArray = () => {
             {
                 selected: false,
                 value: 1,
+                selectedBy: "",
                 type: types[index],
             } : {
             selected: false,
             value: 0,
+            selectedBy: "",
             type: null,
         };
     });
@@ -50,14 +53,17 @@ const generateTypesIndexesFrom = (amountArray, arr) => {
 const getRandomInt = (min, max) => {
     return Math.round(Math.random() * (max - min) + min);
 };
+const getUserColor = () => {
+    return Please.make_color();
+};
 const chooseRandomUser = () => {
     return Math.random() > 0.5 ? 1 : 0;
 };
 const generateID = () => {
     return uuid.v4();
 };
-const generateGameInfo = (type, roomID) => {
-    const id = roomID !== undefined ? roomID : generateID();
+const generateGameInfo = (type) => {
+    const id = generateID();
     const newGameInfo = {
         roomID: id,
         type: type,
@@ -113,7 +119,7 @@ const getCounter = (roomID) => {
 };
 const removeUser = (user, callback) => {
     let info = gameInfos.find((infoObj) => {
-        if (infoObj.scores[0] + infoObj.scores[1] !== WINNING_SCORE) {
+        if (infoObj.scores[0] + infoObj.scores[1] !== WINNING_SCORE && infoObj.type === "matching") {
             return infoObj.users.find((userObj) => userObj.name === user.name) !== undefined;
         }
         else {
@@ -278,7 +284,12 @@ socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
 socketIO.on("connection", (socket) => {
     console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
     socket.on("name register", (user) => {
-        activeUsers[user.name] = { id: user.id, name: user.name, inGame: user.inGame };
+        activeUsers[user.name] = {
+            id: user.id,
+            name: user.name,
+            inGame: user.inGame,
+            color: getUserColor(),
+        };
         socketIO.emit("active user update", activeUsers);
     });
     socket.on("matching", (user) => {
@@ -304,27 +315,28 @@ socketIO.on("connection", (socket) => {
         removeUser(user, (roomID) => socket.leave(roomID));
     });
     socket.on("invite request", ({ senderName, receiverName }) => {
-        const roomID = generateID();
-        addInvitation(roomID, {
-            roomID: roomID,
+        const info = generateGameInfo("invitation");
+        addInvitation(info.roomID, {
+            roomID: info.roomID,
             senderName: senderName,
             receiverName: receiverName,
             validUntil: addSeconds(Date.now(), 15)
         });
         console.log("INVITATION", invitation);
-        const info = generateGameInfo("invitation", roomID);
         //removes user if they are in a room
         //(this can happen if player is matching and acccepted an invitation)
+        console.log("ACTIVE USERS", activeUsers);
         removeUser(activeUsers[senderName], (roomID) => socket.leave(roomID));
         info.users.push(activeUsers[senderName]);
-        socket.join(roomID);
+        socket.join(info.roomID);
         socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
             senderName: senderName,
-            roomID: roomID,
+            roomID: info.roomID,
         });
     });
     socket.on("invite reply", ({ senderName, receiverName, decision }) => {
         //remove any expired invitation (by timeout)
+        console.log("ACTIVE USERS", activeUsers);
         removeExpiredInvitation();
         //gets the most recent invitation of sender and receiver 
         //(prevents multiple invitations of same pair of sender and receiver)
@@ -394,9 +406,10 @@ socketIO.on("connection", (socket) => {
                 .emit("chat update", chatHistory.global);
         }
     });
-    socket.on("select block", ({ index, roomID }) => {
+    socket.on("select block", ({ index, roomID, name }) => {
         const info = getGameInfo(roomID);
         info.minesArray[index].selected = true;
+        info.minesArray[index].selectedBy = name;
         if (info.minesArray[index].value === 1) {
             let score = 0;
             switch (info.minesArray[index].type) {

@@ -4,10 +4,17 @@ import { GlobalContext } from '../states';
 import { MessageType } from '../types';
 import { SocketContext } from '../socket';
 import AutoScroll from '@brianmcallister/react-auto-scroll';
+import { getUserColor } from '../lib/utility/GetUserColor';
+import format from 'date-fns/format';
 
 export default function Chat() {
     const { global_state } = React.useContext(GlobalContext);
-    const { chatHistory, name, gameInfo } = global_state;
+    const { 
+        chatHistory, 
+        name, 
+        gameInfo,
+        activeUsers
+    } = global_state;
     const { socket } = React.useContext(SocketContext);
     const [ chatHeight, setChatHeight ] = React.useState<number>(0);
     const chatWindowRef = React.useRef<HTMLDivElement>(null);
@@ -33,7 +40,9 @@ export default function Chat() {
         }
     },[socket])
     return (
-        <div className="flex flex-col justify-evenly font-quicksand text-white text-xl h-full">
+        <div 
+            className={`flex flex-col justify-evenly font-quicksand text-xl h-full`}
+        >
             <div
                 ref={chatWindowRef}
                 className="basis-[95%] bg-neutral-800 rounded-3xl mb-5 shadow-md overflow-hidden"
@@ -46,15 +55,20 @@ export default function Chat() {
                         return (
                             <div 
                                 key={index}
-                                className="flex justify-between px-5 py-1"
+                                className="flex justify-between px-5 py-1 text-neutral-400"
+                                style={{
+                                    color:getUserColor(activeUsers,msg.from)
+                                }}
                             >
-                                <div className="flex">
-                                    <div>{msg.from}:</div>
+                                <div className="flex brightness-125">
+                                    <div className="">{msg.from.toUpperCase()}:</div>
                                     <div className="ml-3">
                                         {msg.message}
                                     </div>
                                 </div>
-                                <div className="text-green-300">{new Date(msg.at).toLocaleTimeString()}</div>
+                                <div className="text-green-300">
+                                    {format(new Date(msg.at),'HH:mm')}
+                                </div>
                             </div>
                         )
                     })}
