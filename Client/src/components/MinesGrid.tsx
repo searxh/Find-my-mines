@@ -31,7 +31,11 @@ function Block({ block, index }:{ block:BlockType, index:number }) {
     const { gameInfo, name } = global_state;
     const handleOnClick = () => {
         if (socket !== undefined) {
-            socket.emit('select block',{ index:index, roomID:gameInfo.roomID });
+            socket.emit('select block',{ 
+                index:index, 
+                roomID:gameInfo.roomID,
+                name:name
+            });
             playAudio('dig.wav');
             if (block.value === 1) {
                 setTimeout(()=>playAudio("found.wav"),300);
@@ -46,7 +50,7 @@ function Block({ block, index }:{ block:BlockType, index:number }) {
     }
     return (
         <div className="relative">
-            {block.value === 1 && block.selected &&
+            {block.value === 1 && block.selected && block.selectedBy===name &&
                 <FoundMineEffect 
                     minesType={block.type} 
                     trigger={block.selected}

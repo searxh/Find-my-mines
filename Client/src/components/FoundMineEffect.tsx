@@ -61,8 +61,7 @@ export default function FoundMineEffect({ minesType, trigger }:FoundMineEffectPr
     React.useEffect(()=>{
         if (visible) {
             setTimeout(()=>setTransition(true),100);
-        } else {
-            setTimeout(()=>setTransition(false),100);
+            setTimeout(()=>setTransition(false),1400);
         }
     },[visible])
     return (

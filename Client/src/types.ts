@@ -8,6 +8,7 @@ export interface MessageType {
 export interface BlockType {
 	selected: boolean;
 	value: number;
+	selectedBy: string;
 	type: string | null;
 }
 export interface UserType {

@@ -24,10 +24,12 @@ const createMinesArray = () => {
             {
                 selected:false,
                 value:1,
+                selectedBy:"",
                 type:types[index],
             }:{
                 selected:false,
                 value:0,
+                selectedBy:"",
                 type:null,
             };
         
@@ -423,12 +425,13 @@ socketIO.on("connection", (socket:any)=>{
         }
     });
     socket.on("select block", ({
-        index, roomID
+        index, roomID, name
     }:{
-        index:number, roomID:string
+        index:number, roomID:string, name:string
     })=>{
         const info = getGameInfo(roomID) 
         info.minesArray[index].selected = true;
+        info.minesArray[index].selectedBy = name;
         if (info.minesArray[index].value === 1) {
             let score = 0;
             switch (info.minesArray[index].type) {
@@ -509,6 +512,7 @@ interface MessageType {
 interface BlockType {
     selected:boolean;
     value:number;
+    selectedBy:string;
     type:string | undefined;
 }
 interface UserType {
