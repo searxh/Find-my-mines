@@ -15,6 +15,7 @@ export interface UserType {
 	name: string;
 	id: string;
 	inGame: boolean;
+	color: string;
 }
 export interface InviteStorageType {
 	senderName:string;

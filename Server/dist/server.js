@@ -7,6 +7,7 @@ const socketIO = require("socket.io")(http, {
         origin: "*"
     }
 });
+const Please = require("pleasejs");
 const addSeconds = require("date-fns/addSeconds");
 const compareAsc = require("date-fns/compareAsc");
 const WINNING_SCORE = 2100;
@@ -51,6 +52,9 @@ const generateTypesIndexesFrom = (amountArray, arr) => {
 };
 const getRandomInt = (min, max) => {
     return Math.round(Math.random() * (max - min) + min);
+};
+const getUserColor = () => {
+    return Please.make_color();
 };
 const chooseRandomUser = () => {
     return Math.random() > 0.5 ? 1 : 0;
@@ -280,7 +284,12 @@ socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
 socketIO.on("connection", (socket) => {
     console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
     socket.on("name register", (user) => {
-        activeUsers[user.name] = { id: user.id, name: user.name, inGame: user.inGame };
+        activeUsers[user.name] = {
+            id: user.id,
+            name: user.name,
+            inGame: user.inGame,
+            color: getUserColor(),
+        };
         socketIO.emit("active user update", activeUsers);
     });
     socket.on("matching", (user) => {

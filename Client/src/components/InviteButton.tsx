@@ -2,11 +2,11 @@ import React from 'react'
 import { playAudio } from '../lib/utility/Audio';
 import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
-import { UserType } from '../types'
+import { PriorityType, UserType } from '../types'
 import Countdown from './Countdown';
 
 interface InviteButtonPropsType {
-    user:UserType;
+    user:PriorityType;
 }
 
 export default function InviteButton({ user }:InviteButtonPropsType) {

@@ -24,7 +24,7 @@ export default function ActiveUsers() {
 	return (
 		<div className='flex-1 overflow-y-scroll'>
 			<div className='flex flex-col text-xl'>
-				{priorities.map((user: UserType) => {
+				{priorities.map((user: PriorityType) => {
 					return (
 						<div
 							className={` flex justify-between ${
