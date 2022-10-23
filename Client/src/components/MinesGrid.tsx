@@ -64,13 +64,16 @@ function Block({ block, index }:{ block:BlockType, index:number }) {
                         "hover:bg-gradient-to-t from-cyan-500 to-pink-500":
                         "hover:opacity-60"
                     }
-                    ${block.selected?"bg-opacity-50 bg-white":"bg-slate-700 hover:scale-110"} 
+                    ${block.selectedBy===""?null:
+                    block.selectedBy===name?"border-[0.5px] scale-110 brightness-125 bg-opacity-60":
+                    "brightness-50"}
+                    ${block.selected?"bg-opacity-50 bg-neutral-400":"bg-slate-700 hover:scale-110"} 
                     transition rounded-md shadow-lg`}
             >
                 {block.value === 1 && block.selected &&
                     <Image 
                         type={block.type as string} 
-                        className="animate-spin-slow"
+                        className="animate-spin-slow drop-shadow-md"
                     />
                 }
             </button>
