@@ -67,7 +67,8 @@ const Admin = () => {
 										Current Scores: {game?.scores[0]} : {game?.scores[1]}
 									</p>
 									<button
-										className='rounded-full bg-rose-400 p-1'
+										className='rounded-full bg-rose-400 p-1 hover:scale-105 transition
+										hover:bg-pink-800 duration-500'
 										onClick={() => {
 											console.log("click");
 											resetHandler(game);
