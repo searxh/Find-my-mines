@@ -30,9 +30,9 @@ export default function ActiveUsers() {
 						<div
 							className={` flex justify-between ${
 								user.inGame ? "text-yellow-400" : "text-green-400"
-							} p-2 rounded-full my-2 shadow-lg bg-neutral-800`}
+							} p-2 rounded-full my-2 shadow-lg bg-neutral-800 border-[1px]`}
 							style={{
-								background:`linear-gradient(360deg, ${getUserColor(activeUsers,user.name)} 3%, rgb(40,40,40) 5%)`
+								borderColor:getUserColor(activeUsers,user.name)
 							}}
 						>
 							<div
@@ -44,7 +44,7 @@ export default function ActiveUsers() {
 								style={{
 									color:getUserColor(activeUsers,user.name)
 								}}
-								className="font-righteous my-auto brightness-125 text-xl"
+								className="my-auto brightness-125 text-xl"
 							>
 								{user.name.toString().toUpperCase()}
 							</div>

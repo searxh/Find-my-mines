@@ -9,7 +9,7 @@ import SocketID from '../components/SocketID';
 export default function Menu() {
     return (
         <div className="flex flex-col h-screen overflow-hidden text-center font-quicksand
-        bg-gradient-to-t from-transparent to-slate-600">
+        bg-gradient-to-t from-transparent to-slate-700">
             <div className="absolute top-0 botom-0 left-0 right-0 -z-10 bg-cover blur-sm
             bg-[url('../public/assets/images/bg.png')] flex-1 h-screen opacity-50"/>
             <RequestReceiver />

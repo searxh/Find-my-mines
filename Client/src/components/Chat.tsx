@@ -5,6 +5,7 @@ import { MessageType } from '../types';
 import { SocketContext } from '../socket';
 import AutoScroll from '@brianmcallister/react-auto-scroll';
 import { getUserColor } from '../lib/utility/GetUserColor';
+import format from 'date-fns/format';
 
 export default function Chat() {
     const { global_state } = React.useContext(GlobalContext);
@@ -54,18 +55,20 @@ export default function Chat() {
                         return (
                             <div 
                                 key={index}
-                                className="flex justify-between px-5 py-1"
+                                className="flex justify-between px-5 py-1 text-neutral-400"
                                 style={{
                                     color:getUserColor(activeUsers,msg.from)
                                 }}
                             >
                                 <div className="flex brightness-125">
-                                    <div>{msg.from}:</div>
+                                    <div className="">{msg.from.toUpperCase()}:</div>
                                     <div className="ml-3">
                                         {msg.message}
                                     </div>
                                 </div>
-                                <div className="text-green-300">{new Date(msg.at).toLocaleTimeString()}</div>
+                                <div className="text-green-300">
+                                    {format(new Date(msg.at),'HH:mm')}
+                                </div>
                             </div>
                         )
                     })}
