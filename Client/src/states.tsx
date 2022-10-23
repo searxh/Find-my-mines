@@ -17,6 +17,7 @@ export const initialState: GlobalStateType = {
 	activeUsers: [],
 	receiver: {},
 	gameInfo: {} as GameInfoType,
+	activeGames: [],
 	socketID: "",
 	flags: {
 		resultVisible: false,
@@ -67,6 +68,23 @@ export function GlobalStateProvider({
 				} else return state;
 			case "timer":
 				newState.gameInfo = { ...newState.gameInfo, timer: action.payload };
+				save(newState);
+				return newState;
+			case "add":
+				newState.activeGames.push(action.payload);
+				save(newState);
+				return newState;
+			case "update game":
+				const updatedGame = newState.activeGames.filter(
+					(games) => games.roomID === action.payload.roomID
+				);
+				updatedGame[0].scores = action.payload.gameInfo.scores;
+				const oldState = newState.activeGames.filter(
+					(games) => games.roomID !== action.payload.roomID
+				);
+				oldState.push(updatedGame[0]);
+				newState.activeGames = oldState;
+
 				save(newState);
 				return newState;
 			default:

@@ -50,6 +50,23 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: users,
 				});
 			});
+			socket.on("active game update", (gameInfo: any) => {
+				const games: GameInfoType = gameInfo;
+				dispatch({
+					type: "update game",
+					field: "activeGames",
+					payload: { gameInfo: games, roomID: gameInfo.roomID },
+				});
+			});
+			socket.on("add active game update", (gameInfo: any) => {
+				const games: GameInfoType = gameInfo;
+
+				dispatch({
+					type: "add",
+					field: "activeGames",
+					payload: games,
+				});
+			});
 			socket.on("start game", (gameInfo: GameInfoType) => {
 				const newFlags = { ...flags, resultVisible: false };
 
@@ -68,7 +85,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				});
 			});
 			socket.on("gameInfo update", (gameInfo: GameInfoType) => {
-				console.log(gameInfo)
 				dispatch({
 					type: "set",
 					field: "gameInfo",

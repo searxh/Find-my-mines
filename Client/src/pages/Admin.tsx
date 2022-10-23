@@ -2,64 +2,89 @@ import React, { useEffect, useState } from "react";
 import Card from "../components/UIElements/Card";
 import { GlobalContext } from "../states";
 import SocketID from "../components/SocketID";
+import { SocketContext } from "../socket";
+import { GameInfoType } from "../types";
 const Admin = () => {
 	const { global_state } = React.useContext(GlobalContext);
-	const { activeUsers, gameInfo } = global_state;
+	const { activeUsers, activeGames } = global_state;
 	const [usersArray, setUsersArray] = useState<any[][]>([[]]);
-	const [gamesArray, setGamesArray] = useState<any[][]>([[]]);
+	const { socket } = React.useContext(SocketContext);
+	const [gamesArray, setGamesArray] = useState<any[]>([]);
 
-	console.log(Object.values(gameInfo)[0]);
+	console.log(global_state);
+	const resetHandler = (gameInfo: GameInfoType) => {
+		socket.emit("admin reset game", gameInfo);
+	};
 
 	useEffect(() => {
 		setUsersArray(
 			Object.keys(activeUsers).map((key: any) => [key, activeUsers[key]])
 		);
-	}, [activeUsers, gameInfo, global_state]);
-	console.log(usersArray);
-	console.log(gamesArray);
+		setGamesArray(activeGames as any);
+	}, [activeUsers, activeGames, global_state]);
 
 	return (
-		<div className='grid h-screen place-items-center'>
-			<Card additionalStyle='w-80 '>
-				<div className='text-slate-900'>
-					<h1 className='text-2xl'>Current Users Online: 3</h1>
+		<>
+			<div className='font-righteous text-6xl text-white text-center m-10'>
+				ADMIN PAGE
+			</div>
+			<div className='flex justify-center gap-x-14  place-items-center '>
+				<Card additionalStyle='w-80 '>
+					<div className='text-slate-900'>
+						<h1 className='text-3xl'>
+							Current Users Online: {usersArray.length}
+						</h1>
 
-					{usersArray[0]?.length > 0 &&
-						usersArray.map((user) => (
-							<li key={Math.random()} className='mx-5'>
-								{user[1].name} <br />
-								<span>
-									Status:&nbsp;&nbsp;
-									<span
-										className={
-											user[1].inGame ? "text-yellow-400" : "text-lime-800"
-										}
-									>
-										{user[1].inGame ? "In Game" : "Online"}
+						{usersArray[0]?.length > 0 &&
+							usersArray.map((user) => (
+								<div key={Math.random()} className='mx-5'>
+									<p className='text-2xl m-0'>{user[1].name}</p>
+									<span className='flex p-2 bg-neutral-800 rounded-full my-2 shadow-md'>
+										<span className='text-gray-50'>Status:</span>&nbsp;
+										<span
+											className={
+												user[1].inGame ? "text-yellow-400" : "text-lime-400"
+											}
+										>
+											{user[1].inGame ? "In Game" : "Online"}
+										</span>
 									</span>
+								</div>
+							))}
+					</div>
+				</Card>
+				<Card additionalStyle='w-80 '>
+					<div className='text-slate-900'>
+						<h1 className='text-3xl'>Current Games: {gamesArray.length}</h1>
+
+						{gamesArray.map((game) => (
+							<span key={Math.random()}>
+								<p>
+									{game?.users[0]?.name} VS. {game?.users[1]?.name}
+								</p>
+								<span className='flex p-2 bg-neutral-800 justify-between rounded-full my-2 shadow-md text-slate-50 text-l'>
+									<p className='my-1'>
+										Current Scores: {game?.scores[0]} : {game?.scores[1]}
+									</p>
+									<button
+										className='rounded-full bg-rose-400 p-1'
+										onClick={() => {
+											console.log("click");
+											resetHandler(game);
+										}}
+									>
+										RESET
+									</button>
 								</span>
-							</li>
+							</span>
 						))}
-				</div>
-			</Card>
-			<Card additionalStyle='w-80 '>
-				<div className='text-slate-900'>
-					<h1 className='text-2xl'>
-						Current Games: {Object.keys(gameInfo).length}
-					</h1>
-					<li>
-						{Object.values(gameInfo).map((u) => (
-							<>
-								{u.users[0].name} VS {u.users[1].name}
-								&nbsp;&nbsp;
-								{u.scores[0]} : {u.scores[1]}
-							</>
-						))}
-					</li>
-				</div>
-			</Card>
-			<SocketID />
-		</div>
+					</div>
+				</Card>
+			</div>
+			<div className='flex justify-center my-20'>
+				<SocketID />
+			</div>
+		</>
 	);
 };
 export default Admin;

@@ -16,7 +16,7 @@ export interface UserType {
 	inGame: boolean;
 }
 export interface InviteStorageType {
-	senderName:string;
+	senderName: string;
 }
 export interface PriorityType {
 	name: string;
@@ -25,9 +25,9 @@ export interface PriorityType {
 	priority: number;
 }
 export interface InviteInfoType {
-	senderName?:string;
-	roomID?:string,
-	error?:boolean,
+	senderName?: string;
+	roomID?: string;
+	error?: boolean;
 }
 export interface GameInfoType {
 	roomID: string;
@@ -46,13 +46,14 @@ export interface GlobalStateKeys {
 	[key: string]: any;
 }
 export interface GlobalStateType extends GlobalStateKeys {
-    name:string;
-    chatHistory:Array<MessageType>;
-    activeUsers:Array<UserType>;
+	name: string;
+	chatHistory: Array<MessageType>;
+	activeUsers: Array<UserType>;
+	activeGames: Array<GameInfoType>;
 	receiver: any;
-    gameInfo:GameInfoType;
-    socketID:string;
-    flags:FlagsType;
+	gameInfo: GameInfoType;
+	socketID: string;
+	flags: FlagsType;
 }
 export interface ActionType {
 	type: string;

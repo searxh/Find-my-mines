@@ -10,11 +10,7 @@ const socketIO = require("socket.io")(http, {
 const addSeconds = require("date-fns/addSeconds");
 const compareAsc = require("date-fns/compareAsc");
 
-<<<<<<< Updated upstream
 const WINNING_SCORE = 21;
-=======
-const WINNING_SCORE = 3;
->>>>>>> Stashed changes
 const createMinesArray = () => {
 	let nums = new Set<number>();
 	while (nums.size < 11) {
@@ -72,22 +68,10 @@ const chooseRandomUser = () => {
 const generateID = (): string => {
 	return uuid.v4();
 };
-<<<<<<< Updated upstream
-
-const generateGameInfo = (
-	gameInfos: Array<GameInfoType>,
-	counters: Array<CounterType>
-) => {
-	const id = roomID !== undefined ? roomID : generateID();
-	const newGameInfo: GameInfoType = {
-		roomID: id,
-=======
 const generateGameInfo = (type: string, roomID?: string) => {
 	const id = roomID !== undefined ? roomID : generateID();
 	const newGameInfo: GameInfoType = {
 		roomID: id,
-		//type 0 =
->>>>>>> Stashed changes
 		type: type,
 		timer: 10,
 		users: [] as Array<UserType>,
@@ -100,8 +84,10 @@ const generateGameInfo = (type: string, roomID?: string) => {
 		roomID: id,
 		countdown: false,
 	});
+
 	chatHistory.local[id] = [];
 	console.log("GENERATED CHAT INFO", chatHistory.local);
+
 	return newGameInfo;
 };
 const resetRoom = (roomID: string) => {
@@ -251,6 +237,7 @@ let chatHistory: ChatHistoryType = {
 	local: {},
 };
 let activeUsers: any = {};
+
 let invitation: any = {};
 const initialRoomID = generateID();
 chatHistory.local[initialRoomID] = [];
@@ -286,22 +273,12 @@ socketIO.of("/").adapter.on("join-room", (roomID: string, id: string) => {
 		const info = getGameInfo(roomID);
 		if (info.users.length === 2) {
 			console.log("starting game for room ", info.roomID);
-<<<<<<< Updated upstream
-=======
-			console.log(info);
->>>>>>> Stashed changes
 			info.users.forEach((user) => {
 				activeUsers[user.name].inGame = true;
 			});
 			socketIO.to(info.roomID).emit("start game", info);
-<<<<<<< Updated upstream
-=======
-			if (Object.keys(activeUsers).includes("admin")) {
-				socketIO.to(activeUsers["admin"].id).emit("game info admin", info);
-			}
-
->>>>>>> Stashed changes
 			setTimeout(() => socketIO.emit("active user update", activeUsers), 500);
+			socketIO.emit("add active game update", info);
 			const counter = getCounter(info.roomID);
 			if (!counter.countdown) {
 				console.log("set countdown");
@@ -394,14 +371,11 @@ socketIO.on("connection", (socket: any) => {
 			});
 			console.log("INVITATION", invitation);
 			const info = generateGameInfo("invitation", roomID);
-<<<<<<< Updated upstream
 			//removes user if they are in a room
 			//(this can happen if player is matching and acccepted an invitation)
 			removeUser(activeUsers[senderName], (roomID: string) =>
 				socket.leave(roomID)
 			);
-=======
->>>>>>> Stashed changes
 			info.users.push(activeUsers[senderName]);
 			socket.join(roomID);
 			socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
@@ -456,7 +430,6 @@ socketIO.on("connection", (socket: any) => {
 						socket.id
 					);
 					const info = getGameInfo(roomID);
-<<<<<<< Updated upstream
 					//removes user if they are in a room
 					//(this can happen if player is matching and acccepted an invitation)
 					removeUser(activeUsers[receiverName], (roomID: string) =>
@@ -464,11 +437,6 @@ socketIO.on("connection", (socket: any) => {
 					);
 					info.users.push(activeUsers[receiverName]);
 					socket.join(roomID);
-=======
-					info.users.push(activeUsers[receiverName]);
-					socket.join(roomID);
-					socket.leave("global");
->>>>>>> Stashed changes
 					expireInvitation(senderName);
 					//invitation was declined
 				} else {
@@ -554,6 +522,7 @@ socketIO.on("connection", (socket: any) => {
 						break;
 				}
 				info.scores[info.playingUser] += score;
+				socketIO.emit("active game update", info);
 			}
 			if (checkEndGame(roomID)) {
 				socketIO.to(roomID).emit("end game", info);
@@ -610,6 +579,12 @@ socketIO.on("connection", (socket: any) => {
 			delete activeUsers[user];
 		}
 		socketIO.emit("active user update", activeUsers);
+	});
+	socket.on("admin reset game", (gameInfo: GameInfoType) => {
+		socketIO
+			.to(gameInfo.roomID)
+			.emit("gameInfo update", resetRoom(gameInfo.roomID));
+		socketIO.emit("active game update", resetRoom(gameInfo.roomID));
 	});
 });
 interface MessageType {
