@@ -66,8 +66,8 @@ export default function Game() {
                 <div className="flex basis-[40%] h-[70vh] m-auto">
                     <MinesGrid />
                 </div>
-                <div className="flex flex-col basis-[30%] h-[70vh] m-auto">
-                    <div className="w-[90%] h-full bg-zinc-600 bg-opacity-70 p-5 rounded-3xl m-auto">
+                <div className="flex flex-col basis-[30%] m-auto relative">
+                    <div className="w-[90%] bg-zinc-600 h-[70vh] bg-opacity-70 p-5 rounded-3xl m-auto">
                         <Chat />
                     </div>
                     <SurrenderButton />

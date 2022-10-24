@@ -36,7 +36,7 @@ export default function Chat() {
                     name:name, 
                     roomID:gameInfo?.roomID
                 });
-            },1000)
+            },300)
         }
     },[socket])
     return (

@@ -17,9 +17,10 @@ export default function SurrenderButton() {
     return (
         <button
             onClick={handleOnClick}
-            className="bg-neutral-500 rounded-full p-5 hover:scale-105 transition"
+            className="absolute left-0 right-0 -bottom-16 bg-red-800 rounded-full p-2 hover:scale-105 
+            transition w-[90%] m-auto text-white text-2xl font-righteous shadow-md hover:opacity-80"
         >
-            Surrender
+            SURRENDER
         </button>
     )
 }
