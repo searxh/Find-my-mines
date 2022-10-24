@@ -40,6 +40,7 @@ export interface GameInfoType {
 	minesArray: Array<BlockType>;
 }
 export interface FlagsType {
+	activeUsersInitialized: boolean;
 	userLeft: boolean;
 	resultVisible: boolean;
 	isMatching: boolean;

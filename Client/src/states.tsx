@@ -19,6 +19,7 @@ export const initialState: GlobalStateType = {
 	gameInfo: {} as GameInfoType,
 	socketID: "",
 	flags: {
+		activeUsersInitialized: false,
 		resultVisible: false,
 		userLeft: false,
 		isMatching: false,
@@ -41,7 +42,9 @@ const save = (state: GlobalStateType) => {
 };
 
 const load = () => {
-	return JSON.parse(sessionStorage.getItem("fmm-state") as string);
+	const res = JSON.parse(sessionStorage.getItem("fmm-state") as string);
+	//reset flags
+	return { ...res, flags:initialState.flags }
 };
 
 export function GlobalStateProvider({
@@ -74,9 +77,13 @@ export function GlobalStateProvider({
 				return state;
 		}
 	};
-	const [state, dispatch] = React.useReducer(reducer, getSessionData());
+	const [ state, dispatch ] = React.useReducer(reducer, getSessionData());
+	//state that do not want to be saved in session storage
 	return (
-		<GlobalContext.Provider value={{ global_state: state, dispatch: dispatch }}>
+		<GlobalContext.Provider value={{ 
+			global_state: state, 
+			dispatch: dispatch,
+		}}>
 			{children}
 		</GlobalContext.Provider>
 	);

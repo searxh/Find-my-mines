@@ -15,7 +15,10 @@ export const SocketContext = createContext<SocketContextType>(
 );
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
-	const { global_state, dispatch } = React.useContext(GlobalContext);
+	const { 
+		global_state, 
+		dispatch,
+	} = React.useContext(GlobalContext);
 	const { gameInfo, name, flags } = global_state;
 	const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
 	const [reconnectInGame, setReconnectInGame] = React.useState<boolean>(false);
@@ -44,14 +47,19 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 			});
 			socket.on("active user update", (activeUsers: any) => {
 				const users:Array<UserType> = Object.values(activeUsers)
+				const newFlags = { ...flags, activeUsersInitialized:true };
 				dispatch({
-					type:"set",
-					field:"activeUsers",
-					payload:users
+					type:"multi-set",
+					field:["activeUsers","flags"],
+					payload:[users, newFlags],
 				})
 			});
 			socket.on("start game", (gameInfo: GameInfoType) => {
-				const newFlags = { ...flags, resultVisible: false };
+				const newFlags = { 
+					...flags, 
+					resultVisible: false,
+					isMatching: false,
+			 };
 				dispatch({
 					type: "multi-set",
 					field: ["gameInfo", "flags"],
