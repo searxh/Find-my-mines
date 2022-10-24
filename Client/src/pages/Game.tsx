@@ -7,6 +7,7 @@ import SocketID from '../components/SocketID'
 import Backdrop from '../components/Backdrop'
 import UserScore from '../components/UserScore'
 import { getUserColor } from '../lib/utility/GetUserColor'
+import MinesLeft from '../components/MinesLeft'
 
 export default function Game() {
     const { global_state } = React.useContext(GlobalContext)
@@ -58,11 +59,7 @@ export default function Game() {
                         >
                             TIMER: {timer}
                         </div>
-                        <img
-                            className="w-52 h-52 brightness-150 m-auto"
-                            src="/assets/images/bird.gif"
-                            alt=""
-                        />
+                        <MinesLeft />
                     </div>
                 </div>
                 <div className="flex basis-[40%] h-[70vh] m-auto">
