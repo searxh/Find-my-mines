@@ -19,8 +19,12 @@ export default function UserScore({
 }:UserScorePropsType) {
     return (
         <div 
-            className={`text-2xl text-white bg-gradient-to-l w-[70%] py-3 m-auto rounded-full
-            ${isPlaying?"from-pink-500 to-cyan-500":"bg-neutral-500"} shadow-md ${className} `}
+            className={`text-2xl text-white w-[70%] py-3 m-auto rounded-full
+            shadow-md ${className}`}
+            style={{
+                background:`${isPlaying?"linear-gradient(to left, rgb(80,80,90), "+getUserColor(activeUsers,name)+")":""}`,
+                backgroundColor:`${isPlaying?"":"rgb(70,70,80)"}`
+            }}
         >
             {name.toUpperCase()}'S SCORE : {score}
         </div>
