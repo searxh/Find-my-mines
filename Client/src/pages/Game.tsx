@@ -9,16 +9,21 @@ import UserScore from '../components/UserScore'
 import { getUserColor } from '../lib/utility/GetUserColor'
 import MinesLeft from '../components/MinesLeft'
 import SurrenderButton from '../components/SurrenderButton'
+import Confirmation from '../components/Confirmation'
+import { SocketContext } from '../socket'
+import { useNavigate } from 'react-router-dom'
 
 export default function Game() {
-    const { global_state } = React.useContext(GlobalContext)
-    const { gameInfo, name, activeUsers } = global_state
+    const { global_state, dispatch } = React.useContext(GlobalContext);
+    const { socket } = React.useContext(SocketContext);
+    const { gameInfo, name, activeUsers, flags } = global_state;
+    const navigate = useNavigate();
     const { 
         users,
         scores,
         playingUser,
         timer
-    } = gameInfo
+    } = gameInfo;
     return (
         <div className="flex flex-col h-screen overflow-hidden text-center font-quicksand 
         bg-gradient-to-t from-transparent to-slate-700">
@@ -26,6 +31,22 @@ export default function Game() {
             bg-[url('../public/assets/images/bg.png')] flex-1 h-screen opacity-50"/>
             <Result />
             <Backdrop />
+            <Confirmation
+                title="Are you sure you wish to surrender?"
+                content="You will lose and leave the game room immediately"
+                decisionCallback={(decision:boolean)=>{
+                    if (decision && socket !== undefined) {
+                        socket.emit("leave room request", gameInfo.roomID);
+                        navigate('/menu');
+                    }
+                    const newFlags = { ...flags, confirmationVisible:false };
+                    dispatch({
+                        type:"set",
+                        field:"flags",
+                        payload: newFlags,
+                    })
+                }}
+            />
             <div className="flex-1 flex justify-evenly p-2">
                 <div className="flex basis-[30%] h-[70vh] m-auto">
                     <div className="w-full m-auto">
