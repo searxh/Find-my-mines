@@ -22,6 +22,7 @@ export const initialState: GlobalStateType = {
 		resultVisible: false,
 		userLeft: false,
 		isMatching: false,
+		confirmationVisible: false,
 	},
 };
 
