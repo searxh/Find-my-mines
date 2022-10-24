@@ -17,7 +17,7 @@ export default function MinesGrid() {
     return (
         <div className={`w-fit grid grid-cols-6 gap-2 m-auto p-5 rounded-3xl transition duration-500
         ${checkPlayerCanInteract()?"bg-gradient-to-r from-neutral-200 to-neutral-200":
-        "bg-neutral-500 bg-opacity-70"}`}>
+        "bg-zinc-500 bg-opacity-70"}`}>
             {gameInfo.minesArray.map(
                 (block:BlockType,index:number)=>{
                     return <Block block={block} index={index} />
@@ -66,7 +66,8 @@ function Block({ block, index }:{ block:BlockType, index:number }) {
                 }}
                 className={`flex h-20 w-20 gap-2 transition duration-400 
                     ${!block.selected && checkPlayerCanInteract()?
-                        "hover:bg-gradient-to-t from-cyan-400 to-pink-400":
+                        `hover:bg-[url('../public/assets/images/dig.png')] bg-cover
+                         hover:bg-blend-color-dodge hover:bg-slate-400`:
                         "hover:opacity-60"
                     }
                     ${block.selectedBy===""?null:

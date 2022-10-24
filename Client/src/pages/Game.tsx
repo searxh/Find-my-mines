@@ -29,13 +29,21 @@ export default function Game() {
                 <div className="flex basis-[30%] h-[70vh] m-auto">
                     <div className="w-full m-auto">
                         <div 
-                            className={`text-4xl text-white p-2 drop-shadow-md
-                            w-[70%] rounded-3xl mb-10 mx-auto`}
+                            className={`text-4xl text-white drop-shadow-md
+                            w-[70%] rounded-3xl mx-auto`}
                             style={{
                                 color:getUserColor(activeUsers,name),
                             }}
                         >
                             {name.toUpperCase()}
+                        </div>
+                        <div 
+                            style={{
+                                color:getUserColor(activeUsers,users[playingUser].name),
+                            }}
+                            className="font-righteous text-4xl text-white p-3 drop-shadow-md"
+                        >
+                            TIMER: {timer}
                         </div>
                         <UserScore 
                             name={users[0].name} 
@@ -49,16 +57,8 @@ export default function Game() {
                             score={scores[1]} 
                             isPlaying={playingUser===1?true:false}
                             activeUsers={activeUsers}
-                            className="my-3"
+                            className="my-3 mb-10"
                         />
-                        <div 
-                            style={{
-                                color:getUserColor(activeUsers,users[playingUser].name),
-                            }}
-                            className="font-righteous text-5xl text-white p-5 drop-shadow-md"
-                        >
-                            TIMER: {timer}
-                        </div>
                         <MinesLeft />
                     </div>
                 </div>
