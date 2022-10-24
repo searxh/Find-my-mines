@@ -1,4 +1,5 @@
 import React from 'react'
+import { playAudio } from '../lib/utility/Audio';
 import { GlobalContext } from '../states';
 
 interface ConfirmationPropsType {
@@ -13,6 +14,7 @@ export default function Confirmation({ title, content, decisionCallback }:Confir
     const [ visible, setVisible ] = React.useState<boolean>(false);
     const handleOnClickDecision = (decision:boolean) => {
         decisionCallback(decision);
+        playAudio('pop.wav');
     }
     React.useEffect(()=>{
         if (flags.confirmationVisible) {

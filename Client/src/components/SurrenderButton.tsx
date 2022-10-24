@@ -1,4 +1,5 @@
 import React from 'react'
+import { playAudio } from '../lib/utility/Audio';
 import { GlobalContext } from '../states';
 
 export default function SurrenderButton() {
@@ -11,6 +12,7 @@ export default function SurrenderButton() {
             field: "flags",
             payload: newFlags,
         })
+        playAudio('pop.wav');
     }
     return (
         <button
