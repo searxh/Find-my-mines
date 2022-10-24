@@ -44,7 +44,16 @@ export interface FlagsType {
 	resultVisible: boolean;
 	isMatching: boolean;
 }
-export interface GlobalStateKeys {
+interface MinesLeftKey {
+    [key: string]: number;
+}
+export interface MinesLeftType extends MinesLeftKey {
+    legendary:number;
+    epic:number;
+    rare:number;
+    common:number;
+}
+interface GlobalStateKeys {
 	[key: string]: any;
 }
 export interface GlobalStateType extends GlobalStateKeys {

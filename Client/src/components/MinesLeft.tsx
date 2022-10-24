@@ -2,17 +2,7 @@ import React from 'react'
 import { GlobalContext } from '../states'
 import { BlockType } from '../types';
 import Image from './Image'
-
-interface MinesLeftKey {
-    [key: string]: number;
-}
-
-interface MinesLeftType extends MinesLeftKey {
-    legendary:number;
-    epic:number;
-    rare:number;
-    common:number;
-}
+import { MinesLeftType } from '../types'
 
 const initialMinesLeftObj = {
     legendary:1,
