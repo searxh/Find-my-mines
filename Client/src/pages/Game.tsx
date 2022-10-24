@@ -8,6 +8,7 @@ import Backdrop from '../components/Backdrop'
 import UserScore from '../components/UserScore'
 import { getUserColor } from '../lib/utility/GetUserColor'
 import MinesLeft from '../components/MinesLeft'
+import SurrenderButton from '../components/SurrenderButton'
 
 export default function Game() {
     const { global_state } = React.useContext(GlobalContext)
@@ -65,10 +66,11 @@ export default function Game() {
                 <div className="flex basis-[40%] h-[70vh] m-auto">
                     <MinesGrid />
                 </div>
-                <div className="flex basis-[30%] h-[70vh] m-auto">
+                <div className="flex flex-col basis-[30%] h-[70vh] m-auto">
                     <div className="w-[90%] h-full bg-zinc-600 bg-opacity-70 p-5 rounded-3xl m-auto">
                         <Chat />
                     </div>
+                    <SurrenderButton />
                 </div>
             </div>
             <SocketID />
