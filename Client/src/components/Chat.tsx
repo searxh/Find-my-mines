@@ -32,10 +32,11 @@ export default function Chat() {
     React.useEffect(()=>{
         if (socket !== undefined && flags.activeUsersInitialized) {
             //waits for server to emit back activeUsers to send chat request
-            socket.emit('chat request',{ 
+            socket.emit("chat request",{ 
                 name:name, 
                 roomID:gameInfo?.roomID
             });
+            return ()=>socket.off("chat request") as any;
         }
     },[socket,flags.activeUsersInitialized])
     return (
