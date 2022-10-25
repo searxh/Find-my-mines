@@ -8,8 +8,8 @@ import FoundMineEffect from './FoundMineEffect'
 import { getUserColor } from '../lib/utility/GetUserColor'
 
 export default function MinesGrid() {
-    const { global_state } = React.useContext(GlobalContext)
-    const { gameInfo, name } = global_state
+    const { global_state } = React.useContext(GlobalContext);
+    const { gameInfo, name } = global_state;
     const checkPlayerCanInteract = () => {
         const playingUser =  gameInfo.users[gameInfo.playingUser]
         return playingUser.name === name

@@ -28,7 +28,7 @@ export default function MatchingButton() {
             setTimeout(()=>setCooldown(false),1000)
         }
     }
-    return (
+    return (flags.canMatch?
         <button
             disabled={cooldown}
             onClick={handleOnClick}
@@ -46,5 +46,6 @@ export default function MatchingButton() {
                 </svg>
             }
         </button>
+        :null
     )
 }

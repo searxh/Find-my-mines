@@ -6,7 +6,7 @@ import { playAudio } from '../lib/utility/Audio';
 export default function ReplyReceiver() {
     const { global_state, dispatch } = React.useContext(GlobalContext) ;
     const { socket }:any = React.useContext(SocketContext);
-    const { receiver } = global_state;
+    const { receivedInvite } = global_state;
     const [ mode, setMode ] = React.useState<number>(0);
     //mode 0 = not visible
     //mode 1 = (sender) gets accepted or decline
@@ -26,12 +26,12 @@ export default function ReplyReceiver() {
                 console.log(receiverName,decision)
                 setDecision(decision);
                 setReceiverName(receiverName);
-                const newReceiver = { ...receiver };
-                newReceiver[receiverName] = decision;
+                const newReceivedInvite = { ...receivedInvite };
+                newReceivedInvite[receiverName] = decision;
                 dispatch({
                     type:"set",
-                    field:"receiver",
-                    payload:newReceiver,
+                    field:"receivedInvite",
+                    payload:newReceivedInvite,
                 })
                 setMode(1);
                 playAudio('noti.wav');
