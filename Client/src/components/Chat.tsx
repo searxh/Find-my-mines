@@ -13,7 +13,8 @@ export default function Chat() {
         chatHistory, 
         name, 
         gameInfo,
-        activeUsers
+        activeUsers,
+        flags,
     } = global_state;
     const { socket } = React.useContext(SocketContext);
     const [ chatHeight, setChatHeight ] = React.useState<number>(0);
@@ -29,16 +30,15 @@ export default function Chat() {
         return ()=>window.removeEventListener('resize',chatHeightHandler);
     },[])
     React.useEffect(()=>{
-        if (socket !== undefined) {
-            //waits for server to load activeUsers first before sending request
-            setTimeout(()=>{
-                socket.emit('chat request',{ 
-                    name:name, 
-                    roomID:gameInfo?.roomID
-                });
-            },700)
+        if (socket !== undefined && flags.activeUsersInitialized) {
+            //waits for server to emit back activeUsers to send chat request
+            socket.emit("chat request",{ 
+                name:name, 
+                roomID:gameInfo?.roomID
+            });
+            return ()=>socket.off("chat request") as any;
         }
-    },[socket])
+    },[socket,flags.activeUsersInitialized])
     return (
         <div 
             className={`flex flex-col justify-evenly font-quicksand text-xl h-full`}

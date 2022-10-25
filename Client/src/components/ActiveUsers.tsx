@@ -1,20 +1,24 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import { getUserColor } from "../lib/utility/GetUserColor";
+import { SocketContext } from "../socket";
 import { GlobalContext } from "../states";
 import { PriorityType, UserType } from "../types";
 import InviteButton from "./InviteButton";
 
 export default function ActiveUsers() {
-	const { global_state } = React.useContext(GlobalContext);
+	const { global_state, dispatch } = React.useContext(GlobalContext);
+	const { socket } = React.useContext(SocketContext);
 	const { activeUsers, name } = global_state;
 	const [ priorities, setPriorities ] = React.useState<Array<PriorityType>>([])
+	const location = useLocation();
 	React.useEffect(()=>{
 		if (activeUsers !== undefined) {
 			const prioritiesArr = activeUsers.map((user:UserType)=>{
 				if (user.name === name) {
-					return { ...user, priority:1 }
+					return { ...user, priority:1 };
 				} else {
-					return { ...user, priority:0 }
+					return { ...user, priority:0 };
 				}
 			})
 			setPriorities(prioritiesArr.sort(
@@ -22,6 +26,20 @@ export default function ActiveUsers() {
 			))
 		}
 	},[activeUsers])
+	React.useEffect(()=>{
+		//in the case where active users fail to update
+		if (socket !== undefined) {
+			socket.emit("active user update",(activeUsers: any)=>{
+				const users:Array<UserType> = Object.values(activeUsers)
+				dispatch({
+					type:"set",
+					field:"activeUsers",
+					payload:users,
+				})
+			});
+			return ()=>socket.off("active user update") as any;
+		}
+	},[socket,location.pathname]);
 	return (
 		<div className='flex-1 overflow-y-scroll'>
 			<div className='flex flex-col text-xl'>

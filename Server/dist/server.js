@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 const uuid = require("uuid");
 const app = require("express")();
 const http = require("http").Server(app);
@@ -68,6 +77,7 @@ const generateGameInfo = (type) => {
         roomID: id,
         type: type,
         timer: 10,
+        state: 1,
         users: [],
         playingUser: chooseRandomUser(),
         scores: [0, 0],
@@ -136,7 +146,7 @@ const removeUser = (user, callback) => {
 };
 const cleanGameInfos = () => {
     gameInfos = gameInfos.filter((gameInfo) => {
-        if (gameInfo.scores[0] + gameInfo.scores[1] === WINNING_SCORE) {
+        if (gameInfo.scores[0] + gameInfo.scores[1] === WINNING_SCORE || gameInfo.state === 0) {
             delete chatHistory.local[gameInfo.roomID];
             return false;
         }
@@ -162,30 +172,32 @@ const removeExpiredInvitation = () => {
     const expiredKeys = Object.keys(invitation)
         .filter((key) => compareAsc(Date.now(), invitation[key].validUntil) === 1 ? true : false);
     console.log("EXPIRED_KEYS", expiredKeys);
-    expiredKeys.forEach((key) => {
+    expiredKeys.forEach((key) => __awaiter(void 0, void 0, void 0, function* () {
         const roomID = invitation[key].roomID;
-        const info = getGameInfo(roomID);
-        console.log("INFO USER LENGTH AUTO EXPIRE", info.users);
         //removes the room that is created as well if room doesn't have 2 people
-        if (info.users.length < 2)
+        //and the game haven't started
+        const info = getGameInfo(roomID);
+        const sockets = yield socketIO.in(roomID).fetchSockets();
+        if (sockets.length < 2 && info.state < 2)
             removeRoom(roomID);
         delete invitation[key];
-    });
+    }));
     console.log("FILTERED EXPIRED", invitation);
 };
 const expireInvitation = (senderName) => {
     const expiredKeys = Object.keys(invitation)
         .filter((key) => invitation[key].senderName === senderName);
     if (expiredKeys !== undefined) {
-        expiredKeys.forEach((key) => {
+        expiredKeys.forEach((key) => __awaiter(void 0, void 0, void 0, function* () {
             const roomID = invitation[key].roomID;
-            const info = getGameInfo(roomID);
-            console.log("INFO USER LENGTH MANUAL EXPIRE", info.users);
             //removes the room that is created as well if room doesn't have 2 people
-            if (info.users.length < 2)
+            //and the game haven't started
+            const info = getGameInfo(roomID);
+            const sockets = yield socketIO.in(roomID).fetchSockets();
+            if (sockets.length < 2 && info.state < 2)
                 removeRoom(roomID);
             delete invitation[key];
-        });
+        }));
     }
     console.log("FILTERED EXPIRE MANUAL", invitation);
 };
@@ -221,6 +233,9 @@ let counters = [
 let gameInfos = [
     {
         roomID: initialRoomID,
+        //state 0 = inactive, state 1 = active but no countdown
+        //state 2 = active and countdown
+        state: 1,
         type: "matching",
         timer: 10,
         users: [],
@@ -235,20 +250,22 @@ app.get("/", function (res) {
 http.listen(9000, "0.0.0.0", () => {
     console.log("listening on *:9000");
 });
-socketIO.of("/").adapter.on("join-room", (roomID, id) => {
+socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`${id} has joined room ${roomID}`);
     if (roomID.length > 20) {
         const info = getGameInfo(roomID);
-        if (info.users.length === 2) {
+        const sockets = yield socketIO.in(info.roomID).fetchSockets();
+        if (sockets.length === 2) {
             console.log("starting game for room ", info.roomID);
             info.users.forEach((user) => {
                 activeUsers[user.name].inGame = true;
             });
-            socketIO.to(info.roomID).emit("start game", info);
-            setTimeout(() => socketIO.emit("active user update", activeUsers), 500);
+            socketIO.emit("active user update", activeUsers);
+            setTimeout(() => socketIO.to(info.roomID).emit("start game", info), 300);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
                 console.log("set countdown");
+                info.state = 2;
                 counter.countdown = setInterval(() => {
                     socketIO.to(info.roomID).emit("counter", info.timer);
                     info.timer--;
@@ -261,29 +278,44 @@ socketIO.of("/").adapter.on("join-room", (roomID, id) => {
             }
         }
     }
-});
+}));
 socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
     console.log(`${id} has left room ${roomID}`);
-    //only for leave events that are game room ids
-    if (roomID.length > 20) {
+    //only for leave events that are game room ids and game has started before
+    const info = getGameInfo(roomID);
+    if (roomID.length > 20 && (info === null || info === void 0 ? void 0 : info.state) === 2) {
         //saves the name of the user according to id
         //(since id will change after reconnect)
         const saveUser = Object.keys(activeUsers).find((value) => {
             return activeUsers[value].id === id;
         });
         //delay for 2 seconds to allow user to reconnect
-        setTimeout(() => {
+        setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
             //checks if the user has reconnected, 
             //if not notify other user that they have left
-            if (activeUsers[saveUser] === undefined ||
-                activeUsers[saveUser].inGame === false)
+            const sockets = yield socketIO.in(roomID).fetchSockets();
+            const findRes = sockets.find((socket) => {
+                return socket.data.name === saveUser;
+            });
+            if (findRes === undefined) {
                 socketIO.to(roomID).emit("other user left");
-        }, 1500);
+            }
+            //check how many users are left in the room, if none left then close the room
+            console.log("ROOM SIZE", sockets.length);
+            if (sockets.length === 0) {
+                info.state = 0;
+                const counter = getCounter(roomID);
+                clearInterval(counter.countdown);
+                console.log("CLEAN GAME INFO", roomID);
+                cleanGameInfos();
+            }
+        }), 1500);
     }
 });
 socketIO.on("connection", (socket) => {
     console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
     socket.on("name register", (user) => {
+        socket.data.name = user.name;
         activeUsers[user.name] = {
             id: user.id,
             name: user.name,
@@ -292,13 +324,15 @@ socketIO.on("connection", (socket) => {
         };
         socketIO.emit("active user update", activeUsers);
     });
-    socket.on("matching", (user) => {
+    socket.on("matching", (user) => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Matching request", user);
         while (true) {
             for (let i = 0; i < gameInfos.length; i++) {
                 const info = gameInfos[i];
+                const sockets = yield socketIO.in(info.roomID).fetchSockets();
                 if ((info.scores[0] + info.scores[1] !== WINNING_SCORE)
-                    && (info.users.length < 2) && info.type === "matching") {
+                    && (sockets.length < 2) && (info.users.length < 2)
+                    && info.type === "matching") {
                     info.users.push(user);
                     socket.join(info.roomID);
                     console.log(gameInfos);
@@ -306,10 +340,9 @@ socketIO.on("connection", (socket) => {
                 }
             }
             console.log("full rooms, creating new room...");
-            cleanGameInfos();
             generateGameInfo("matching");
         }
-    });
+    }));
     socket.on("unmatching", (user) => {
         console.log("Unmatching request", user);
         removeUser(user, (roomID) => socket.leave(roomID));
@@ -371,10 +404,7 @@ socketIO.on("connection", (socket) => {
             }
             else {
                 console.log('request from', senderName, 'declined by', receiverName, socket.id);
-                //tear down room because invitation was declined
-                socketIO.socketsLeave(roomID);
             }
-            cleanGameInfos();
         }
     });
     socket.on("active user request", () => {
@@ -382,9 +412,10 @@ socketIO.on("connection", (socket) => {
         console.log(Object.keys(activeUsers).length + " users are registered");
     });
     socket.on("chat message", ({ msg, name, roomID }) => {
+        var _a;
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
-        if (activeUsers[name].inGame && roomID !== undefined) {
+        if (((_a = activeUsers[name]) === null || _a === void 0 ? void 0 : _a.inGame) && roomID !== undefined) {
             chatHistory.local[roomID].push(msg);
             socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         }
@@ -395,10 +426,11 @@ socketIO.on("connection", (socket) => {
         }
     });
     socket.on("chat request", ({ name, roomID }) => {
+        var _a;
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
         console.log("CHAT REQUEST ARG", name, roomID);
-        if (activeUsers[name].inGame && roomID !== undefined) {
+        if (((_a = activeUsers[name]) === null || _a === void 0 ? void 0 : _a.inGame) && roomID !== undefined) {
             socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         }
         else {
@@ -453,13 +485,16 @@ socketIO.on("connection", (socket) => {
         socket.leave(roomID);
     });
     socket.on("reconnect game", ({ roomID }) => {
-        //delay to allow active users array to update before joining room
-        setTimeout(() => socket.join(roomID), 500);
+        if (activeUsers[socket.data.name] !== undefined) {
+            socket.join(roomID);
+        }
+        else {
+            console.log('active users not found', activeUsers[socket.data.name], socket.data.name);
+        }
     });
     socket.on("play again", ({ gameInfo, requester }) => {
-        const { roomID } = gameInfo;
-        console.log("play again", roomID);
-        socketIO.to(roomID).emit("rematch request", requester);
+        console.log("play again", gameInfo.roomID);
+        socketIO.to(gameInfo.roomID).emit("rematch request", requester);
     });
     socket.on("rematch accepted", (roomID) => {
         const info = resetRoom(roomID);
@@ -467,11 +502,8 @@ socketIO.on("connection", (socket) => {
         resetCountdown(info, roomID);
     });
     socket.on("disconnect", () => {
-        const user = Object.keys(activeUsers).find((key) => activeUsers[key].id === socket.id);
-        if (user !== undefined) {
-            console.log(user + " has disconnected", socketIO.of("/").sockets.size);
-            delete activeUsers[user];
-        }
+        console.log(socket.data.name + " has disconnected", socketIO.of("/").sockets.size);
+        delete activeUsers[socket.data.name];
         socketIO.emit("active user update", activeUsers);
     });
 });

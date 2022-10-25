@@ -7,8 +7,8 @@ import { playAudio } from '../lib/utility/Audio';
 
 export default function RequestReceiver() {
     const { socket }:any = React.useContext(SocketContext);
-    const { global_state } = React.useContext(GlobalContext);
-    const { name } = global_state;
+    const { global_state, dispatch } = React.useContext(GlobalContext);
+    const { name, flags } = global_state;
     const [ mode, setMode ] = React.useState<number>(0);
     const [ trigger, setTrigger ] = React.useState<boolean>(false);
     //mode 0 = not visible
@@ -31,6 +31,12 @@ export default function RequestReceiver() {
         } else {
             console.log('error occured at invite onClick()');
         }
+        const newFlags = { ...flags, canMatch:true };
+        dispatch({
+            type:"set",
+            field:"flags",
+            payload:newFlags,
+        })
     }
     const handleOnClickClose = () => {
         playAudio('pop.wav');
@@ -49,6 +55,12 @@ export default function RequestReceiver() {
                 playAudio('noti.wav')
                 console.log(senderName, roomID, error);
                 if (error===undefined && senderName!==undefined && roomID!==undefined) {
+                    const newFlags = { ...flags, canMatch:false };
+                    dispatch({
+                        type:"set",
+                        field:"flags",
+                        payload:newFlags,
+                    });
                     setInviteStorage({ senderName:senderName });
                     setMode(1);
                     setTrigger(true);
@@ -86,6 +98,12 @@ export default function RequestReceiver() {
                                 trigger={trigger}
                                 callback={()=>{
                                     setTrigger(false);
+                                    const newFlags = { ...flags, canMatch:true };
+                                    dispatch({
+                                        type:"set",
+                                        field:"flags",
+                                        payload:newFlags,
+                                    });
                                     setMode(0);
                                 }}
                             />
