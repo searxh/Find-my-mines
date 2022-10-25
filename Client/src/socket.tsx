@@ -15,10 +15,7 @@ export const SocketContext = createContext<SocketContextType>(
 );
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
-	const { 
-		global_state, 
-		dispatch,
-	} = React.useContext(GlobalContext);
+	const { global_state, dispatch } = React.useContext(GlobalContext);
 	const { gameInfo, name, flags } = global_state;
 	const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
 	const [reconnectInGame, setReconnectInGame] = React.useState<boolean>(false);
@@ -58,17 +55,17 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				const newFlags = { 
 					...flags, 
 					resultVisible: false,
+					userLeft: false,
 					isMatching: false,
-			 };
+			 	};
 				dispatch({
 					type: "multi-set",
-					field: ["gameInfo", "flags"],
-					payload: [gameInfo, newFlags],
+					field: ["gameInfo", "flags","pendingInvite"],
+					payload: [gameInfo, newFlags, {}],
 				});
 				setTimeout(() => navigate("/game"), 1000);
 			});
 			socket.on("gameInfo update", (gameInfo: GameInfoType) => {
-				console.log(gameInfo)
 				dispatch({
 					type: "set",
 					field: "gameInfo",
@@ -98,6 +95,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				},2000)
 			});
 			socket.on("other user left", () => {
+				console.log("OTHER USER LEFT");
 				const newFlags = { 
 					...flags, 
 					resultVisible: true, 
@@ -108,6 +106,16 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					field: "flags",
 					payload: newFlags,
 				});
+				//in the case where dispatch fails
+				setTimeout(()=>{
+					if (flags.resultVisible !== true && flags.userLeft !== true) {
+						dispatch({
+							type: "set",
+							field: "flags",
+							payload: newFlags,
+						});
+					}
+				},500)
 			});
 		} else {
 			setTimeout(() => {
@@ -122,11 +130,12 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	}, [socket, location.pathname]);
 	React.useEffect(() => {
-		if (reconnectInGame && socket !== undefined) {
+		if (reconnectInGame && socket !== undefined && flags.activeUsersInitialized) {
+			console.log("attempting to reconnect game");
 			socket.emit("reconnect game", { roomID: gameInfo.roomID });
 			setReconnectInGame(false);
 		}
-	}, [reconnectInGame]);
+	}, [reconnectInGame,flags.activeUsersInitialized]);
 	return (
 		<SocketContext.Provider
 			value={{ socket: socket, setSocket: setSocket } as SocketContextType}
