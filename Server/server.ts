@@ -70,6 +70,7 @@ const generateGameInfo = (type:string) => {
         roomID:id,
         type:type,
         timer:10,
+        state:1,
         users:[] as Array<UserType>,
         playingUser:chooseRandomUser(),
         scores:[0,0],
@@ -136,7 +137,7 @@ const removeUser = (user:UserType, callback:Function) => {
 };
 const cleanGameInfos = () => {
     gameInfos = gameInfos.filter((gameInfo:GameInfoType)=>{
-        if (gameInfo.scores[0]+gameInfo.scores[1]===WINNING_SCORE) {
+        if (gameInfo.scores[0]+gameInfo.scores[1]===WINNING_SCORE || gameInfo.state===0) {
             delete chatHistory.local[gameInfo.roomID];
             return false;
         } else {
@@ -169,12 +170,13 @@ const removeExpiredInvitation = () => {
     const expiredKeys = Object.keys(invitation)
         .filter((key:string)=>compareAsc(Date.now(),invitation[key].validUntil)===1?true:false)
     console.log("EXPIRED_KEYS",expiredKeys);
-    expiredKeys.forEach((key:string)=>{
+    expiredKeys.forEach( async (key:string)=>{
         const roomID = invitation[key].roomID;
-        const info = getGameInfo(roomID);
-        console.log("INFO USER LENGTH AUTO EXPIRE", info.users);
         //removes the room that is created as well if room doesn't have 2 people
-        if (info.users.length < 2) removeRoom(roomID);
+        //and the game haven't started
+        const info = getGameInfo(roomID);
+        const sockets = await socketIO.in(roomID).fetchSockets();
+        if (sockets.length < 2 && info.state < 2) removeRoom(roomID);
         delete invitation[key];
     })
     console.log("FILTERED EXPIRED",invitation);
@@ -184,12 +186,13 @@ const expireInvitation = (senderName:string) => {
         .filter((key:string)=>
             invitation[key].senderName === senderName);
     if (expiredKeys!==undefined) {
-        expiredKeys.forEach((key:string)=>{
+        expiredKeys.forEach( async (key:string)=>{
             const roomID = invitation[key].roomID;
-            const info = getGameInfo(roomID);
-            console.log("INFO USER LENGTH MANUAL EXPIRE", info.users);
             //removes the room that is created as well if room doesn't have 2 people
-            if (info.users.length < 2) removeRoom(roomID);
+            //and the game haven't started
+            const info = getGameInfo(roomID);
+            const sockets = await socketIO.in(roomID).fetchSockets();
+            if (sockets.length < 2 && info.state < 2) removeRoom(roomID);
             delete invitation[key];
         });
     }
@@ -230,6 +233,9 @@ let counters:Array<CounterType> = [
 let gameInfos:Array<GameInfoType> = [
     {
         roomID:initialRoomID,
+        //state 0 = inactive, state 1 = active but no countdown
+        //state 2 = active and countdown
+        state:1,
         type:"matching",
         timer:10,
         users:[] as Array<UserType>,
@@ -247,20 +253,22 @@ http.listen(9000,"0.0.0.0", ()=>{
    console.log("listening on *:9000");
 });
 
-socketIO.of("/").adapter.on("join-room",(roomID:string,id:string) => {
+socketIO.of("/").adapter.on("join-room", async (roomID:string,id:string) => {
     console.log(`${id} has joined room ${roomID}`);
     if (roomID.length > 20) {
         const info = getGameInfo(roomID);
-        if (info.users.length === 2) {
+        const sockets = await socketIO.in(info.roomID).fetchSockets();
+        if (sockets.length === 2) {
             console.log("starting game for room ",info.roomID);
             info.users.forEach((user) => {
 				activeUsers[user.name].inGame = true;
 			});
-            socketIO.to(info.roomID).emit("start game",info);
-            setTimeout(()=>socketIO.emit("active user update", activeUsers), 500);
+            socketIO.emit("active user update", activeUsers);
+            setTimeout(()=>socketIO.to(info.roomID).emit("start game",info), 300);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
                 console.log("set countdown");
+                info.state = 2;
                 counter.countdown = setInterval(()=>{
                     socketIO.to(info.roomID).emit("counter", info.timer);
                     info.timer--;
@@ -275,22 +283,36 @@ socketIO.of("/").adapter.on("join-room",(roomID:string,id:string) => {
     }
 });
 
-socketIO.of("/").adapter.on("leave-room",(roomID:string,id:string) => {
+socketIO.of("/").adapter.on("leave-room", (roomID:string,id:string) => {
     console.log(`${id} has left room ${roomID}`);
-    //only for leave events that are game room ids
-    if (roomID.length > 20) {
+    //only for leave events that are game room ids and game has started before
+    const info = getGameInfo(roomID);
+    if (roomID.length > 20 && info?.state === 2) {
         //saves the name of the user according to id
         //(since id will change after reconnect)
         const saveUser = Object.keys(activeUsers).find((value:any)=>{
             return activeUsers[value].id===id
         }) as string;
         //delay for 2 seconds to allow user to reconnect
-        setTimeout(()=>{
+        setTimeout( async ()=>{
             //checks if the user has reconnected, 
             //if not notify other user that they have left
-            if (activeUsers[saveUser]===undefined ||
-                activeUsers[saveUser].inGame===false) 
-                    socketIO.to(roomID).emit("other user left");
+            const sockets = await socketIO.in(roomID).fetchSockets();
+            const findRes = sockets.find((socket:any)=>{
+                return socket.data.name===saveUser;
+            })
+            if (findRes===undefined) {
+                socketIO.to(roomID).emit("other user left");
+            }
+            //check how many users are left in the room, if none left then close the room
+            console.log("ROOM SIZE",sockets.length);
+            if (sockets.length === 0) {
+                info.state = 0;
+                const counter = getCounter(roomID);
+                clearInterval(counter.countdown as ReturnType<typeof setInterval>);
+                console.log("CLEAN GAME INFO", roomID)
+                cleanGameInfos();
+            }
         },1500)
     }
 });
@@ -298,6 +320,7 @@ socketIO.of("/").adapter.on("leave-room",(roomID:string,id:string) => {
 socketIO.on("connection", (socket:any)=>{
     console.log("Connected!",socket.id, socketIO.of("/").sockets.size);
     socket.on("name register", (user:UserType)=>{
+        socket.data.name = user.name;
         activeUsers[user.name] = { 
             id:user.id, 
             name:user.name, 
@@ -306,13 +329,15 @@ socketIO.on("connection", (socket:any)=>{
         };
 		socketIO.emit("active user update", activeUsers);
     });
-    socket.on("matching", (user:UserType)=>{
+    socket.on("matching", async (user:UserType)=>{
         console.log("Matching request",user);
         while (true) {
             for (let i = 0; i < gameInfos.length; i++) {
                 const info = gameInfos[i];
+                const sockets = await socketIO.in(info.roomID).fetchSockets();
                 if ((info.scores[0]+info.scores[1] !== WINNING_SCORE) 
-                && (info.users.length < 2) && info.type==="matching") {
+                && (sockets.length < 2) && (info.users.length < 2) 
+                && info.type==="matching") {
                     info.users.push(user);
                     socket.join(info.roomID);
                     console.log(gameInfos);
@@ -320,7 +345,6 @@ socketIO.on("connection", (socket:any)=>{
                 }
             }
             console.log("full rooms, creating new room...");
-            cleanGameInfos();
             generateGameInfo("matching");
         }
     });
@@ -392,10 +416,7 @@ socketIO.on("connection", (socket:any)=>{
             //invitation was declined
             } else {
                 console.log('request from', senderName, 'declined by', receiverName, socket.id);
-                //tear down room because invitation was declined
-                socketIO.socketsLeave(roomID);
             }
-            cleanGameInfos();
         }
     });
     socket.on("active user request", ()=>{
@@ -409,7 +430,7 @@ socketIO.on("connection", (socket:any)=>{
     })=>{
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
-        if (activeUsers[name].inGame && roomID !== undefined) {
+        if (activeUsers[name]?.inGame && roomID !== undefined) {
             chatHistory.local[roomID].push(msg);
             socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         } else {
@@ -426,7 +447,7 @@ socketIO.on("connection", (socket:any)=>{
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
         console.log("CHAT REQUEST ARG", name, roomID)
-        if (activeUsers[name].inGame && roomID !== undefined) {
+        if (activeUsers[name]?.inGame && roomID !== undefined) {
             socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         } else {
             socketIO.except(gameInfos.map((gameInfo:GameInfoType)=>gameInfo.roomID))
@@ -485,17 +506,19 @@ socketIO.on("connection", (socket:any)=>{
 		socket.leave(roomID);
     })
     socket.on("reconnect game",({ roomID }:{ roomID:string })=>{
-        //delay to allow active users array to update before joining room
-        setTimeout(()=>socket.join(roomID),500);
+        if (activeUsers[socket.data.name] !== undefined) {
+            socket.join(roomID);
+        } else {
+            console.log('active users not found',activeUsers[socket.data.name],socket.data.name)
+        }
     })
     socket.on("play again", ({ 
         gameInfo, requester
     }:{ 
         gameInfo:GameInfoType, requester:UserType
     })=>{
-        const { roomID } = gameInfo;
-        console.log("play again",roomID);
-        socketIO.to(roomID).emit("rematch request", requester);
+        console.log("play again",gameInfo.roomID);
+        socketIO.to(gameInfo.roomID).emit("rematch request", requester);
     })
     socket.on("rematch accepted", (roomID:string)=>{
         const info = resetRoom(roomID);
@@ -503,13 +526,8 @@ socketIO.on("connection", (socket:any)=>{
         resetCountdown(info,roomID);
     })
     socket.on("disconnect", ()=>{
-        const user = Object.keys(activeUsers).find(
-            (key:any)=>activeUsers[key].id===socket.id
-        );
-        if (user !== undefined) {
-            console.log(user+ " has disconnected", socketIO.of("/").sockets.size);
-            delete activeUsers[user];
-        }
+        console.log(socket.data.name+ " has disconnected", socketIO.of("/").sockets.size);
+        delete activeUsers[socket.data.name];
         socketIO.emit("active user update", activeUsers);
     })
 })
@@ -534,6 +552,7 @@ interface GameInfoType {
     roomID:string;
     timer:number;
     type:string;
+    state:number;
     users:Array<UserType>;
     playingUser:number;
     scores:Array<number>;
