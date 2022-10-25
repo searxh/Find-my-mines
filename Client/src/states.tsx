@@ -15,11 +15,13 @@ export const initialState: GlobalStateType = {
 	name: "",
 	chatHistory: [],
 	activeUsers: [],
-	receiver: {},
+	pendingInvite: {},
+	receivedInvite: {},
 	gameInfo: {} as GameInfoType,
 	socketID: "",
 	flags: {
 		activeUsersInitialized: false,
+		canMatch: true,
 		resultVisible: false,
 		userLeft: false,
 		isMatching: false,
@@ -60,7 +62,9 @@ export function GlobalStateProvider({
 					newState[action.field as string] = action.payload;
 					save(newState);
 					return newState;
-				} else return state;
+				} else {
+					return action.payload;
+				};
 			case "multi-set":
 				if (action.field !== undefined) {
 					for (let i = 0; i < action.field.length; i++) {
@@ -78,7 +82,6 @@ export function GlobalStateProvider({
 		}
 	};
 	const [ state, dispatch ] = React.useReducer(reducer, getSessionData());
-	//state that do not want to be saved in session storage
 	return (
 		<GlobalContext.Provider value={{ 
 			global_state: state, 

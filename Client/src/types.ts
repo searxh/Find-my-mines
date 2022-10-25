@@ -41,6 +41,7 @@ export interface GameInfoType {
 }
 export interface FlagsType {
 	activeUsersInitialized: boolean;
+	canMatch: boolean;
 	userLeft: boolean;
 	resultVisible: boolean;
 	isMatching: boolean;
@@ -62,7 +63,8 @@ export interface GlobalStateType extends GlobalStateKeys {
     name:string;
     chatHistory:Array<MessageType>;
     activeUsers:Array<UserType>;
-	receiver: any;
+	pendingInvite: any;
+	receivedInvite: any;
     gameInfo:GameInfoType;
     socketID:string;
     flags:FlagsType;
