@@ -263,8 +263,10 @@ socketIO.of("/").adapter.on("join-room", async (roomID:string,id:string) => {
             info.users.forEach((user) => {
 				activeUsers[user.name].inGame = true;
 			});
+            console.log("ACTIVE USERS BEFORE START GAME", activeUsers);
             socketIO.emit("active user update", activeUsers);
-            setTimeout(()=>socketIO.to(info.roomID).emit("start game",info), 300);
+            socketIO.to(info.roomID).emit("start game",info);
+            setTimeout(()=>socketIO.emit("active user update", activeUsers), 300);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
                 console.log("set countdown");
@@ -446,7 +448,7 @@ socketIO.on("connection", (socket:any)=>{
     })=>{
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
-        console.log("CHAT REQUEST ARG", name, roomID)
+        console.log("CHAT REQUEST ARG", name, roomID, activeUsers)
         if (activeUsers[name]?.inGame && roomID !== undefined) {
             socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         } else {

@@ -1,7 +1,7 @@
 import React from 'react';
 import ChatInput from './ChatInput';
 import { GlobalContext } from '../states';
-import { MessageType } from '../types';
+import { MessageType, UserType } from '../types';
 import { SocketContext } from '../socket';
 import AutoScroll from '@brianmcallister/react-auto-scroll';
 import { getUserColor } from '../lib/utility/GetUserColor';
@@ -31,14 +31,21 @@ export default function Chat() {
     },[])
     React.useEffect(()=>{
         if (socket !== undefined && flags.activeUsersInitialized) {
-            //waits for server to emit back activeUsers to send chat request
-            socket.emit("chat request",{ 
-                name:name, 
-                roomID:gameInfo?.roomID
-            });
+            const res = activeUsers.find((user:UserType)=>user.name===name)
+            if (res?.inGame && gameInfo !== undefined) {
+                socket.emit("chat request",{ 
+                    name:name, 
+                    roomID:gameInfo.roomID
+                });
+            } else {
+                socket.emit("chat request",{ 
+                    name:name, 
+                    roomID:undefined
+                });
+            }
             return ()=>socket.off("chat request") as any;
         }
-    },[socket,flags.activeUsersInitialized])
+    },[socket,flags.activeUsersInitialized, gameInfo, activeUsers])
     return (
         <div 
             className={`flex flex-col justify-evenly font-quicksand text-xl h-full`}
