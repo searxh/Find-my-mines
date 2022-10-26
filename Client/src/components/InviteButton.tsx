@@ -2,12 +2,17 @@ import React from 'react'
 import { playAudio } from '../lib/utility/Audio';
 import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
-import { PriorityType, UserType } from '../types'
+import { InviteMessageType, PriorityType, UserType } from '../types'
 import Countdown from './Countdown';
+import MessageTextArea from './MessageTextArea';
 
 interface InviteButtonPropsType {
     user: PriorityType;
     className?: string;
+}
+const initialInviteMessage = {
+    message: "",
+    ready: false,
 }
 
 export default function InviteButton({ user, className }:InviteButtonPropsType) {
@@ -19,22 +24,17 @@ export default function InviteButton({ user, className }:InviteButtonPropsType) 
         flags, 
         receivedInvite,
         pendingInvite,
-        inviteMessage,
     } = global_state;
     const [ trigger, setTrigger ] = React.useState<boolean>(false);
+    const [ inviteMessage, setInviteMessage ] = React.useState<InviteMessageType>(initialInviteMessage);
+    const [ messageTextAreaVisible, setMessageTextAreaVisible ] = React.useState<boolean>(false);
     //to make callback use the latest pendingInvite value
     const pendingInviteRef = React.useRef<any>();
     pendingInviteRef.current = pendingInvite;
 
     const handleOnClick = () => {
-        if (!flags.sendInvite) {
-            const newFlags = { ...flags, messageTextAreaVisible: true };
-            dispatch({
-                type:"set",
-                field:"flags",
-                payload:newFlags,
-            })
-        }
+        playAudio('pop.wav');
+        setMessageTextAreaVisible(true);
     };
     const checkCanInvite = () => {
         return (!activeUsers.find((activeUser:UserType)=>
@@ -42,13 +42,12 @@ export default function InviteButton({ user, className }:InviteButtonPropsType) 
         ) && !flags.isMatching;
     };
     React.useEffect(()=>{
-        if (flags.sendInvite && user.name!==name) {
+        if (inviteMessage.ready) {
             socket.emit("invite request",{ 
                 senderName:name, 
                 receiverName:user.name,
-                inviteMessage:inviteMessage
+                inviteMessage:inviteMessage.message
             });
-            playAudio('pop.wav');
             setTrigger(true);
             const newFlags = { 
                 ...flags, 
@@ -62,8 +61,9 @@ export default function InviteButton({ user, className }:InviteButtonPropsType) 
                 field:["flags","pendingInvite"],
                 payload:[newFlags,newPendingInvite],
             });
+            setInviteMessage(initialInviteMessage);
         }
-    },[flags.sendInvite])
+    },[inviteMessage.ready])
     React.useEffect(()=>{
         console.log("RECEIVED INVITES",Object.keys(receivedInvite));
         if (Object.keys(receivedInvite).length !== 0) {
@@ -97,6 +97,12 @@ export default function InviteButton({ user, className }:InviteButtonPropsType) 
     },[pendingInvite])
     return (
         user.name !== name?
+        <>
+        <MessageTextArea
+            setInviteMessage={setInviteMessage}
+            visible={messageTextAreaVisible}
+            setMessageTextAreaVisible={setMessageTextAreaVisible}
+        />
         <div className="relative">
             <div className={`flex font-righteous absolute ${trigger?"-translate-x-11":"translate-x-0"} text-lg
             left-0 top-0 h-full p-1 pr-16 pl-5 text-white ${checkCanInvite()?"bg-green-600":"opacity-0"} 
@@ -133,6 +139,7 @@ export default function InviteButton({ user, className }:InviteButtonPropsType) 
                 </svg>
             </button>
         </div>
+        </>
         :<div className="mx-5">[You]</div>
     );
 }

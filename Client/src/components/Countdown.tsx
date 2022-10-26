@@ -38,6 +38,6 @@ export default function Countdown({
         return ()=>clearInterval(interval);
     },[start]);
     return (
-        <>{countdown}</>
+        <> {countdown} </>
     )
 }

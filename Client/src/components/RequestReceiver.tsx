@@ -80,7 +80,7 @@ export default function RequestReceiver() {
     return (
         mode!==0?
             <div
-                className="absolute top-0 bottom-0 left-0 right-0 w-[30%] h-1/2 text-white
+                className="absolute top-0 bottom-0 left-0 right-0 w-[40%] h-[60%] text-white
                 text-2xl bg-neutral-900 bg-opacity-90 rounded-3xl z-50 flex m-auto shadow-md" 
             >
                 <button 
@@ -92,10 +92,10 @@ export default function RequestReceiver() {
                 </button>
                 {mode===1 &&
                     <div className="flex flex-col m-auto">
-                        <div className="text-3xl font-righteous px-10">
+                        <div className="text-3xl font-righteous px-10 text-yellow-300">
                             YOU HAVE RECEIVED A GAME INVITATION
                         </div>
-                        <div className="text-lg font-quicksand pt-2 px-12">
+                        <div className="text-lg font-quicksand pt-2 px-16">
                             The game will start immediately after you accept, otherwise
                             this invite will expire in
                             <Countdown
@@ -114,13 +114,14 @@ export default function RequestReceiver() {
                             />
                             seconds
                         </div>
-                        <div className="py-5 text-cyan-300">
+                        <div className="py-2 text-cyan-300">
                             Inviter: {inviteStorage.senderName}
                         </div>
-                        <div className="text-red-300">
-                            Message: {inviteStorage.inviteMessage}
+                        <div className="text-lg text-neutral-300 bg-neutral-800 bg-opacity-80 
+                        h-24 overflow-y-scroll p-5 rounded-3xl w-[70%] mx-auto">
+                            {inviteStorage.inviteMessage}
                         </div>
-                        <div className="flex w-full justify-evenly">
+                        <div className="flex w-full justify-evenly pt-5">
                             <button
                                 className="bg-green-800 px-8 py-2 text-white 
                                 rounded-full hover:scale-105 transition"

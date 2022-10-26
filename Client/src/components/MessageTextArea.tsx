@@ -1,45 +1,33 @@
-import React from 'react'
-import { GlobalContext } from '../states'
+import React, { Dispatch, SetStateAction } from 'react'
+import { InviteMessageType } from '../types';
+import { playAudio } from '../lib/utility/Audio'
 
-export default function MessageTextArea() {
-    const { global_state, dispatch } = React.useContext(GlobalContext);
-    const { flags } = global_state;
+interface MessageTextAreaPropsType {
+    setInviteMessage: Dispatch<SetStateAction<InviteMessageType>>
+    visible: boolean;
+    setMessageTextAreaVisible: Dispatch<SetStateAction<boolean>>
+}
+
+export default function MessageTextArea({ 
+    setInviteMessage, visible, setMessageTextAreaVisible
+}:MessageTextAreaPropsType) {
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
     const handleOnClose = () => {
-        const newFlags = { 
-            ...flags, 
-            messageTextAreaVisible: false,
-        } 
-        dispatch({
-            type:"set",
-            field:"flags",
-            payload:newFlags,
-        });
+        playAudio('pop.wav');
+        setMessageTextAreaVisible(false);
     }
     const handleOnClick = () => {
-        const newFlags = { 
-            ...flags, 
-            sendInvite: true,
-            messageTextAreaVisible: false,
-        } 
-        dispatch({
-            type:"set",
-            field:"flags",
-            payload:newFlags,
-        });
-    }
-    const setMessage = () => {
-        console.log('on blur fired')
         if (textAreaRef.current !== null) {
-            dispatch({
-                type:"set",
-                field:"inviteMessage",
-                payload:textAreaRef.current.value,
+            setInviteMessage({
+                message: textAreaRef.current.value,
+                ready: true,
             });
+            textAreaRef.current.value = "";
+            handleOnClose();
         }
     }
     return (
-        flags.messageTextAreaVisible?
+        visible?
         <div className="absolute flex top-0 bottom-0 left-0 right-0 z-30
         bg-black bg-opacity-80 rounded-3xl p-4 w-[30%] h-1/2 m-auto">
             <button 
@@ -50,12 +38,14 @@ export default function MessageTextArea() {
                 X
             </button>
             <div className="flex flex-1 flex-col m-auto h-full justify-evenly">
+                <div className="text-green-400 text-3xl font-righteous mb-2">
+                    INVITE MESSAGE
+                </div>
                 <textarea 
-                    onBlur={setMessage}
-                    placeholder="Type in invite message"
+                    placeholder="What do you want to say to the other player?"
                     ref={textAreaRef}
                     className="basis-[90%] bg-neutral-800 bg-opacity-90 text-white 
-                    rounded-3xl p-5 resize-none mb-3"
+                    rounded-3xl p-5 resize-none mb-3 text-center"
                 >
                 </textarea>
                 <button

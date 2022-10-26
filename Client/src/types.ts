@@ -21,6 +21,10 @@ export interface InviteStorageType {
 	senderName: string;
 	inviteMessage: string;
 }
+export interface InviteMessageType {
+	message: string;
+	ready: boolean;
+}
 export interface PriorityType {
 	name: string;
 	id: string;
@@ -28,10 +32,10 @@ export interface PriorityType {
 	priority: number;
 }
 export interface InviteInfoType {
-	senderName?:string;
-	roomID?:string,
-	inviteMessage?:string;
-	error?:boolean,
+	senderName?: string;
+	roomID?: string;
+	inviteMessage?: string;
+	error?: boolean;
 }
 export interface GameInfoType {
 	roomID: string;
@@ -56,19 +60,15 @@ export interface FlagsType {
 	confirmationVisible: boolean;
 	//controls visibility of confetti
 	confettiVisible: boolean;
-	//controls if message text area (when sending invite) should be visible or not
-	messageTextAreaVisible: boolean;
-	//controls whether invite should be sent
-	sendInvite: boolean;
 }
 interface MinesLeftKey {
     [key: string]: number;
 }
 export interface MinesLeftType extends MinesLeftKey {
-    legendary:number;
-    epic:number;
-    rare:number;
-    common:number;
+    legendary: number;
+    epic: number;
+    rare: number;
+    common: number;
 }
 interface GlobalStateKeys {
 	[key: string]: any;
@@ -77,7 +77,6 @@ export interface GlobalStateType extends GlobalStateKeys {
     name: string;
     chatHistory: Array<MessageType>;
     activeUsers: Array<UserType>;
-	inviteMessage: string;
 	pendingInvite: {
 		[key:string]: string;
 	};
