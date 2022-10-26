@@ -6,10 +6,11 @@ import { PriorityType, UserType } from '../types'
 import Countdown from './Countdown';
 
 interface InviteButtonPropsType {
-    user:PriorityType;
+    user: PriorityType;
+    className?: string;
 }
 
-export default function InviteButton({ user }:InviteButtonPropsType) {
+export default function InviteButton({ user, className }:InviteButtonPropsType) {
     const { global_state, dispatch } = React.useContext(GlobalContext);
     const { socket } = React.useContext(SocketContext);
     const { 
@@ -97,9 +98,9 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
     return (
         user.name !== name?
         <div className="relative">
-            <div className={`font-righteous absolute ${trigger?"-translate-x-11":"translate-x-0"}  text-lg
-            left-0 top-0 h-full p-1 pr-16 text-white ${checkCanInvite()?"bg-green-600":"opacity-0"} 
-            text-center z-10 w-full rounded-full transition-transform duration-100 shadow-md`}>
+            <div className={`flex font-righteous absolute ${trigger?"-translate-x-11":"translate-x-0"} text-lg
+            left-0 top-0 h-full p-1 pr-16 pl-5 text-white ${checkCanInvite()?"bg-green-600":"opacity-0"} 
+            text-center z-10 w-full rounded-full transition-transform duration-100 shadow-md ${className}`}>
                 <Countdown
                     seconds={15}
                     trigger={trigger}

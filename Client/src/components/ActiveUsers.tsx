@@ -46,7 +46,7 @@ export default function ActiveUsers() {
 				{priorities.map((user: PriorityType) => {
 					return (
 						<div
-							className={` flex justify-between ${
+							className={`grid grid-cols-12 ${
 								user.inGame ? "text-yellow-400" : "text-green-400"
 							} p-2 rounded-full my-2 shadow-lg bg-neutral-800 border-[1px]`}
 							style={{
@@ -54,20 +54,25 @@ export default function ActiveUsers() {
 							}}
 						>
 							<div
-								className={`h-4 w-4 ${
+								className={`h-4 w-4 col-span-1 ${
 									user.inGame ? "bg-yellow-400" : "bg-green-400"
-								} rounded-full my-auto mr-2`}
+								} rounded-full my-auto`}
 							/>
 							<div 
 								style={{
 									color:getUserColor(activeUsers,user.name)
 								}}
-								className="my-auto brightness-125 text-xl"
+								className="col-span-3 my-auto brightness-125 text-xl"
 							>
 								{user.name.toString().toUpperCase()}
 							</div>
-							<div className="my-auto text-lg">{user.inGame ? "IN-GAME" : "ONLINE"}</div>
-							<InviteButton user={user} />
+							<div className="col-span-5 my-auto text-lg">
+								{user.inGame ? "IN-GAME" : "ONLINE"}
+							</div>
+							<InviteButton 
+								user={user}
+								className="col-span-3"
+							/>
 						</div>
 					);
 				})}
