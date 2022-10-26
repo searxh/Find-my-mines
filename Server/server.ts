@@ -38,7 +38,7 @@ const createMinesArray = () => {
     return arr;
 };
 const generateTypesIndexesFrom = (amountArray:Array<number>, arr:Array<number>) => {
-    const types:any = {}
+    const types:{ [key:string]: string | null } = {}
     amountArray.forEach((value:number,index:number)=>{
         for (let i = 0; i < value; i++) {
             const selectedNum = getRandomInt(0,arr.length-1);
@@ -155,15 +155,7 @@ const checkEndGame = (roomID:string) => {
     const info = getGameInfo(roomID);
     return info.scores[0]+info.scores[1]===WINNING_SCORE;
 };
-const addInvitation = (
-    key:string,
-    value:{ 
-        roomID:string, 
-        senderName:string, 
-        receiverName:string, 
-        validUntil:Date,
-    }
-) => {
+const addInvitation = (key:string, value:InvitationType) => {
     invitation[key] = value;
 };
 const removeExpiredInvitation = () => {
@@ -200,7 +192,7 @@ const expireInvitation = (senderName:string) => {
 };
 const getMostRecentInvitation = (senderName:string, receiverName:string) => {
     const mostRecentInvitation = Object.keys(invitation)
-        .sort((a:any,b:any)=>{
+        .sort((a:string,b:string)=>{
             return compareAsc(invitation[b].validUntil,invitation[a].validUntil)
         })
         .find((key:string)=>
@@ -220,8 +212,8 @@ let chatHistory:ChatHistoryType = {
     global:[],
     local:{},
 };
-let activeUsers:any= {};
-let invitation:any = {};
+let activeUsers:{ [key:string]:UserType }= {};
+let invitation:{ [key:string]:InvitationType } = {};
 const initialRoomID = generateID();
 chatHistory.local[initialRoomID] = []
 let counters:Array<CounterType> = [
@@ -292,9 +284,9 @@ socketIO.of("/").adapter.on("leave-room", (roomID:string,id:string) => {
     if (roomID.length > 20 && info?.state === 2) {
         //saves the name of the user according to id
         //(since id will change after reconnect)
-        const saveUser = Object.keys(activeUsers).find((value:any)=>{
+        const saveUser = Object.keys(activeUsers).find((value:string)=>{
             return activeUsers[value].id===id
-        }) as string;
+        });
         //delay for 2 seconds to allow user to reconnect
         setTimeout( async ()=>{
             //checks if the user has reconnected, 
@@ -448,7 +440,7 @@ socketIO.on("connection", (socket:any)=>{
     })=>{
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
-        console.log("CHAT REQUEST ARG", name, roomID, activeUsers)
+        //console.log("CHAT REQUEST ARG", name, roomID, activeUsers)
         if (activeUsers[name]?.inGame && roomID !== undefined) {
             socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         } else {
@@ -542,13 +534,19 @@ interface BlockType {
     selected:boolean;
     value:number;
     selectedBy:string;
-    type:string | undefined;
+    type:string | null;
 }
 interface UserType {
     name:string;
     id:string;
     inGame:boolean;
     color:string;
+}
+interface InvitationType {
+    roomID:string, 
+    senderName:string, 
+    receiverName:string, 
+    validUntil:Date,
 }
 interface GameInfoType {
     roomID:string;
@@ -572,5 +570,7 @@ interface ChatRoomHistoryType extends ChatRoomHistoryKeys {
 }
 interface ChatHistoryType {
     global:Array<MessageType>;
-    local:any;
+    local:{
+        [key: string]: Array<MessageType>;
+    };
 }

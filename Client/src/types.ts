@@ -63,8 +63,12 @@ export interface GlobalStateType extends GlobalStateKeys {
     name:string;
     chatHistory:Array<MessageType>;
     activeUsers:Array<UserType>;
-	pendingInvite: any;
-	receivedInvite: any;
+	pendingInvite: {
+		[key:string]:string;
+	};
+	receivedInvite: {
+		[key:string]:boolean;
+	};
     gameInfo:GameInfoType;
     socketID:string;
     flags:FlagsType;

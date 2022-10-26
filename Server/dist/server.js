@@ -431,7 +431,7 @@ socketIO.on("connection", (socket) => {
         var _a;
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
-        console.log("CHAT REQUEST ARG", name, roomID, activeUsers);
+        //console.log("CHAT REQUEST ARG", name, roomID, activeUsers)
         if (((_a = activeUsers[name]) === null || _a === void 0 ? void 0 : _a.inGame) && roomID !== undefined) {
             socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
         }
