@@ -19,6 +19,7 @@ export const initialState: GlobalStateType = {
 	receivedInvite: {},
 	gameInfo: {} as GameInfoType,
 	socketID: "",
+	inviteMessage: "",
 	flags: {
 		activeUsersInitialized: false,
 		canMatch: true,
@@ -27,6 +28,8 @@ export const initialState: GlobalStateType = {
 		isMatching: false,
 		confirmationVisible: false,
 		confettiVisible: false,
+		messageTextAreaVisible: false,
+		sendInvite: false,
 	},
 };
 

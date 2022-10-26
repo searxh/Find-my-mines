@@ -5,6 +5,7 @@ import RequestReceiver from '../components/RequestReceiver';
 import ReplyReceiver from '../components/ReplyReceiver';
 import MatchingButton from '../components/MatchingButton';
 import SocketID from '../components/SocketID';
+import MessageTextArea from '../components/MessageTextArea';
 
 export default function Menu() {
     return (
@@ -14,6 +15,7 @@ export default function Menu() {
             bg-[url('../public/assets/images/bg.png')] flex-1 h-screen opacity-50"/>
             <RequestReceiver />
             <ReplyReceiver />
+            <MessageTextArea />
             <div className="text-5xl font-righteous text-white pt-5">FIND MY MINES</div>
             <div className="flex-1 flex justify-evenly p-1 pt-0">
                 <div className="basis-[40%] h-[70vh]">

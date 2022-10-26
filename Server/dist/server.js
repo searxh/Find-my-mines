@@ -349,7 +349,7 @@ socketIO.on("connection", (socket) => {
         console.log("Unmatching request", user);
         removeUser(user, (roomID) => socket.leave(roomID));
     });
-    socket.on("invite request", ({ senderName, receiverName }) => {
+    socket.on("invite request", ({ senderName, receiverName, inviteMessage }) => {
         const info = generateGameInfo("invitation");
         addInvitation(info.roomID, {
             roomID: info.roomID,
@@ -367,6 +367,7 @@ socketIO.on("connection", (socket) => {
         socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
             senderName: senderName,
             roomID: info.roomID,
+            inviteMessage: inviteMessage,
         });
     });
     socket.on("invite reply", ({ senderName, receiverName, decision }) => {

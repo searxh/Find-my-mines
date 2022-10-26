@@ -1,4 +1,3 @@
-import de from 'date-fns/esm/locale/de/index.js';
 import React from 'react'
 import { playAudio } from '../lib/utility/Audio';
 import { SocketContext } from '../socket'
@@ -19,6 +18,7 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
         flags, 
         receivedInvite,
         pendingInvite,
+        inviteMessage,
     } = global_state;
     const [ trigger, setTrigger ] = React.useState<boolean>(false);
     //to make callback use the latest pendingInvite value
@@ -26,23 +26,43 @@ export default function InviteButton({ user }:InviteButtonPropsType) {
     pendingInviteRef.current = pendingInvite;
 
     const handleOnClick = () => {
-        socket.emit("invite request",{ senderName:name, receiverName:user.name });
-        playAudio('pop.wav');
-        setTrigger(true);
-        const newFlags = { ...flags, canMatch: false };
-        const newPendingInvite = { ...pendingInvite };
-        newPendingInvite[user.name] = user.name;
-        dispatch({
-            type:"multi-set",
-            field:["flags","pendingInvite"],
-            payload:[newFlags,newPendingInvite],
-        });
+        if (!flags.sendInvite) {
+            const newFlags = { ...flags, messageTextAreaVisible: true };
+            dispatch({
+                type:"set",
+                field:"flags",
+                payload:newFlags,
+            })
+        }
     };
     const checkCanInvite = () => {
         return (!activeUsers.find((activeUser:UserType)=>
             activeUser.name === user.name)?.inGame
         ) && !flags.isMatching;
     };
+    React.useEffect(()=>{
+        if (flags.sendInvite && user.name!==name) {
+            socket.emit("invite request",{ 
+                senderName:name, 
+                receiverName:user.name,
+                inviteMessage:inviteMessage
+            });
+            playAudio('pop.wav');
+            setTrigger(true);
+            const newFlags = { 
+                ...flags, 
+                canMatch: false,
+                sendInvite: false,
+            };
+            const newPendingInvite = { ...pendingInvite };
+            newPendingInvite[user.name] = user.name;
+            dispatch({
+                type:"multi-set",
+                field:["flags","pendingInvite"],
+                payload:[newFlags,newPendingInvite],
+            });
+        }
+    },[flags.sendInvite])
     React.useEffect(()=>{
         console.log("RECEIVED INVITES",Object.keys(receivedInvite));
         if (Object.keys(receivedInvite).length !== 0) {

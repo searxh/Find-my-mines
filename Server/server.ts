@@ -347,9 +347,9 @@ socketIO.on("connection", (socket:any)=>{
         removeUser(user,(roomID:string)=>socket.leave(roomID));
     });
     socket.on("invite request", ({
-        senderName, receiverName
+        senderName, receiverName, inviteMessage
     }:{
-        senderName:string, receiverName:string
+        senderName:string, receiverName:string, inviteMessage:string
     })=>{
         const info = generateGameInfo("invitation");
         addInvitation(info.roomID,{
@@ -369,6 +369,7 @@ socketIO.on("connection", (socket:any)=>{
         socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
             senderName:senderName,
             roomID:info.roomID,
+            inviteMessage: inviteMessage,
         });
     });
     socket.on("invite reply",({

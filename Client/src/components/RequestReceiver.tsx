@@ -15,7 +15,8 @@ export default function RequestReceiver() {
     //mode 1 = (sender) gets invitation request
     //mode 2 = error occured (ex:someone accepted before you can, in multi-inv)
     const [ inviteStorage, setInviteStorage ] = React.useState<InviteStorageType>({
-        senderName:""
+        senderName:"",
+        inviteMessage:""
     });
     const handleOnClickDecision = (bool:boolean) => {
         playAudio('pop.wav');
@@ -50,18 +51,22 @@ export default function RequestReceiver() {
         if (socket !== undefined) {
             console.log('listening for request')
             socket.on("request incoming", ({ 
-                senderName, roomID, error
+                senderName, roomID, inviteMessage, error
             }:InviteInfoType) => {
                 playAudio('noti.wav')
-                console.log(senderName, roomID, error);
-                if (error===undefined && senderName!==undefined && roomID!==undefined) {
+                console.log(senderName, roomID, inviteMessage, error);
+                if (error===undefined && senderName!==undefined 
+                    && roomID!==undefined && inviteMessage!==undefined) {
                     const newFlags = { ...flags, canMatch:false };
                     dispatch({
                         type:"set",
                         field:"flags",
                         payload:newFlags,
                     });
-                    setInviteStorage({ senderName:senderName });
+                    setInviteStorage({ 
+                        senderName: senderName,
+                        inviteMessage: inviteMessage,
+                    });
                     setMode(1);
                     setTrigger(true);
                 } else {
@@ -111,6 +116,9 @@ export default function RequestReceiver() {
                         </div>
                         <div className="py-5 text-cyan-300">
                             Inviter: {inviteStorage.senderName}
+                        </div>
+                        <div className="text-red-300">
+                            Message: {inviteStorage.inviteMessage}
                         </div>
                         <div className="flex w-full justify-evenly">
                             <button
