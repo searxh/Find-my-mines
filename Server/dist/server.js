@@ -503,6 +503,12 @@ socketIO.on("connection", (socket) => {
         socketIO.to(roomID).emit("start game", info);
         resetCountdown(info, roomID);
     });
+    socket.on("confetti", ({ targetPlayer }) => {
+        if (activeUsers[targetPlayer] !== undefined) {
+            console.log("[CONFETTI] sent from", socket.data.name, "to", targetPlayer);
+            socket.to(activeUsers[targetPlayer].id).emit("confetti from sender");
+        }
+    });
     socket.on("disconnect", () => {
         console.log(socket.data.name + " has disconnected", socketIO.of("/").sockets.size);
         delete activeUsers[socket.data.name];

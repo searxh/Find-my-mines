@@ -498,14 +498,14 @@ socketIO.on("connection", (socket:any)=>{
 		    socketIO.emit("active user update", activeUsers);
         }
 		socket.leave(roomID);
-    })
+    });
     socket.on("reconnect game",({ roomID }:{ roomID:string })=>{
         if (activeUsers[socket.data.name] !== undefined) {
             socket.join(roomID);
         } else {
             console.log('active users not found',activeUsers[socket.data.name],socket.data.name)
         }
-    })
+    });
     socket.on("play again", ({ 
         gameInfo, requester
     }:{ 
@@ -513,17 +513,23 @@ socketIO.on("connection", (socket:any)=>{
     })=>{
         console.log("play again",gameInfo.roomID);
         socketIO.to(gameInfo.roomID).emit("rematch request", requester);
-    })
+    });
     socket.on("rematch accepted", (roomID:string)=>{
         const info = resetRoom(roomID);
         socketIO.to(roomID).emit("start game",info);
         resetCountdown(info,roomID);
-    })
+    });
+    socket.on("confetti", ({ targetPlayer }:{ targetPlayer:string })=>{
+        if (activeUsers[targetPlayer] !== undefined) {
+            console.log("[CONFETTI] sent from", socket.data.name, "to", targetPlayer);
+            socket.to(activeUsers[targetPlayer].id).emit("confetti from sender");
+        }
+    });
     socket.on("disconnect", ()=>{
         console.log(socket.data.name+ " has disconnected", socketIO.of("/").sockets.size);
         delete activeUsers[socket.data.name];
         socketIO.emit("active user update", activeUsers);
-    })
+    });
 })
 interface MessageType {
     from:string;

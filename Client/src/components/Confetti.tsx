@@ -1,10 +1,12 @@
 import React from 'react'
-
+import { GlobalContext } from '../states';
 interface ConfettiPropsType {
     trigger:boolean;
 }
 
 export default function Confetti({ trigger }:ConfettiPropsType) {
+    const { global_state, dispatch } = React.useContext(GlobalContext)
+    const { flags } = global_state
     const [ visible, setVisible ] = React.useState<boolean>(false);
     const [ transition, setTransition ] = React.useState<boolean>(false);
     React.useEffect(()=>{
@@ -17,6 +19,13 @@ export default function Confetti({ trigger }:ConfettiPropsType) {
         if (visible) {
             setTimeout(()=>setTransition(true),100);
             setTimeout(()=>setTransition(false),1450);
+        } else {
+            const newFlags = { ...flags, confettiVisible: false };
+            dispatch({
+                type: "set",
+                field: "flags",
+                payload: newFlags,
+            });
         }
     },[visible])
     return (

@@ -46,6 +46,7 @@ export interface FlagsType {
 	resultVisible: boolean;
 	isMatching: boolean;
 	confirmationVisible: boolean;
+	confettiVisible: boolean;
 }
 interface MinesLeftKey {
     [key: string]: number;
