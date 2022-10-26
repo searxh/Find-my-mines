@@ -27,30 +27,30 @@ export default function MinesLeft() {
         }
     },[gameInfo.minesArray])
     return (
-        <div className="text-white px-5 pb-5 pt-1 text-xl rounded-3xl bg-zinc-600 
-        bg-opacity-60 w-[80%] m-auto">
+        <div className="text-white px-5 pb-5 pt-1 text-lg rounded-3xl bg-zinc-600 
+        bg-opacity-60 w-[70%] m-auto">
             <div className="text-2xl pb-1 font-righteous text-zinc-200">MINES LEFT</div>
             <div className="bg-neutral-800 rounded-3xl p-3">
                 <div className={`flex text-yellow-300 justify-between
                 ${minesLeft.legendary===0?"brightness-50":null}`}>
                     <Image 
                         type="Legendary"
-                        className="w-10 h-10"
+                        className="w-fit h-10 m-auto"
                     />
-                    <span className="my-auto">
+                    <div className="flex-1 my-auto">
                         Legendary Mine
-                    </span>
-                    <span className="my-auto">
+                    </div>
+                    <div className="my-auto">
                         x{minesLeft.legendary}
-                    </span>
+                    </div>
                 </div>
                 <div className={`flex text-red-300 justify-between
                 ${minesLeft.epic===0?"brightness-50":null}`}>
                     <Image 
                         type="Epic"
-                        className="w-10 h-10"
+                        className="w-fit h-10"
                     />
-                    <span className="my-auto">
+                    <span className="flex-1 my-auto">
                         Epic Mine
                     </span>
                     <span className="my-auto">
@@ -61,9 +61,9 @@ export default function MinesLeft() {
                 ${minesLeft.rare===0?"brightness-50":null}`}>
                     <Image 
                         type="Rare"
-                        className="w-10 h-10"
+                        className="w-fit h-10"
                     />
-                    <span className="my-auto">
+                    <span className="flex-1 my-auto">
                         Rare Mine
                     </span>
                     <span className="my-auto">
@@ -74,9 +74,9 @@ export default function MinesLeft() {
                 ${minesLeft.common===0?"brightness-50":null}`}>
                     <Image 
                         type="Common"
-                        className="w-10 h-10"
+                        className="w-fit h-10"
                     />
-                    <span className="my-auto">
+                    <span className="flex-1 my-auto">
                         Common Mine
                     </span> 
                     <span className="my-auto">

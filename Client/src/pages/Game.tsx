@@ -12,6 +12,8 @@ import SurrenderButton from '../components/SurrenderButton'
 import Confirmation from '../components/Confirmation'
 import { SocketContext } from '../socket'
 import { useNavigate } from 'react-router-dom'
+import Confetti from '../components/Confetti'
+import ConfettiButton from '../components/ConfettiButton'
 
 export default function Game() {
     const { global_state, dispatch } = React.useContext(GlobalContext);
@@ -31,6 +33,7 @@ export default function Game() {
             bg-[url('../public/assets/images/bg.png')] flex-1 h-screen opacity-50"/>
             <Result />
             <Backdrop />
+            <Confetti trigger={flags.confettiVisible} />
             <Confirmation
                 title="Are you sure you wish to surrender?"
                 content="You will lose and leave the game room immediately"
@@ -92,6 +95,7 @@ export default function Game() {
                         <Chat />
                     </div>
                     <SurrenderButton />
+                    <ConfettiButton />
                 </div>
             </div>
             <SocketID />
