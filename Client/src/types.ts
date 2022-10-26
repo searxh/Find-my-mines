@@ -8,12 +8,14 @@ export interface MessageType {
 export interface BlockType {
 	selected: boolean;
 	value: number;
+	selectedBy: string;
 	type: string | null;
 }
 export interface UserType {
 	name: string;
 	id: string;
 	inGame: boolean;
+	color: string;
 }
 export interface InviteStorageType {
 	senderName: string;
@@ -38,11 +40,24 @@ export interface GameInfoType {
 	minesArray: Array<BlockType>;
 }
 export interface FlagsType {
+	activeUsersInitialized: boolean;
+	canMatch: boolean;
 	userLeft: boolean;
 	resultVisible: boolean;
 	isMatching: boolean;
+	confirmationVisible: boolean;
+	confettiVisible: boolean;
 }
-export interface GlobalStateKeys {
+interface MinesLeftKey {
+	[key: string]: number;
+}
+export interface MinesLeftType extends MinesLeftKey {
+	legendary: number;
+	epic: number;
+	rare: number;
+	common: number;
+}
+interface GlobalStateKeys {
 	[key: string]: any;
 }
 export interface GlobalStateType extends GlobalStateKeys {
@@ -50,7 +65,13 @@ export interface GlobalStateType extends GlobalStateKeys {
 	chatHistory: Array<MessageType>;
 	activeUsers: Array<UserType>;
 	activeGames: Array<GameInfoType>;
-	receiver: any;
+
+	pendingInvite: {
+		[key: string]: string;
+	};
+	receivedInvite: {
+		[key: string]: boolean;
+	};
 	gameInfo: GameInfoType;
 	socketID: string;
 	flags: FlagsType;

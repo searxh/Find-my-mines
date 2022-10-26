@@ -15,14 +15,19 @@ export const initialState: GlobalStateType = {
 	name: "",
 	chatHistory: [],
 	activeUsers: [],
-	receiver: {},
+	pendingInvite: {},
+	receivedInvite: {},
 	gameInfo: {} as GameInfoType,
 	activeGames: [],
 	socketID: "",
 	flags: {
+		activeUsersInitialized: false,
+		canMatch: true,
 		resultVisible: false,
 		userLeft: false,
 		isMatching: false,
+		confirmationVisible: false,
+		confettiVisible: false,
 	},
 };
 
@@ -41,7 +46,9 @@ const save = (state: GlobalStateType) => {
 };
 
 const load = () => {
-	return JSON.parse(sessionStorage.getItem("fmm-state") as string);
+	const res = JSON.parse(sessionStorage.getItem("fmm-state") as string);
+	//reset flags
+	return { ...res, flags:initialState.flags }
 };
 
 export function GlobalStateProvider({
@@ -57,7 +64,9 @@ export function GlobalStateProvider({
 					newState[action.field as string] = action.payload;
 					save(newState);
 					return newState;
-				} else return state;
+				} else {
+					return action.payload;
+				};
 			case "multi-set":
 				if (action.field !== undefined) {
 					for (let i = 0; i < action.field.length; i++) {
@@ -91,9 +100,12 @@ export function GlobalStateProvider({
 				return state;
 		}
 	};
-	const [state, dispatch] = React.useReducer(reducer, getSessionData());
+	const [ state, dispatch ] = React.useReducer(reducer, getSessionData());
 	return (
-		<GlobalContext.Provider value={{ global_state: state, dispatch: dispatch }}>
+		<GlobalContext.Provider value={{ 
+			global_state: state, 
+			dispatch: dispatch,
+		}}>
 			{children}
 		</GlobalContext.Provider>
 	);

@@ -1,54 +1,99 @@
+import de from 'date-fns/esm/locale/de/index.js';
 import React from 'react'
+import { playAudio } from '../lib/utility/Audio';
 import { SocketContext } from '../socket'
 import { GlobalContext } from '../states'
-import { UserType } from '../types'
+import { PriorityType, UserType } from '../types'
 import Countdown from './Countdown';
 
 interface InviteButtonPropsType {
-    user:UserType;
+    user:PriorityType;
 }
 
 export default function InviteButton({ user }:InviteButtonPropsType) {
     const { global_state, dispatch } = React.useContext(GlobalContext);
     const { socket } = React.useContext(SocketContext);
-    const { activeUsers, name, flags, receiver } = global_state;
+    const { 
+        activeUsers, 
+        name, 
+        flags, 
+        receivedInvite,
+        pendingInvite,
+    } = global_state;
     const [ trigger, setTrigger ] = React.useState<boolean>(false);
+    //to make callback use the latest pendingInvite value
+    const pendingInviteRef = React.useRef<any>();
+    pendingInviteRef.current = pendingInvite;
+
     const handleOnClick = () => {
         socket.emit("invite request",{ senderName:name, receiverName:user.name });
+        playAudio('pop.wav');
         setTrigger(true);
+        const newFlags = { ...flags, canMatch: false };
+        const newPendingInvite = { ...pendingInvite };
+        newPendingInvite[user.name] = user.name;
+        dispatch({
+            type:"multi-set",
+            field:["flags","pendingInvite"],
+            payload:[newFlags,newPendingInvite],
+        });
     };
     const checkCanInvite = () => {
         return (!activeUsers.find((activeUser:UserType)=>
             activeUser.name === user.name)?.inGame
-        ) && !flags.isMatching
+        ) && !flags.isMatching;
     };
     React.useEffect(()=>{
-        console.log(receiver)
-        if (Object.keys(receiver).length !== 0) {
-            const check = receiver[user.name]
+        console.log("RECEIVED INVITES",Object.keys(receivedInvite));
+        if (Object.keys(receivedInvite).length !== 0) {
+            const check = receivedInvite[user.name]
             console.log(check)
             if (check !== undefined) {
                 setTrigger(false);
-                const newReceiver = { ...receiver };
-                delete newReceiver[user.name];
+                const newReceivedInvite = { ...receivedInvite };
+                delete newReceivedInvite[user.name];
+                console.log("i got a reply, removing pending invite for",user.name);
+                const newPendingInvite = { ...pendingInvite };
+                delete newPendingInvite[user.name];
                 dispatch({
-                    type:"set",
-                    field:"receiver",
-                    payload:newReceiver,
+                    type:"multi-set",
+                    field:["receivedInvite","pendingInvite"],
+                    payload:[newReceivedInvite,newPendingInvite],
                 });
             }
         }
-    },[receiver])
+    },[receivedInvite]);
+    React.useEffect(()=>{
+        console.log("PENDING INVITES",Object.keys(pendingInvite));
+        if (Object.keys(pendingInvite).length === 0) {
+            const newFlags = { ...flags, canMatch: true };
+            dispatch({
+                type:"set",
+                field:"flags",
+                payload:newFlags,
+            });
+        }
+    },[pendingInvite])
     return (
         user.name !== name?
         <div className="relative">
             <div className={`font-righteous absolute ${trigger?"-translate-x-11":"translate-x-0"}  text-lg
-            left-0 top-0 h-full p-1 pr-16 text-white ${checkCanInvite()?"bg-teal-600":"opacity-0"} 
-            text-center z-10 w-full rounded-full transition-transform duration-100`}>
+            left-0 top-0 h-full p-1 pr-16 text-white ${checkCanInvite()?"bg-green-600":"opacity-0"} 
+            text-center z-10 w-full rounded-full transition-transform duration-100 shadow-md`}>
                 <Countdown
                     seconds={15}
                     trigger={trigger}
-                    callback={()=>setTrigger(false)}
+                    callback={()=>{
+                        setTrigger(false)
+                        const newPendingInvite = { ...pendingInviteRef.current };
+                        console.log('expired, deleting',user.name, newPendingInvite);
+                        delete newPendingInvite[user.name];
+                        dispatch({
+                            type:"set",
+                            field:"pendingInvite",
+                            payload:newPendingInvite,
+                        });
+                    }}
                 />
             </div>
             <button
