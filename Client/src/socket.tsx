@@ -9,7 +9,7 @@ import {
 	SocketContextType,
 } from "./types";
 import { io } from "socket.io-client";
-import { info } from "console";
+import isEqual from "lodash/isEqual"
 
 export const SocketContext = createContext<SocketContextType>(
 	{} as SocketContextType
@@ -52,7 +52,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload:[users, newFlags],
 				})
 				setTimeout(()=>{
-					if (JSON.stringify(activeUsers)!==JSON.stringify(activeUsersFromServer)) {
+					if (isEqual(activeUsers, users)) {
 						console.log('[RE-DISPATCH] ACTIVE USERS');
 						dispatch({
 							type: "set",
@@ -75,13 +75,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: [gameInfo, newFlags, {}],
 				});
 				setTimeout(() => navigate("/game"), 1000);
-			});
-			socket.on("game info admin", (gameInfo: GameInfoType) => {
-				dispatch({
-					type: "set",
-					field: ["gameInfo"],
-					payload: [gameInfo],
-				});
 			});
 			socket.on("gameInfo update", (gameInfo: GameInfoType) => {
 				dispatch({
@@ -180,12 +173,12 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				} else if (location.pathname.includes("menu") && socket === undefined) {
 					console.log("setting socket");
 					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
-				} else if (location.pathname.includes("admin")) {
+				} else if (location.pathname.includes("admin") && socket === undefined) {
 					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
 				}
 			}, 300);
 		}
-	}, [socket, location.pathname, dispatch, name, flags, navigate]);
+	}, [socket, location.pathname]);
 	React.useEffect(() => {
 		if (
 			reconnectInGame &&
