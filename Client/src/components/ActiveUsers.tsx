@@ -10,66 +10,72 @@ export default function ActiveUsers() {
 	const { global_state, dispatch } = React.useContext(GlobalContext);
 	const { socket } = React.useContext(SocketContext);
 	const { activeUsers, name } = global_state;
-	const [ priorities, setPriorities ] = React.useState<Array<PriorityType>>([])
+	const [priorities, setPriorities] = React.useState<Array<PriorityType>>([]);
 	const location = useLocation();
-	React.useEffect(()=>{
+	React.useEffect(() => {
 		if (activeUsers !== undefined) {
-			const prioritiesArr = activeUsers.map((user:UserType)=>{
+			const prioritiesArr = activeUsers.map((user: UserType) => {
 				if (user.name === name) {
-					return { ...user, priority:1 };
+					return { ...user, priority: 1 };
 				} else {
-					return { ...user, priority:0 };
+					return { ...user, priority: 0 };
 				}
-			})
-			setPriorities(prioritiesArr.sort(
-				(a:PriorityType,b:PriorityType)=>b.priority-a.priority
-			))
+			});
+			setPriorities(
+				prioritiesArr.sort(
+					(a: PriorityType, b: PriorityType) => b.priority - a.priority
+				)
+			);
 		}
-	},[activeUsers])
-	React.useEffect(()=>{
+	}, [activeUsers]);
+	React.useEffect(() => {
 		//in the case where active users fail to update
 		if (socket !== undefined) {
-			socket.emit("active user update",(activeUsers: any)=>{
-				const users:Array<UserType> = Object.values(activeUsers)
+			socket.emit("active user update", (activeUsers: any) => {
+				const users: Array<UserType> = Object.values(activeUsers);
 				dispatch({
-					type:"set",
-					field:"activeUsers",
-					payload:users,
-				})
+					type: "set",
+					field: "activeUsers",
+					payload: users,
+				});
 			});
-			return ()=>socket.off("active user update") as any;
+			return () => socket.off("active user update") as any;
 		}
-	},[socket,location.pathname]);
+	}, [socket, location.pathname]);
 	return (
 		<div className='flex-1 overflow-y-scroll'>
 			<div className='flex flex-col text-xl'>
 				{priorities.map((user: PriorityType) => {
-					return (
-						<div
-							className={` flex justify-between ${
-								user.inGame ? "text-yellow-400" : "text-green-400"
-							} p-2 rounded-full my-2 shadow-lg bg-neutral-800 border-[1px]`}
-							style={{
-								borderColor:getUserColor(activeUsers,user.name)
-							}}
-						>
+					if (user.name.toLocaleLowerCase() !== "admin") {
+						return (
 							<div
-								className={`h-4 w-4 ${
-									user.inGame ? "bg-yellow-400" : "bg-green-400"
-								} rounded-full my-auto mr-2`}
-							/>
-							<div 
+								className={` flex justify-between ${
+									user.inGame ? "text-yellow-400" : "text-green-400"
+								} p-2 rounded-full my-2 shadow-lg bg-neutral-800 border-[1px]`}
 								style={{
-									color:getUserColor(activeUsers,user.name)
+									borderColor: getUserColor(activeUsers, user.name),
 								}}
-								className="my-auto brightness-125 text-xl"
 							>
-								{user.name.toString().toUpperCase()}
+								<div
+									className={`h-4 w-4 ${
+										user.inGame ? "bg-yellow-400" : "bg-green-400"
+									} rounded-full my-auto mr-2`}
+								/>
+								<div
+									style={{
+										color: getUserColor(activeUsers, user.name),
+									}}
+									className='my-auto brightness-125 text-xl'
+								>
+									{user.name.toString().toUpperCase()}
+								</div>
+								<div className='my-auto text-lg'>
+									{user.inGame ? "IN-GAME" : "ONLINE"}
+								</div>
+								<InviteButton user={user} />
 							</div>
-							<div className="my-auto text-lg">{user.inGame ? "IN-GAME" : "ONLINE"}</div>
-							<InviteButton user={user} />
-						</div>
-					);
+						);
+					}
 				})}
 			</div>
 		</div>

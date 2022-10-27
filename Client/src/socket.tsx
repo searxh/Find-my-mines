@@ -9,6 +9,7 @@ import {
 	SocketContextType,
 } from "./types";
 import { io } from "socket.io-client";
+import { info } from "console";
 
 export const SocketContext = createContext<SocketContextType>(
 	{} as SocketContextType
@@ -43,27 +44,34 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				});
 			});
 			socket.on("active user update", (activeUsers: any) => {
-				const users:Array<UserType> = Object.values(activeUsers)
-				const newFlags = { ...flags, activeUsersInitialized:true };
+				const users: Array<UserType> = Object.values(activeUsers);
+				const newFlags = { ...flags, activeUsersInitialized: true };
 				dispatch({
-					type:"multi-set",
-					field:["activeUsers","flags"],
-					payload:[users, newFlags],
-				})
+					type: "multi-set",
+					field: ["activeUsers", "flags"],
+					payload: [users, newFlags],
+				});
 			});
 			socket.on("start game", (gameInfo: GameInfoType) => {
-				const newFlags = { 
-					...flags, 
+				const newFlags = {
+					...flags,
 					resultVisible: false,
 					userLeft: false,
 					isMatching: false,
-			 	};
+				};
 				dispatch({
 					type: "multi-set",
-					field: ["gameInfo", "flags","pendingInvite"],
+					field: ["gameInfo", "flags", "pendingInvite"],
 					payload: [gameInfo, newFlags, {}],
 				});
 				setTimeout(() => navigate("/game"), 1000);
+			});
+			socket.on("game info admin", (gameInfo: GameInfoType) => {
+				dispatch({
+					type: "set",
+					field: ["gameInfo"],
+					payload: [gameInfo],
+				});
 			});
 			socket.on("gameInfo update", (gameInfo: GameInfoType) => {
 				dispatch({
@@ -72,20 +80,48 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: gameInfo,
 				});
 			});
+			socket.on("add active game update", (info: any) => {
+				dispatch({
+					type: "add game",
+
+					payload: info,
+				});
+			});
+			socket.on("remove active game update", (info: any) => {
+				dispatch({
+					type: "remove game",
+
+					payload: { gameInfo: info },
+				});
+			});
+			socket.on("active game update", (info: any) => {
+				dispatch({
+					type: "update game",
+
+					payload: { gameInfo: info },
+				});
+			});
+			socket.on("reset game", (info: any) => {
+				dispatch({
+					type: "reset game",
+
+					payload: { gameInfo: info },
+				});
+			});
 			socket.on("counter", (timer: number) => {
 				dispatch({
 					type: "timer",
 					payload: timer,
 				});
 			});
-			socket.on("confetti from sender", ()=>{
-				const newFlags = { ...flags, confettiVisible: true }
+			socket.on("confetti from sender", () => {
+				const newFlags = { ...flags, confettiVisible: true };
 				dispatch({
 					type: "set",
 					field: "flags",
 					payload: newFlags,
-				})
-			})
+				});
+			});
 			socket.on("end game", (gameInfo: GameInfoType) => {
 				dispatch({
 					type: "set",
@@ -93,21 +129,21 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: gameInfo,
 				});
 				//delay showing results (to allow users to see last mine first)
-				setTimeout(()=>{
+				setTimeout(() => {
 					const newFlags = { ...flags, resultVisible: true };
 					dispatch({
 						type: "set",
 						field: "flags",
 						payload: newFlags,
-					})
-				},2000)
+					});
+				}, 2000);
 			});
 			socket.on("other user left", () => {
 				console.log("OTHER USER LEFT");
-				const newFlags = { 
-					...flags, 
-					resultVisible: true, 
-					userLeft: true
+				const newFlags = {
+					...flags,
+					resultVisible: true,
+					userLeft: true,
 				};
 				dispatch({
 					type: "set",
@@ -115,7 +151,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: newFlags,
 				});
 				//in the case where dispatch fails
-				setTimeout(()=>{
+				setTimeout(() => {
 					if (flags.resultVisible !== true && flags.userLeft !== true) {
 						dispatch({
 							type: "set",
@@ -123,7 +159,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 							payload: newFlags,
 						});
 					}
-				},500)
+				}, 500);
 			});
 		} else {
 			setTimeout(() => {
@@ -133,17 +169,23 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				} else if (location.pathname.includes("menu") && socket === undefined) {
 					console.log("setting socket");
 					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
+				} else if (location.pathname.includes("admin")) {
+					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
 				}
 			}, 300);
 		}
-	}, [socket, location.pathname]);
+	}, [socket, location.pathname, dispatch, name, flags, navigate]);
 	React.useEffect(() => {
-		if (reconnectInGame && socket !== undefined && flags.activeUsersInitialized) {
+		if (
+			reconnectInGame &&
+			socket !== undefined &&
+			flags.activeUsersInitialized
+		) {
 			console.log("attempting to reconnect game");
 			socket.emit("reconnect game", { roomID: gameInfo.roomID });
 			setReconnectInGame(false);
 		}
-	}, [reconnectInGame,flags.activeUsersInitialized]);
+	}, [reconnectInGame, flags.activeUsersInitialized]);
 	return (
 		<SocketContext.Provider
 			value={{ socket: socket, setSocket: setSocket } as SocketContextType}
