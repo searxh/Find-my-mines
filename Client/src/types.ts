@@ -62,30 +62,32 @@ export interface FlagsType {
 	confettiVisible: boolean;
 }
 interface MinesLeftKey {
-    [key: string]: number;
+	[key: string]: number;
 }
 export interface MinesLeftType extends MinesLeftKey {
-    legendary: number;
-    epic: number;
-    rare: number;
-    common: number;
+	legendary: number;
+	epic: number;
+	rare: number;
+	common: number;
 }
 interface GlobalStateKeys {
 	[key: string]: any;
 }
 export interface GlobalStateType extends GlobalStateKeys {
-    name: string;
-    chatHistory: Array<MessageType>;
-    activeUsers: Array<UserType>;
+	name: string;
+	chatHistory: Array<MessageType>;
+	activeUsers: Array<UserType>;
+	activeGames: Array<GameInfoType>;
+
 	pendingInvite: {
-		[key:string]: string;
+		[key: string]: string;
 	};
 	receivedInvite: {
-		[key:string]: boolean;
+		[key: string]: boolean;
 	};
-    gameInfo: GameInfoType;
-    socketID: string;
-    flags: FlagsType;
+	gameInfo: GameInfoType;
+	socketID: string;
+	flags: FlagsType;
 }
 export interface ActionType {
 	type: string;
