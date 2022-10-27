@@ -19,10 +19,6 @@ export const initialState: GlobalStateType = {
 	receivedInvite: {},
 	gameInfo: {} as GameInfoType,
 	socketID: "",
-	inviteMessage: {
-		message:"",
-		senderName:"",
-	},
 	flags: {
 		activeUsersInitialized: false,
 		canMatch: true,
