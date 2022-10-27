@@ -29,7 +29,7 @@ export default function ActiveUsers() {
 	React.useEffect(()=>{
 		//in the case where active users fail to update
 		if (socket !== undefined) {
-			socket.emit("active user update",(activeUsers: any)=>{
+			socket.emit("active user request",(activeUsers: any)=>{
 				const users:Array<UserType> = Object.values(activeUsers)
 				dispatch({
 					type:"set",
@@ -37,7 +37,7 @@ export default function ActiveUsers() {
 					payload:users,
 				})
 			});
-			return ()=>socket.off("active user update") as any;
+			return ()=>socket.off("active user request") as any;
 		}
 	},[socket,location.pathname]);
 	return (
