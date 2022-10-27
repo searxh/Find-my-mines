@@ -163,7 +163,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 							payload: newFlags,
 						});
 					}
-				}, 500);
+				}, 1000);
 			});
 		} else {
 			setTimeout(() => {
