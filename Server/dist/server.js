@@ -358,7 +358,7 @@ socketIO.on("connection", (socket) => {
         console.log("Unmatching request", user);
         removeUser(user, (roomID) => socket.leave(roomID));
     });
-    socket.on("invite request", ({ senderName, receiverName, inviteMessage }) => {
+    socket.on("invite request", ({ senderName, receiverName, inviteMessage, }) => {
         const info = generateGameInfo("invitation");
         addInvitation(info.roomID, {
             roomID: info.roomID,
@@ -424,6 +424,20 @@ socketIO.on("connection", (socket) => {
         socketIO.emit("active user update", activeUsers);
         console.log(Object.keys(activeUsers).length + " users are registered");
     });
+    socket.on("chat request", ({ name, roomID }) => {
+        var _a;
+        //server selects and sends the chat history according to user status (online or in-game)
+        //chat histories are private (different roomID will not have access to each other's chat history)
+        //console.log("CHAT REQUEST ARG", name, roomID, activeUsers)
+        if (((_a = activeUsers[name]) === null || _a === void 0 ? void 0 : _a.inGame) && roomID !== undefined) {
+            socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
+        }
+        else {
+            socketIO
+                .except(gameInfos.map((gameInfo) => gameInfo.roomID))
+                .emit("chat update", chatHistory.global);
+        }
+    });
     socket.on("chat message", ({ msg, name, roomID, }) => {
         var _a;
         //server selects and sends the chat history according to user status (online or in-game)
@@ -444,20 +458,6 @@ socketIO.on("connection", (socket) => {
             .to(gameInfo.roomID)
             .emit("gameInfo update", resetRoom(gameInfo.roomID));
         socketIO.emit("active game update", resetRoom(gameInfo.roomID));
-    });
-    socket.on("chat request", ({ name, roomID }) => {
-        var _a;
-        //server selects and sends the chat history according to user status (online or in-game)
-        //chat histories are private (different roomID will not have access to each other's chat history)
-        //console.log("CHAT REQUEST ARG", name, roomID, activeUsers)
-        if (((_a = activeUsers[name]) === null || _a === void 0 ? void 0 : _a.inGame) && roomID !== undefined) {
-            socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
-        }
-        else {
-            socketIO
-                .except(gameInfos.map((gameInfo) => gameInfo.roomID))
-                .emit("chat update", chatHistory.global);
-        }
     });
     socket.on("select block", ({ index, roomID, name, }) => {
         const info = getGameInfo(roomID);
