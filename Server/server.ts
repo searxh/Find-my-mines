@@ -335,6 +335,7 @@ socketIO.of("/").adapter.on("leave-room", (roomID: string, id: string) => {
 				const counter = getCounter(roomID);
 				clearInterval(counter.countdown as ReturnType<typeof setInterval>);
 				console.log("CLEAN GAME INFO", roomID);
+				socketIO.emit("remove active game update", info);
 				cleanGameInfos();
 			}
 		}, 1500);
@@ -507,6 +508,12 @@ socketIO.on("connection", (socket: any) => {
 			}
 		}
 	);
+	socket.on("admin reset game", (gameInfo: GameInfoType) => {
+		socketIO
+			.to(gameInfo.roomID)
+			.emit("gameInfo update", resetRoom(gameInfo.roomID));
+		socketIO.emit("active game update", resetRoom(gameInfo.roomID));
+	});
 	socket.on(
 		"chat request",
 		({ name, roomID }: { name: string; roomID: string | undefined }) => {
@@ -579,6 +586,7 @@ socketIO.on("connection", (socket: any) => {
 			activeUsers[updatedUser].inGame = false;
 			socketIO.emit("active user update", activeUsers);
 		}
+
 		socket.leave(roomID);
 	});
 	socket.on("reconnect game", ({ roomID }: { roomID: string }) => {

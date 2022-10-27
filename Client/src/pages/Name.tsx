@@ -16,8 +16,12 @@ export default function Name() {
 				field: "name",
 				payload: nameRef.current.value,
 			});
-			nameRef.current.value = "";
-			navigate("menu");
+			if (nameRef.current.value.toLocaleLowerCase() === "admin") {
+				navigate("admin");
+			} else {
+				nameRef.current.value = "";
+				navigate("menu");
+			}
 		}
 	};
 	React.useEffect(() => {

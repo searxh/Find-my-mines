@@ -9,6 +9,7 @@ import {
 	SocketContextType,
 } from "./types";
 import { io } from "socket.io-client";
+import { info } from "console";
 
 export const SocketContext = createContext<SocketContextType>(
 	{} as SocketContextType
@@ -77,6 +78,34 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					type: "set",
 					field: "gameInfo",
 					payload: gameInfo,
+				});
+			});
+			socket.on("add active game update", (info: any) => {
+				dispatch({
+					type: "add game",
+
+					payload: info,
+				});
+			});
+			socket.on("remove active game update", (info: any) => {
+				dispatch({
+					type: "remove game",
+
+					payload: { gameInfo: info },
+				});
+			});
+			socket.on("active game update", (info: any) => {
+				dispatch({
+					type: "update game",
+
+					payload: { gameInfo: info },
+				});
+			});
+			socket.on("reset game", (info: any) => {
+				dispatch({
+					type: "reset game",
+
+					payload: { gameInfo: info },
 				});
 			});
 			socket.on("counter", (timer: number) => {

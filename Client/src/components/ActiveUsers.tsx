@@ -46,34 +46,36 @@ export default function ActiveUsers() {
 		<div className='flex-1 overflow-y-scroll'>
 			<div className='flex flex-col text-xl'>
 				{priorities.map((user: PriorityType) => {
-					return (
-						<div
-							className={` flex justify-between ${
-								user.inGame ? "text-yellow-400" : "text-green-400"
-							} p-2 rounded-full my-2 shadow-lg bg-neutral-800 border-[1px]`}
-							style={{
-								borderColor: getUserColor(activeUsers, user.name),
-							}}
-						>
+					if (user.name.toLocaleLowerCase() !== "admin") {
+						return (
 							<div
-								className={`h-4 w-4 ${
-									user.inGame ? "bg-yellow-400" : "bg-green-400"
-								} rounded-full my-auto mr-2`}
-							/>
-							<div
+								className={` flex justify-between ${
+									user.inGame ? "text-yellow-400" : "text-green-400"
+								} p-2 rounded-full my-2 shadow-lg bg-neutral-800 border-[1px]`}
 								style={{
-									color: getUserColor(activeUsers, user.name),
+									borderColor: getUserColor(activeUsers, user.name),
 								}}
-								className='my-auto brightness-125 text-xl'
 							>
-								{user.name.toString().toUpperCase()}
+								<div
+									className={`h-4 w-4 ${
+										user.inGame ? "bg-yellow-400" : "bg-green-400"
+									} rounded-full my-auto mr-2`}
+								/>
+								<div
+									style={{
+										color: getUserColor(activeUsers, user.name),
+									}}
+									className='my-auto brightness-125 text-xl'
+								>
+									{user.name.toString().toUpperCase()}
+								</div>
+								<div className='my-auto text-lg'>
+									{user.inGame ? "IN-GAME" : "ONLINE"}
+								</div>
+								<InviteButton user={user} />
 							</div>
-							<div className='my-auto text-lg'>
-								{user.inGame ? "IN-GAME" : "ONLINE"}
-							</div>
-							<InviteButton user={user} />
-						</div>
-					);
+						);
+					}
 				})}
 			</div>
 		</div>
