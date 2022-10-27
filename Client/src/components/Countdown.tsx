@@ -7,7 +7,9 @@ interface CountdownPropsType {
     callback:Function;
 }
 
-export default function Countdown({ seconds, trigger, callback }:CountdownPropsType) {
+export default function Countdown({ 
+    seconds, trigger, callback
+}:CountdownPropsType) {
     const [ endTime, setEndTime ] = React.useState<Date>(addSeconds(Date.now(),seconds));
     const [ countdown, setCountdown ] = React.useState<number>(seconds);
     const [ start, setStart ] = React.useState<boolean>(false);

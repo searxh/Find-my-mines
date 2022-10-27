@@ -5,6 +5,7 @@ import RequestReceiver from '../components/RequestReceiver';
 import ReplyReceiver from '../components/ReplyReceiver';
 import MatchingButton from '../components/MatchingButton';
 import SocketID from '../components/SocketID';
+import MessageTextArea from '../components/MessageTextArea';
 
 export default function Menu() {
     return (

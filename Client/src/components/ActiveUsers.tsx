@@ -31,30 +31,41 @@ export default function ActiveUsers() {
 	React.useEffect(() => {
 		//in the case where active users fail to update
 		if (socket !== undefined) {
-			socket.emit("active user update", (activeUsers: any) => {
-				const users: Array<UserType> = Object.values(activeUsers);
+			socket.emit("active user request",(activeUsers: any)=>{
+				const users:Array<UserType> = Object.values(activeUsers)
 				dispatch({
 					type: "set",
 					field: "activeUsers",
 					payload: users,
 				});
 			});
-			return () => socket.off("active user update") as any;
+			return ()=>socket.off("active user request") as any;
 		}
 	}, [socket, location.pathname]);
 	return (
 		<div className='flex-1 overflow-y-scroll'>
 			<div className='flex flex-col text-xl'>
 				{priorities.map((user: PriorityType) => {
-					if (user.name.toLocaleLowerCase() !== "admin") {
-						return (
+        if (user.name.toLocaleLowerCase() !== "admin") {
+					return (
+						<div
+							className={`grid grid-cols-12 ${
+								user.inGame ? "text-yellow-400" : "text-green-400"
+							} p-2 rounded-full my-2 shadow-lg bg-neutral-800 border-[1px]`}
+							style={{
+								borderColor:getUserColor(activeUsers,user.name)
+							}}
+						>
 							<div
-								className={` flex justify-between ${
-									user.inGame ? "text-yellow-400" : "text-green-400"
-								} p-2 rounded-full my-2 shadow-lg bg-neutral-800 border-[1px]`}
+								className={`h-4 w-4 col-span-1 ${
+									user.inGame ? "bg-yellow-400" : "bg-green-400"
+								} rounded-full my-auto`}
+							/>
+							<div 
 								style={{
 									borderColor: getUserColor(activeUsers, user.name),
 								}}
+								className="col-span-3 my-auto brightness-125 text-xl"
 							>
 								<div
 									className={`h-4 w-4 ${
@@ -74,8 +85,15 @@ export default function ActiveUsers() {
 								</div>
 								<InviteButton user={user} />
 							</div>
-						);
-					}
+							<div className="col-span-5 my-auto text-lg">
+								{user.inGame ? "IN-GAME" : "ONLINE"}
+							</div>
+							<InviteButton 
+								user={user}
+								className="col-span-3"
+							/>
+						</div>
+					);
 				})}
 			</div>
 		</div>

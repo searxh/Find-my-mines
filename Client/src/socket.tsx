@@ -17,7 +17,7 @@ export const SocketContext = createContext<SocketContextType>(
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 	const { global_state, dispatch } = React.useContext(GlobalContext);
-	const { gameInfo, name, flags } = global_state;
+	const { gameInfo, name, flags, activeUsers } = global_state;
 	const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
 	const [reconnectInGame, setReconnectInGame] = React.useState<boolean>(false);
 	const navigate = useNavigate();
@@ -43,14 +43,24 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: chat,
 				});
 			});
-			socket.on("active user update", (activeUsers: any) => {
-				const users: Array<UserType> = Object.values(activeUsers);
-				const newFlags = { ...flags, activeUsersInitialized: true };
+			socket.on("active user update", (activeUsersFromServer: any) => {
+				const users:Array<UserType> = Object.values(activeUsersFromServer)
+				const newFlags = { ...flags, activeUsersInitialized:true };
 				dispatch({
-					type: "multi-set",
-					field: ["activeUsers", "flags"],
-					payload: [users, newFlags],
-				});
+					type:"multi-set",
+					field:["activeUsers","flags"],
+					payload:[users, newFlags],
+				})
+				setTimeout(()=>{
+					if (JSON.stringify(activeUsers)!==JSON.stringify(activeUsersFromServer)) {
+						console.log('[RE-DISPATCH] ACTIVE USERS');
+						dispatch({
+							type: "set",
+							field: "activeUsers",
+							payload: users,
+						});
+					}
+				},500)
 			});
 			socket.on("start game", (gameInfo: GameInfoType) => {
 				const newFlags = {
@@ -153,6 +163,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				//in the case where dispatch fails
 				setTimeout(() => {
 					if (flags.resultVisible !== true && flags.userLeft !== true) {
+						console.log('[RE-DISPATCH] OTHER USER LEFT');
 						dispatch({
 							type: "set",
 							field: "flags",

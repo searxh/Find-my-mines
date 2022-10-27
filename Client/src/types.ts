@@ -19,6 +19,11 @@ export interface UserType {
 }
 export interface InviteStorageType {
 	senderName: string;
+	inviteMessage: string;
+}
+export interface InviteMessageType {
+	message: string;
+	ready: boolean;
 }
 export interface PriorityType {
 	name: string;
@@ -29,6 +34,7 @@ export interface PriorityType {
 export interface InviteInfoType {
 	senderName?: string;
 	roomID?: string;
+	inviteMessage?: string;
 	error?: boolean;
 }
 export interface GameInfoType {
@@ -40,12 +46,19 @@ export interface GameInfoType {
 	minesArray: Array<BlockType>;
 }
 export interface FlagsType {
+	//shows whether active users are present in the server or not (sent from server)
 	activeUsersInitialized: boolean;
+	//controls if matching is allowed or not
 	canMatch: boolean;
+	//shows if the other user has left or not
 	userLeft: boolean;
+	//if the result should be visible has left or not
 	resultVisible: boolean;
+	//controls whether the user is matching or not
 	isMatching: boolean;
+	//controls whether confirmation component is visible or not
 	confirmationVisible: boolean;
+	//controls visibility of confetti
 	confettiVisible: boolean;
 }
 interface MinesLeftKey {
