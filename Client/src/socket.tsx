@@ -9,7 +9,7 @@ import {
 	SocketContextType,
 } from "./types";
 import { io } from "socket.io-client";
-import isEqual from "lodash/isEqual"
+import isEqual from "lodash/isEqual";
 
 export const SocketContext = createContext<SocketContextType>(
 	{} as SocketContextType
@@ -44,23 +44,23 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				});
 			});
 			socket.on("active user update", (activeUsersFromServer: any) => {
-				const users:Array<UserType> = Object.values(activeUsersFromServer)
-				const newFlags = { ...flags, activeUsersInitialized:true };
+				const users: Array<UserType> = Object.values(activeUsersFromServer);
+				const newFlags = { ...flags, activeUsersInitialized: true };
 				dispatch({
-					type:"multi-set",
-					field:["activeUsers","flags"],
-					payload:[users, newFlags],
-				})
-				setTimeout(()=>{
-					if (isEqual(activeUsers, users)) {
-						console.log('[RE-DISPATCH] ACTIVE USERS');
+					type: "multi-set",
+					field: ["activeUsers", "flags"],
+					payload: [users, newFlags],
+				});
+				setTimeout(() => {
+					if (!isEqual(activeUsers, users)) {
+						console.log("[RE-DISPATCH] ACTIVE USERS");
 						dispatch({
 							type: "set",
 							field: "activeUsers",
 							payload: users,
 						});
 					}
-				},500)
+				}, 500);
 			});
 			socket.on("start game", (gameInfo: GameInfoType) => {
 				const newFlags = {
@@ -156,7 +156,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				//in the case where dispatch fails
 				setTimeout(() => {
 					if (flags.resultVisible !== true && flags.userLeft !== true) {
-						console.log('[RE-DISPATCH] OTHER USER LEFT');
+						console.log("[RE-DISPATCH] OTHER USER LEFT");
 						dispatch({
 							type: "set",
 							field: "flags",
@@ -173,7 +173,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				} else if (location.pathname.includes("menu") && socket === undefined) {
 					console.log("setting socket");
 					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
-				} else if (location.pathname.includes("admin") && socket === undefined) {
+				} else if (
+					location.pathname.includes("admin") &&
+					socket === undefined
+				) {
 					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
 				}
 			}, 300);
