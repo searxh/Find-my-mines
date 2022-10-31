@@ -1,4 +1,5 @@
 import React from "react";
+import { playAudio } from "../lib/utility/Audio";
 import { SocketContext } from "../socket";
 import { GlobalContext } from "../states";
 
@@ -12,6 +13,7 @@ export default function ResumeButton() {
 				roomID: gameInfo.roomID,
 				requester: name,
 			});
+			playAudio("pop.wav");
 		}
 	};
 	return (

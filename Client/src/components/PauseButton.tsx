@@ -1,4 +1,5 @@
 import React from "react";
+import { playAudio } from "../lib/utility/Audio";
 import { SocketContext } from "../socket";
 import { GlobalContext } from "../states";
 
@@ -12,16 +13,17 @@ export default function PauseButton() {
 				roomID: gameInfo.roomID,
 				requester: name,
 			});
+			playAudio("pop.wav");
 		}
 	};
 	return (
 		<button
 			onClick={handleOnClick}
-			className={`absolute flex right-0 left-0 -bottom-16 bg-neutral-500 rounded-full p-2 hover:scale-105 
-            transition w-[30%] m-auto text-white text-2xl font-righteous shadow-md
+			className={`absolute flex right-0 left-0 -bottom-14 bg-yellow-600 rounded-full p-2 hover:scale-105 
+            transition w-[30%] m-auto text-white text-lg font-righteous shadow-md
             justify-center`}
 		>
-			Pause
+			PAUSE
 		</button>
 	);
 }

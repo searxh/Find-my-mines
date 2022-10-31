@@ -26,8 +26,8 @@ export default function ConfettiButton() {
 		<button
 			disabled={cooldown}
 			onClick={handleOnClick}
-			className={`absolute flex right-5 -bottom-16 bg-pink-500 rounded-full p-2 hover:scale-105 
-            transition w-[30%] m-auto text-white text-2xl font-righteous shadow-md
+			className={`absolute flex right-5 -bottom-14 bg-pink-500 rounded-full p-2 hover:scale-105 
+            transition w-[30%] m-auto text-white text-lg font-righteous shadow-md
             justify-center ${cooldown ? "opacity-50" : "opacity-100"}`}
 		>
 			<div className="">CHEERS</div>
