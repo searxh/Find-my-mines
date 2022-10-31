@@ -253,8 +253,8 @@ let gameInfos = [
 app.get("/", function (res) {
     res.sendFile(__dirname + "/index.html");
 });
-http.listen(9000, "0.0.0.0", () => {
-    console.log("listening on *:9000");
+http.listen(7070, "0.0.0.0", () => {
+    console.log("listening on *:7070");
 });
 socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`${id} has joined room ${roomID}`);

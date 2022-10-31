@@ -168,16 +168,16 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 		} else {
 			setTimeout(() => {
 				if (location.pathname.includes("game") && socket === undefined) {
-					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
+					setSocket(io("http://" + process.env.REACT_APP_IP + ":7070"));
 					setReconnectInGame(true);
 				} else if (location.pathname.includes("menu") && socket === undefined) {
 					console.log("setting socket");
-					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
+					setSocket(io("http://" + process.env.REACT_APP_IP + ":7070"));
 				} else if (
 					location.pathname.includes("admin") &&
 					socket === undefined
 				) {
-					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
+					setSocket(io("http://" + process.env.REACT_APP_IP + ":7070"));
 				}
 			}, 300);
 		}
