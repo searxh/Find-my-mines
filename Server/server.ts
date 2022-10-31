@@ -288,7 +288,6 @@ socketIO.of("/").adapter.on("join-room", async (roomID: string, id: string) => {
 			socketIO.emit("active user update", activeUsers);
 			socketIO.to(info.roomID).emit("start game", info);
 			socketIO.emit("add active game update", info);
-			setTimeout(() => socketIO.emit("active user update", activeUsers), 300);
 			const counter = getCounter(info.roomID);
 			if (!counter.countdown) {
 				console.log("set countdown");
@@ -439,15 +438,11 @@ socketIO.on("connection", (socket: any) => {
 			});
 			//no invitation was found (expired)
 			if (roomID === undefined) {
-				setTimeout(
-					() =>
-						socketIO
-							.to(activeUsers[receiverName].id)
-							.emit("request incoming", { error: true }),
-					300
-				);
-				//tear down room because invitation was expired
-				socketIO.socketsLeave(roomID);
+				socketIO
+					.to(activeUsers[receiverName].id)
+					.emit("request incoming", { error: true }),
+					//tear down room because invitation was expired
+					socketIO.socketsLeave(roomID);
 				//manually expire all invitation of one sender (since invitation was successful)
 				expireInvitation(senderName);
 				//invitation was found
