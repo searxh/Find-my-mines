@@ -35,7 +35,7 @@ export default function Game() {
 			<Result />
 			<Pause />
 			<Backdrop />
-			<Confetti trigger={flags.confettiVisible} />
+			<Confetti />
 			<Confirmation
 				title="Are you sure you wish to surrender?"
 				content="You will lose and leave the game room immediately"
