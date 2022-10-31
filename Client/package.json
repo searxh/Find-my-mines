@@ -12,6 +12,7 @@
     "@types/react": "^18.0.18",
     "@types/react-dom": "^18.0.6",
     "autoprefixer": "^10.4.8",
+    "bad-words": "^3.0.4",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.2",
     "lodash": "^4.17.21",
