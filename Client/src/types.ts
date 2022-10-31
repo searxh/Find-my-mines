@@ -45,6 +45,11 @@ export interface GameInfoType {
 	scores: Array<number>;
 	minesArray: Array<BlockType>;
 }
+export interface EffectsType {
+	gifSize: string;
+	text: string;
+	points: number;
+}
 export interface FlagsType {
 	//shows whether active users are present in the server or not (sent from server)
 	activeUsersInitialized: boolean;
