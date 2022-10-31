@@ -576,6 +576,32 @@ socketIO.on("connection", (socket: any) => {
 			}
 		}
 	);
+	socket.on(
+		"pause/unpause",
+		({ roomID, requester }: { roomID: string; requester?: string }) => {
+			const counter = getCounter(roomID);
+			const info = getGameInfo(roomID);
+			console.log("COUNTER", counter);
+			if (!counter.countdown) {
+				//unpause
+				console.log("[UNPAUSE]", roomID, requester);
+				counter.countdown = setInterval(() => {
+					socketIO.to(info.roomID).emit("counter", info.timer);
+					info.timer--;
+					if (info.timer === -1) {
+						switchUser(info.roomID);
+						info.timer = 10;
+						socketIO.to(info.roomID).emit("gameInfo update", info);
+					}
+				}, 1000);
+			} else {
+				//pause
+				console.log("[PAUSE]", roomID, requester);
+				clearInterval(counter.countdown as ReturnType<typeof setInterval>);
+				counter.countdown = false;
+			}
+		}
+	);
 	socket.on("leave room request", (roomID: string) => {
 		const updatedUser = Object.keys(activeUsers).find(
 			(key) => activeUsers[key].id === socket.id
