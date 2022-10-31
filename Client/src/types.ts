@@ -60,6 +60,8 @@ export interface FlagsType {
 	confirmationVisible: boolean;
 	//controls visibility of confetti
 	confettiVisible: boolean;
+	//shows if game is paused or not
+	isPaused: boolean;
 }
 interface MinesLeftKey {
 	[key: string]: number;

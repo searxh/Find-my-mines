@@ -125,6 +125,14 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: newFlags,
 				});
 			});
+			socket.on("pause/unpause update", ({ pause }: { pause: boolean }) => {
+				const newFlags = { ...flags, isPaused: pause };
+				dispatch({
+					type: "set",
+					field: "flags",
+					payload: newFlags,
+				});
+			});
 			socket.on("end game", (gameInfo: GameInfoType) => {
 				dispatch({
 					type: "set",

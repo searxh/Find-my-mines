@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import Confetti from "../components/Confetti";
 import ConfettiButton from "../components/ConfettiButton";
 import PauseButton from "../components/PauseButton";
+import Pause from "../components/Pause";
 
 export default function Game() {
 	const { global_state, dispatch } = React.useContext(GlobalContext);
@@ -32,6 +33,7 @@ export default function Game() {
             bg-[url('../public/assets/images/bg.png')] flex-1 h-screen opacity-50"
 			/>
 			<Result />
+			<Pause />
 			<Backdrop />
 			<Confetti trigger={flags.confettiVisible} />
 			<Confirmation

@@ -513,12 +513,14 @@ socketIO.on("connection", (socket) => {
                     socketIO.to(info.roomID).emit("gameInfo update", info);
                 }
             }, 1000);
+            socketIO.to(info.roomID).emit("pause/unpause update", { pause: false });
         }
         else {
             //pause
             console.log("[PAUSE]", roomID, requester);
             clearInterval(counter.countdown);
             counter.countdown = false;
+            socketIO.to(info.roomID).emit("pause/unpause update", { pause: true });
         }
     });
     socket.on("leave room request", (roomID) => {

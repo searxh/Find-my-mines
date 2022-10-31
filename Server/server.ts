@@ -594,11 +594,13 @@ socketIO.on("connection", (socket: any) => {
 						socketIO.to(info.roomID).emit("gameInfo update", info);
 					}
 				}, 1000);
+				socketIO.to(info.roomID).emit("pause/unpause update", { pause: false });
 			} else {
 				//pause
 				console.log("[PAUSE]", roomID, requester);
 				clearInterval(counter.countdown as ReturnType<typeof setInterval>);
 				counter.countdown = false;
+				socketIO.to(info.roomID).emit("pause/unpause update", { pause: true });
 			}
 		}
 	);
