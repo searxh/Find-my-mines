@@ -253,8 +253,8 @@ let gameInfos = [
 app.get("/", function (res) {
     res.sendFile(__dirname + "/index.html");
 });
-http.listen(9000, "0.0.0.0", () => {
-    console.log("listening on *:9000");
+http.listen(7070, "0.0.0.0", () => {
+    console.log("listening on *:7070");
 });
 socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`${id} has joined room ${roomID}`);
@@ -270,7 +270,6 @@ socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 
             socketIO.emit("active user update", activeUsers);
             socketIO.to(info.roomID).emit("start game", info);
             socketIO.emit("add active game update", info);
-            setTimeout(() => socketIO.emit("active user update", activeUsers), 300);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
                 console.log("set countdown");
@@ -393,11 +392,11 @@ socketIO.on("connection", (socket) => {
         });
         //no invitation was found (expired)
         if (roomID === undefined) {
-            setTimeout(() => socketIO
+            socketIO
                 .to(activeUsers[receiverName].id)
-                .emit("request incoming", { error: true }), 300);
-            //tear down room because invitation was expired
-            socketIO.socketsLeave(roomID);
+                .emit("request incoming", { error: true }),
+                //tear down room because invitation was expired
+                socketIO.socketsLeave(roomID);
             //manually expire all invitation of one sender (since invitation was successful)
             expireInvitation(senderName);
             //invitation was found
@@ -496,6 +495,32 @@ socketIO.on("connection", (socket) => {
             switchUser(roomID);
             info.timer = 10;
             socketIO.to(roomID).emit("gameInfo update", info);
+        }
+    });
+    socket.on("pause/unpause", ({ roomID, requester }) => {
+        const counter = getCounter(roomID);
+        const info = getGameInfo(roomID);
+        console.log("COUNTER", counter);
+        if (!counter.countdown) {
+            //unpause
+            console.log("[UNPAUSE]", roomID, requester);
+            counter.countdown = setInterval(() => {
+                socketIO.to(info.roomID).emit("counter", info.timer);
+                info.timer--;
+                if (info.timer === -1) {
+                    switchUser(info.roomID);
+                    info.timer = 10;
+                    socketIO.to(info.roomID).emit("gameInfo update", info);
+                }
+            }, 1000);
+            socketIO.to(info.roomID).emit("pause/unpause update", { pause: false });
+        }
+        else {
+            //pause
+            console.log("[PAUSE]", roomID, requester);
+            clearInterval(counter.countdown);
+            counter.countdown = false;
+            socketIO.to(info.roomID).emit("pause/unpause update", { pause: true });
         }
     });
     socket.on("leave room request", (roomID) => {

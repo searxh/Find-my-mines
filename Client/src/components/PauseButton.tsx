@@ -1,38 +1,35 @@
 import React from "react";
-import { GlobalContext } from "../states";
 import { playAudio } from "../lib/utility/Audio";
-import { UserType } from "../types";
 import { SocketContext } from "../socket";
+import { GlobalContext } from "../states";
 import Countdown from "./Countdown";
 
-export default function ConfettiButton() {
+export default function PauseButton() {
 	const { socket } = React.useContext(SocketContext);
 	const { global_state } = React.useContext(GlobalContext);
 	const { gameInfo, name } = global_state;
 	const [cooldown, setCooldown] = React.useState<boolean>(false);
 	const handleOnClick = () => {
-		const target = gameInfo.users.find((user: UserType) => user.name !== name);
-		console.log("confetti to", target);
-		if (socket !== undefined && target !== undefined) {
+		if (socket !== undefined) {
 			setCooldown(true);
-			socket.emit("confetti", {
+			socket.emit("pause/unpause", {
 				roomID: gameInfo.roomID,
-				targetPlayer: target.name,
+				requester: name,
 			});
+			playAudio("pop.wav");
 		}
-		playAudio("pop.wav");
 	};
 	return (
 		<button
 			disabled={cooldown}
 			onClick={handleOnClick}
-			className={`absolute flex right-5 -bottom-14 bg-pink-500 rounded-full p-2 hover:scale-105 
+			className={`absolute flex right-0 left-0 -bottom-14 bg-yellow-600 rounded-full p-2 hover:scale-105 
             transition w-[30%] m-auto text-white text-lg font-righteous shadow-md hover:opacity-80
             justify-center ${cooldown ? "opacity-50" : "opacity-100"}`}
 		>
-			<div className="">CHEERS</div>
+			PAUSE
 			{cooldown && (
-				<div className="mx-2 text-pink-200">
+				<div className="mx-2 text-yellow-200">
 					<Countdown
 						seconds={5}
 						trigger={cooldown}

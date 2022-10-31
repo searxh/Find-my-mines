@@ -125,6 +125,14 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: newFlags,
 				});
 			});
+			socket.on("pause/unpause update", ({ pause }: { pause: boolean }) => {
+				const newFlags = { ...flags, isPaused: pause };
+				dispatch({
+					type: "set",
+					field: "flags",
+					payload: newFlags,
+				});
+			});
 			socket.on("end game", (gameInfo: GameInfoType) => {
 				dispatch({
 					type: "set",
@@ -168,16 +176,16 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 		} else {
 			setTimeout(() => {
 				if (location.pathname.includes("game") && socket === undefined) {
-					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
+					setSocket(io("http://" + process.env.REACT_APP_IP + ":7070"));
 					setReconnectInGame(true);
 				} else if (location.pathname.includes("menu") && socket === undefined) {
 					console.log("setting socket");
-					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
+					setSocket(io("http://" + process.env.REACT_APP_IP + ":7070"));
 				} else if (
 					location.pathname.includes("admin") &&
 					socket === undefined
 				) {
-					setSocket(io("http://" + process.env.REACT_APP_IP + ":9000"));
+					setSocket(io("http://" + process.env.REACT_APP_IP + ":7070"));
 				}
 			}, 300);
 		}

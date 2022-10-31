@@ -28,6 +28,7 @@ export const initialState: GlobalStateType = {
 		isMatching: false,
 		confirmationVisible: false,
 		confettiVisible: false,
+		isPaused: false,
 	},
 };
 
@@ -75,6 +76,7 @@ export function GlobalStateProvider({
 					save(newState);
 					return newState;
 				} else return state;
+
 			case "timer":
 				newState.gameInfo = { ...newState.gameInfo, timer: action.payload };
 				save(newState);
@@ -110,7 +112,7 @@ export function GlobalStateProvider({
 				const updatedGame = newState.activeGames.filter(
 					(games) => games.roomID === action.payload.gameInfo.roomID
 				);
-				console.log(updatedGame[0]);
+				console.log(updatedGame);
 				console.log(action.payload.gameInfo.scores);
 				updatedGame[0].scores = action.payload.gameInfo.scores;
 				const oldState = newState.activeGames.filter(
