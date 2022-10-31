@@ -117,14 +117,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: timer,
 				});
 			});
-			socket.on("confetti from sender", () => {
-				const newFlags = { ...flags, confettiVisible: true };
-				dispatch({
-					type: "set",
-					field: "flags",
-					payload: newFlags,
-				});
-			});
 			socket.on("pause/unpause update", ({ pause }: { pause: boolean }) => {
 				const newFlags = { ...flags, isPaused: pause };
 				dispatch({
