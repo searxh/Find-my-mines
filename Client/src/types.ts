@@ -63,8 +63,6 @@ export interface FlagsType {
 	isMatching: boolean;
 	//controls whether confirmation component is visible or not
 	confirmationVisible: boolean;
-	//controls visibility of confetti
-	confettiVisible: boolean;
 	//shows if game is paused or not
 	isPaused: boolean;
 }
