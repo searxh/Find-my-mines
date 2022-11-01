@@ -1,35 +1,11 @@
 import React from "react";
 import { createContext } from "react";
-import {
-	ActionType,
-	GameInfoType,
-	GlobalContextType,
-	GlobalStateType,
-} from "./types";
+import { initialState } from "./lib/defaults/Default";
+import { ActionType, GlobalContextType, GlobalStateType } from "./types";
 
 export const GlobalContext = createContext<GlobalContextType>(
 	{} as GlobalContextType
 );
-
-export const initialState: GlobalStateType = {
-	name: "",
-	chatHistory: [],
-	activeUsers: [],
-	pendingInvite: {},
-	receivedInvite: {},
-	gameInfo: {} as GameInfoType,
-	activeGames: [],
-	socketID: "",
-	flags: {
-		activeUsersInitialized: false,
-		canMatch: true,
-		resultVisible: false,
-		userLeft: false,
-		isMatching: false,
-		confirmationVisible: false,
-		isPaused: false,
-	},
-};
 
 const getSessionData = () => {
 	const state = sessionStorage.getItem("fmm-state");

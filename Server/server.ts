@@ -11,16 +11,67 @@ const Please = require("pleasejs");
 const addSeconds = require("date-fns/addSeconds");
 const compareAsc = require("date-fns/compareAsc");
 
-const WINNING_SCORE = 2100;
-const createMinesArray = () => {
+const defaultMinesConfig: MinesConfigType = {
+	Legendary: {
+		points: 700,
+		amount: 1,
+	},
+	Epic: {
+		points: 500,
+		amount: 2,
+	},
+	Rare: {
+		points: 300,
+		amount: 3,
+	},
+	Common: {
+		points: 200,
+		amount: 5,
+	},
+};
+
+let chatHistory: ChatHistoryType = {
+	global: [],
+	local: {},
+};
+let activeUsers: { [key: string]: UserType } = {};
+let invitation: { [key: string]: InvitationType } = {};
+let counters: Array<CounterType> = [];
+let gameInfos: Array<GameInfoType> = [];
+
+const getRandomInt = (min: number, max: number) => {
+	return Math.round(Math.random() * (max - min) + min);
+};
+const getUserColor = () => {
+	return Please.make_color();
+};
+const chooseRandomUser = () => {
+	return Math.random() > 0.5 ? 1 : 0;
+};
+const generateID = (): string => {
+	return uuid.v4();
+};
+const getTotalMines = (minesConfig: MinesConfigType) => {
+	return Object.values(minesConfig).reduce((sum, mine) => sum + mine.amount, 0);
+};
+const createMinesArray = ({
+	gridSize,
+	minesConfig,
+}: {
+	gridSize: number;
+	minesConfig: MinesConfigType;
+}) => {
 	let nums = new Set<number>();
-	while (nums.size < 11) {
-		nums.add(Math.floor(Math.random() * 36));
+	const totalMines = getTotalMines(minesConfig);
+	while (nums.size < totalMines) {
+		nums.add(Math.floor(Math.random() * gridSize));
 	}
-	const types = generateTypesIndexesFrom([1, 2, 3, 5], [...nums]);
+	const types = generateTypesIndexesFrom(getMinesAmountArray(minesConfig), [
+		...nums,
+	]);
 	const bombIndexes: Array<number> = [];
 	nums.forEach((num: number) => bombIndexes.push(num));
-	const arr: Array<BlockType> = [...Array(36)].map(
+	const arr: Array<BlockType> = [...Array(gridSize)].map(
 		(value: number, index: number) => {
 			return bombIndexes.includes(index)
 				? {
@@ -62,29 +113,30 @@ const generateTypesIndexesFrom = (
 	});
 	return types;
 };
-const getRandomInt = (min: number, max: number) => {
-	return Math.round(Math.random() * (max - min) + min);
-};
-const getUserColor = () => {
-	return Please.make_color();
-};
-const chooseRandomUser = () => {
-	return Math.random() > 0.5 ? 1 : 0;
-};
-const generateID = (): string => {
-	return uuid.v4();
-};
-const generateGameInfo = (type: string) => {
+const generateGameInfo = (
+	type: string,
+	gameOptions?: {
+		gridSize: number;
+		minesConfig: MinesConfigType;
+	}
+) => {
 	const id = generateID();
+	const config = gameOptions
+		? gameOptions.minesConfig
+		: { ...defaultMinesConfig };
+	const size = gameOptions ? gameOptions.gridSize : 36;
 	const newGameInfo: GameInfoType = {
 		roomID: id,
 		type: type,
 		timer: 10,
 		state: 1,
+		gridSize: size,
+		minesConfig: config,
+		winningScore: getWinningScore(config),
 		users: [] as Array<UserType>,
 		playingUser: chooseRandomUser(),
 		scores: [0, 0],
-		minesArray: createMinesArray(),
+		minesArray: createMinesArray({ gridSize: size, minesConfig: config }),
 	};
 	gameInfos.push(newGameInfo);
 	counters.push({
@@ -101,7 +153,10 @@ const resetRoom = (roomID: string) => {
 		info.timer = 10;
 		info.playingUser = info.scores[0] > info.scores[1] ? 0 : 1;
 		info.scores = [0, 0];
-		info.minesArray = createMinesArray();
+		info.minesArray = createMinesArray({
+			gridSize: info.gridSize,
+			minesConfig: info.minesConfig,
+		});
 	}
 	return info;
 };
@@ -136,10 +191,19 @@ const getCounter = (roomID: string) => {
 		(counterObj: CounterType) => counterObj.roomID === roomID
 	) as CounterType;
 };
+const getWinningScore = (minesConfig: MinesConfigType) => {
+	return Object.values(minesConfig).reduce(
+		(sum, mine) => sum + mine.points * mine.amount,
+		0
+	);
+};
+const getMinesAmountArray = (minesConfig: MinesConfigType) => {
+	return Object.values(minesConfig).map((mine) => mine.amount);
+};
 const removeUser = (user: UserType, callback: Function) => {
 	let info = gameInfos.find((infoObj: GameInfoType) => {
 		if (
-			infoObj.scores[0] + infoObj.scores[1] !== WINNING_SCORE &&
+			infoObj.scores[0] + infoObj.scores[1] !== infoObj.winningScore &&
 			infoObj.type === "matching"
 		) {
 			return (
@@ -163,7 +227,7 @@ const removeUser = (user: UserType, callback: Function) => {
 const cleanGameInfos = () => {
 	gameInfos = gameInfos.filter((gameInfo: GameInfoType) => {
 		if (
-			gameInfo.scores[0] + gameInfo.scores[1] === WINNING_SCORE ||
+			gameInfo.scores[0] + gameInfo.scores[1] === gameInfo.winningScore ||
 			gameInfo.state === 0
 		) {
 			delete chatHistory.local[gameInfo.roomID];
@@ -181,7 +245,7 @@ const switchUser = (roomID: string) => {
 };
 const checkEndGame = (roomID: string) => {
 	const info = getGameInfo(roomID);
-	return info.scores[0] + info.scores[1] === WINNING_SCORE;
+	return info.scores[0] + info.scores[1] === info.winningScore;
 };
 const addInvitation = (key: string, value: InvitationType) => {
 	invitation[key] = value;
@@ -236,35 +300,6 @@ const getMostRecentInvitation = (senderName: string, receiverName: string) => {
 		return;
 	}
 };
-
-let chatHistory: ChatHistoryType = {
-	global: [],
-	local: {},
-};
-let activeUsers: { [key: string]: UserType } = {};
-let invitation: { [key: string]: InvitationType } = {};
-const initialRoomID = generateID();
-chatHistory.local[initialRoomID] = [];
-let counters: Array<CounterType> = [
-	{
-		roomID: initialRoomID,
-		countdown: false,
-	},
-];
-let gameInfos: Array<GameInfoType> = [
-	{
-		roomID: initialRoomID,
-		//state 0 = inactive, state 1 = active but no countdown
-		//state 2 = active and countdown
-		state: 1,
-		type: "matching",
-		timer: 10,
-		users: [] as Array<UserType>,
-		playingUser: chooseRandomUser() as number,
-		scores: [0, 0],
-		minesArray: createMinesArray() as Array<BlockType>,
-	},
-];
 
 app.get("/", function (res: any) {
 	res.sendFile(__dirname + "/index.html");
@@ -360,7 +395,7 @@ socketIO.on("connection", (socket: any) => {
 				const info = gameInfos[i];
 				const sockets = await socketIO.in(info.roomID).fetchSockets();
 				if (
-					info.scores[0] + info.scores[1] !== WINNING_SCORE &&
+					info.scores[0] + info.scores[1] !== info.winningScore &&
 					sockets.length < 2 &&
 					info.users.length < 2 &&
 					info.type === "matching"
@@ -385,12 +420,14 @@ socketIO.on("connection", (socket: any) => {
 			senderName,
 			receiverName,
 			inviteMessage,
+			gameOptions,
 		}: {
 			senderName: string;
 			receiverName: string;
 			inviteMessage: string;
+			gameOptions: GameOptionsType;
 		}) => {
-			const info = generateGameInfo("invitation");
+			const info = generateGameInfo("invitation", gameOptions);
 			addInvitation(info.roomID, {
 				roomID: info.roomID,
 				senderName: senderName,
@@ -542,25 +579,8 @@ socketIO.on("connection", (socket: any) => {
 			info.minesArray[index].selected = true;
 			info.minesArray[index].selectedBy = name;
 			if (info.minesArray[index].value === 1) {
-				let score = 0;
-				switch (info.minesArray[index].type) {
-					case "Legendary":
-						score = 400;
-						break;
-					case "Epic":
-						score = 300;
-						break;
-					case "Rare":
-						score = 200;
-						break;
-					case "Common":
-						score = 100;
-						break;
-					default:
-						console.log("[ERROR] SELECT BLOCK NO TYPE");
-						break;
-				}
-				info.scores[info.playingUser] += score;
+				info.scores[info.playingUser] +=
+					info.minesConfig[info.minesArray[index].type as string].points;
 				socketIO.emit("active game update", info);
 			}
 			if (checkEndGame(roomID)) {
@@ -658,6 +678,16 @@ socketIO.on("connection", (socket: any) => {
 		socketIO.emit("active user update", activeUsers);
 	});
 });
+interface MinesConfigType {
+	[key: string]: {
+		points: number;
+		amount: number;
+	};
+}
+interface GameOptionsType {
+	gridSize: number;
+	minesConfig: MinesConfigType;
+}
 interface MessageType {
 	from: string;
 	message: string;
@@ -687,6 +717,9 @@ interface GameInfoType {
 	type: string;
 	state: number;
 	users: Array<UserType>;
+	gridSize: number;
+	winningScore: number;
+	minesConfig: MinesConfigType;
 	playingUser: number;
 	scores: Array<number>;
 	minesArray: Array<BlockType>;

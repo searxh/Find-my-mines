@@ -1,5 +1,11 @@
 import { Dispatch } from "react";
 import { Socket } from "socket.io-client";
+export interface MinesConfigType {
+	[key: string]: {
+		points: number;
+		amount: number;
+	};
+}
 export interface MessageType {
 	from: string;
 	message: string;
@@ -23,6 +29,10 @@ export interface InviteStorageType {
 }
 export interface InviteMessageType {
 	message: string;
+	gameOptions: {
+		gridSize: number;
+		minesConfig: MinesConfigType;
+	};
 	ready: boolean;
 }
 export interface PriorityType {
@@ -40,7 +50,12 @@ export interface InviteInfoType {
 export interface GameInfoType {
 	roomID: string;
 	timer: number;
+	type: string;
+	state: number;
 	users: Array<UserType>;
+	gridSize: number;
+	winningScore: number;
+	minesConfig: MinesConfigType;
 	playingUser: number;
 	scores: Array<number>;
 	minesArray: Array<BlockType>;
@@ -70,10 +85,10 @@ interface MinesLeftKey {
 	[key: string]: number;
 }
 export interface MinesLeftType extends MinesLeftKey {
-	legendary: number;
-	epic: number;
-	rare: number;
-	common: number;
+	Legendary: number;
+	Epic: number;
+	Rare: number;
+	Common: number;
 }
 interface GlobalStateKeys {
 	[key: string]: any;
