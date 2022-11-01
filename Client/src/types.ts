@@ -50,7 +50,12 @@ export interface InviteInfoType {
 export interface GameInfoType {
 	roomID: string;
 	timer: number;
+	type: string;
+	state: number;
 	users: Array<UserType>;
+	gridSize: number;
+	winningScore: number;
+	minesConfig: MinesConfigType;
 	playingUser: number;
 	scores: Array<number>;
 	minesArray: Array<BlockType>;
