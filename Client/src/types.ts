@@ -29,6 +29,10 @@ export interface InviteStorageType {
 }
 export interface InviteMessageType {
 	message: string;
+	gameOptions: {
+		gridSize: number;
+		minesConfig: MinesConfigType;
+	};
 	ready: boolean;
 }
 export interface PriorityType {

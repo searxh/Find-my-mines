@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction } from "react";
 import { InviteMessageType } from "../types";
 import { playAudio } from "../lib/utility/Audio";
 import filter from "bad-words";
+import { defaultMinesConfig } from "../lib/defaults/Default";
 
 interface MessageTextAreaPropsType {
 	setInviteMessage: Dispatch<SetStateAction<InviteMessageType>>;
@@ -23,6 +24,10 @@ export default function MessageTextArea({
 		if (textAreaRef.current !== null) {
 			setInviteMessage({
 				message: new filter().clean(textAreaRef.current.value),
+				gameOptions: {
+					gridSize: 36,
+					minesConfig: defaultMinesConfig,
+				},
 				ready: true,
 			});
 			textAreaRef.current.value = "";
