@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction } from "react";
 import { InviteMessageType } from "../types";
 import { playAudio } from "../lib/utility/Audio";
 import filter from "bad-words";
-import { defaultMinesConfig } from "../lib/defaults/Default";
+import { defaultGridSize, defaultMinesConfig } from "../lib/defaults/Default";
 
 interface MessageTextAreaPropsType {
 	setInviteMessage: Dispatch<SetStateAction<InviteMessageType>>;
@@ -15,22 +15,24 @@ export default function PreInviteOptions({
 	visible,
 	setPreInviteOptionsVisible,
 }: MessageTextAreaPropsType) {
+	const gridSizeRef = React.useRef<HTMLInputElement>(null);
 	const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 	const handleOnClose = () => {
 		playAudio("pop.wav");
 		setPreInviteOptionsVisible(false);
 	};
 	const handleOnClick = () => {
-		if (textAreaRef.current !== null) {
+		if (textAreaRef.current !== null && gridSizeRef.current !== null) {
 			setInviteMessage({
 				message: new filter().clean(textAreaRef.current.value),
 				gameOptions: {
-					gridSize: 36,
+					gridSize: Number(gridSizeRef.current.value),
 					minesConfig: defaultMinesConfig,
 				},
 				ready: true,
 			});
 			textAreaRef.current.value = "";
+			gridSizeRef.current.value = defaultGridSize.toString();
 			handleOnClose();
 		}
 	};
@@ -47,8 +49,19 @@ export default function PreInviteOptions({
 				X
 			</button>
 			<div className="flex flex-1 flex-col m-auto h-full justify-evenly">
-				<div className="text-green-400 text-3xl font-righteous mb-2">
-					INVITE MESSAGE
+				<div className="text-neutral-300 text-3xl font-righteous mb-2">
+					INVITE OPTIONS
+				</div>
+				<div className="p-2">
+					GRID SIZE:
+					<input
+						ref={gridSizeRef}
+						className="rounded-full text-center text-lg bg-neutral-700 bg-opacity-50 mx-2"
+						type="number"
+						defaultValue={defaultGridSize}
+						max={10}
+						min={2}
+					/>
 				</div>
 				<textarea
 					placeholder="What do you want to say to the other player?"

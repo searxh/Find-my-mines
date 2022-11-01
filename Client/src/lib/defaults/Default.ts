@@ -51,10 +51,12 @@ export const initialMinesLeftObj = {
 	common: 5,
 };
 
+export const defaultGridSize = 6;
+
 export const initialInviteMessage: InviteMessageType = {
 	message: "",
 	gameOptions: {
-		gridSize: 36,
+		gridSize: defaultGridSize * defaultGridSize,
 		minesConfig: defaultMinesConfig,
 	},
 	ready: false,
