@@ -1,4 +1,5 @@
 import React from "react";
+import { defaultMinesConfig } from "../lib/defaults/Default";
 import { EffectsType } from "../types";
 interface FoundMineEffectPropsType {
 	minesType: string | null;
@@ -22,28 +23,28 @@ export default function FoundMineEffect({
 				setEffects({
 					gifSize: "scale-[400%] left-4 top-3",
 					text: "text-3xl text-yellow-500 -right-48",
-					points: 400,
+					points: defaultMinesConfig["Legendary"].points,
 				});
 				break;
 			case "Epic":
 				setEffects({
 					gifSize: "scale-[300%] left-4 top-3",
 					text: "text-2xl text-red-500 -right-28",
-					points: 300,
+					points: defaultMinesConfig["Epic"].points,
 				});
 				break;
 			case "Rare":
 				setEffects({
 					gifSize: "scale-[200%] left-3 top-1",
 					text: "text-xl text-cyan-400 -right-24",
-					points: 200,
+					points: defaultMinesConfig["Rare"].points,
 				});
 				break;
 			case "Common":
 				setEffects({
 					gifSize: "scale-[100%] left-1 top-1",
 					text: "text-lg text-neutral-400 -right-20",
-					points: 100,
+					points: defaultMinesConfig["Common"].points,
 				});
 				break;
 			default:
