@@ -4,7 +4,7 @@ import { SocketContext } from "../socket";
 import { GlobalContext } from "../states";
 import { InviteMessageType, PriorityType, UserType } from "../types";
 import Countdown from "./Countdown";
-import MessageTextArea from "./MessageTextArea";
+import PreInviteOptions from "./PreInviteOptions";
 import { initialInviteMessage } from "../lib/defaults/Default";
 
 interface InviteButtonPropsType {
@@ -95,7 +95,7 @@ export default function InviteButton({
 	}, [pendingInvite]);
 	return user.name !== name ? (
 		<>
-			<MessageTextArea
+			<PreInviteOptions
 				setInviteMessage={setInviteMessage}
 				visible={messageTextAreaVisible}
 				setMessageTextAreaVisible={setMessageTextAreaVisible}

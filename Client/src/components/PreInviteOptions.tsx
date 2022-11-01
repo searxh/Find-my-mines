@@ -10,7 +10,7 @@ interface MessageTextAreaPropsType {
 	setMessageTextAreaVisible: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function MessageTextArea({
+export default function PreInviteOptions({
 	setInviteMessage,
 	visible,
 	setMessageTextAreaVisible,
