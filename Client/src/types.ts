@@ -85,10 +85,10 @@ interface MinesLeftKey {
 	[key: string]: number;
 }
 export interface MinesLeftType extends MinesLeftKey {
-	legendary: number;
-	epic: number;
-	rare: number;
-	common: number;
+	Legendary: number;
+	Epic: number;
+	Rare: number;
+	Common: number;
 }
 interface GlobalStateKeys {
 	[key: string]: any;
