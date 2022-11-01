@@ -37,22 +37,34 @@ const defaultMinesConfig = {
         amount: 5,
     },
 };
-let minesConfig = Object.assign({}, defaultMinesConfig);
-const updateWinningScore = () => {
-    const newWinningScore = Object.values(minesConfig).reduce((sum, mine) => sum + mine.points * mine.amount, 0);
-    winningScore = newWinningScore;
+let chatHistory = {
+    global: [],
+    local: {},
 };
-const getMinesAmountArray = () => {
-    return Object.values(minesConfig).map((mine) => mine.amount);
+let activeUsers = {};
+let invitation = {};
+let counters = [];
+let gameInfos = [];
+const getRandomInt = (min, max) => {
+    return Math.round(Math.random() * (max - min) + min);
 };
-let winningScore = 0;
-let gridSize = 49;
-const createMinesArray = () => {
+const getUserColor = () => {
+    return Please.make_color();
+};
+const chooseRandomUser = () => {
+    return Math.random() > 0.5 ? 1 : 0;
+};
+const generateID = () => {
+    return uuid.v4();
+};
+const createMinesArray = ({ gridSize, minesConfig, }) => {
     let nums = new Set();
     while (nums.size < 11) {
         nums.add(Math.floor(Math.random() * gridSize));
     }
-    const types = generateTypesIndexesFrom(getMinesAmountArray(), [...nums]);
+    const types = generateTypesIndexesFrom(getMinesAmountArray(minesConfig), [
+        ...nums,
+    ]);
     const bombIndexes = [];
     nums.forEach((num) => bombIndexes.push(num));
     const arr = [...Array(gridSize)].map((value, index) => {
@@ -92,29 +104,21 @@ const generateTypesIndexesFrom = (amountArray, arr) => {
     });
     return types;
 };
-const getRandomInt = (min, max) => {
-    return Math.round(Math.random() * (max - min) + min);
-};
-const getUserColor = () => {
-    return Please.make_color();
-};
-const chooseRandomUser = () => {
-    return Math.random() > 0.5 ? 1 : 0;
-};
-const generateID = () => {
-    return uuid.v4();
-};
 const generateGameInfo = (type) => {
     const id = generateID();
+    const defaultConfig = Object.assign({}, defaultMinesConfig);
     const newGameInfo = {
         roomID: id,
         type: type,
         timer: 10,
         state: 1,
+        gridSize: 36,
+        minesConfig: defaultConfig,
+        winningScore: getWinningScore(defaultConfig),
         users: [],
         playingUser: chooseRandomUser(),
         scores: [0, 0],
-        minesArray: createMinesArray(),
+        minesArray: createMinesArray({ gridSize: 36, minesConfig: defaultConfig }),
     };
     gameInfos.push(newGameInfo);
     counters.push({
@@ -131,7 +135,10 @@ const resetRoom = (roomID) => {
         info.timer = 10;
         info.playingUser = info.scores[0] > info.scores[1] ? 0 : 1;
         info.scores = [0, 0];
-        info.minesArray = createMinesArray();
+        info.minesArray = createMinesArray({
+            gridSize: info.gridSize,
+            minesConfig: info.minesConfig,
+        });
     }
     return info;
 };
@@ -160,9 +167,15 @@ const getGameInfo = (roomID) => {
 const getCounter = (roomID) => {
     return counters.find((counterObj) => counterObj.roomID === roomID);
 };
+const getWinningScore = (minesConfig) => {
+    return Object.values(minesConfig).reduce((sum, mine) => sum + mine.points * mine.amount, 0);
+};
+const getMinesAmountArray = (minesConfig) => {
+    return Object.values(minesConfig).map((mine) => mine.amount);
+};
 const removeUser = (user, callback) => {
     let info = gameInfos.find((infoObj) => {
-        if (infoObj.scores[0] + infoObj.scores[1] !== winningScore &&
+        if (infoObj.scores[0] + infoObj.scores[1] !== infoObj.winningScore &&
             infoObj.type === "matching") {
             return (infoObj.users.find((userObj) => userObj.name === user.name) !== undefined);
         }
@@ -180,7 +193,7 @@ const removeUser = (user, callback) => {
 };
 const cleanGameInfos = () => {
     gameInfos = gameInfos.filter((gameInfo) => {
-        if (gameInfo.scores[0] + gameInfo.scores[1] === winningScore ||
+        if (gameInfo.scores[0] + gameInfo.scores[1] === gameInfo.winningScore ||
             gameInfo.state === 0) {
             delete chatHistory.local[gameInfo.roomID];
             return false;
@@ -198,7 +211,7 @@ const switchUser = (roomID) => {
 };
 const checkEndGame = (roomID) => {
     const info = getGameInfo(roomID);
-    return info.scores[0] + info.scores[1] === winningScore;
+    return info.scores[0] + info.scores[1] === info.winningScore;
 };
 const addInvitation = (key, value) => {
     invitation[key] = value;
@@ -249,40 +262,11 @@ const getMostRecentInvitation = (senderName, receiverName) => {
         return;
     }
 };
-let chatHistory = {
-    global: [],
-    local: {},
-};
-let activeUsers = {};
-let invitation = {};
-const initialRoomID = generateID();
-chatHistory.local[initialRoomID] = [];
-let counters = [
-    {
-        roomID: initialRoomID,
-        countdown: false,
-    },
-];
-let gameInfos = [
-    {
-        roomID: initialRoomID,
-        //state 0 = inactive, state 1 = active but no countdown
-        //state 2 = active and countdown
-        state: 1,
-        type: "matching",
-        timer: 10,
-        users: [],
-        playingUser: chooseRandomUser(),
-        scores: [0, 0],
-        minesArray: createMinesArray(),
-    },
-];
 app.get("/", function (res) {
     res.sendFile(__dirname + "/index.html");
 });
 http.listen(7070, "0.0.0.0", () => {
     console.log("listening on *:7070");
-    updateWinningScore();
 });
 socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`${id} has joined room ${roomID}`);
@@ -367,7 +351,7 @@ socketIO.on("connection", (socket) => {
             for (let i = 0; i < gameInfos.length; i++) {
                 const info = gameInfos[i];
                 const sockets = yield socketIO.in(info.roomID).fetchSockets();
-                if (info.scores[0] + info.scores[1] !== winningScore &&
+                if (info.scores[0] + info.scores[1] !== info.winningScore &&
                     sockets.length < 2 &&
                     info.users.length < 2 &&
                     info.type === "matching") {
@@ -492,7 +476,7 @@ socketIO.on("connection", (socket) => {
         info.minesArray[index].selectedBy = name;
         if (info.minesArray[index].value === 1) {
             info.scores[info.playingUser] +=
-                minesConfig[info.minesArray[index].type].points;
+                info.minesConfig[info.minesArray[index].type].points;
             socketIO.emit("active game update", info);
         }
         if (checkEndGame(roomID)) {

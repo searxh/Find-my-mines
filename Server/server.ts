@@ -30,26 +30,41 @@ const defaultMinesConfig: MinesConfigType = {
 	},
 };
 
-let minesConfig: MinesConfigType = { ...defaultMinesConfig };
-const updateWinningScore = () => {
-	const newWinningScore = Object.values(minesConfig).reduce(
-		(sum, mine) => sum + mine.points * mine.amount,
-		0
-	);
-	winningScore = newWinningScore;
+let chatHistory: ChatHistoryType = {
+	global: [],
+	local: {},
 };
-const getMinesAmountArray = () => {
-	return Object.values(minesConfig).map((mine) => mine.amount);
-};
-let winningScore = 0;
-let gridSize = 49;
+let activeUsers: { [key: string]: UserType } = {};
+let invitation: { [key: string]: InvitationType } = {};
+let counters: Array<CounterType> = [];
+let gameInfos: Array<GameInfoType> = [];
 
-const createMinesArray = () => {
+const getRandomInt = (min: number, max: number) => {
+	return Math.round(Math.random() * (max - min) + min);
+};
+const getUserColor = () => {
+	return Please.make_color();
+};
+const chooseRandomUser = () => {
+	return Math.random() > 0.5 ? 1 : 0;
+};
+const generateID = (): string => {
+	return uuid.v4();
+};
+const createMinesArray = ({
+	gridSize,
+	minesConfig,
+}: {
+	gridSize: number;
+	minesConfig: MinesConfigType;
+}) => {
 	let nums = new Set<number>();
 	while (nums.size < 11) {
 		nums.add(Math.floor(Math.random() * gridSize));
 	}
-	const types = generateTypesIndexesFrom(getMinesAmountArray(), [...nums]);
+	const types = generateTypesIndexesFrom(getMinesAmountArray(minesConfig), [
+		...nums,
+	]);
 	const bombIndexes: Array<number> = [];
 	nums.forEach((num: number) => bombIndexes.push(num));
 	const arr: Array<BlockType> = [...Array(gridSize)].map(
@@ -94,29 +109,21 @@ const generateTypesIndexesFrom = (
 	});
 	return types;
 };
-const getRandomInt = (min: number, max: number) => {
-	return Math.round(Math.random() * (max - min) + min);
-};
-const getUserColor = () => {
-	return Please.make_color();
-};
-const chooseRandomUser = () => {
-	return Math.random() > 0.5 ? 1 : 0;
-};
-const generateID = (): string => {
-	return uuid.v4();
-};
 const generateGameInfo = (type: string) => {
 	const id = generateID();
+	const defaultConfig = { ...defaultMinesConfig };
 	const newGameInfo: GameInfoType = {
 		roomID: id,
 		type: type,
 		timer: 10,
 		state: 1,
+		gridSize: 36,
+		minesConfig: defaultConfig,
+		winningScore: getWinningScore(defaultConfig),
 		users: [] as Array<UserType>,
 		playingUser: chooseRandomUser(),
 		scores: [0, 0],
-		minesArray: createMinesArray(),
+		minesArray: createMinesArray({ gridSize: 36, minesConfig: defaultConfig }),
 	};
 	gameInfos.push(newGameInfo);
 	counters.push({
@@ -133,7 +140,10 @@ const resetRoom = (roomID: string) => {
 		info.timer = 10;
 		info.playingUser = info.scores[0] > info.scores[1] ? 0 : 1;
 		info.scores = [0, 0];
-		info.minesArray = createMinesArray();
+		info.minesArray = createMinesArray({
+			gridSize: info.gridSize,
+			minesConfig: info.minesConfig,
+		});
 	}
 	return info;
 };
@@ -168,10 +178,19 @@ const getCounter = (roomID: string) => {
 		(counterObj: CounterType) => counterObj.roomID === roomID
 	) as CounterType;
 };
+const getWinningScore = (minesConfig: MinesConfigType) => {
+	return Object.values(minesConfig).reduce(
+		(sum, mine) => sum + mine.points * mine.amount,
+		0
+	);
+};
+const getMinesAmountArray = (minesConfig: MinesConfigType) => {
+	return Object.values(minesConfig).map((mine) => mine.amount);
+};
 const removeUser = (user: UserType, callback: Function) => {
 	let info = gameInfos.find((infoObj: GameInfoType) => {
 		if (
-			infoObj.scores[0] + infoObj.scores[1] !== winningScore &&
+			infoObj.scores[0] + infoObj.scores[1] !== infoObj.winningScore &&
 			infoObj.type === "matching"
 		) {
 			return (
@@ -195,7 +214,7 @@ const removeUser = (user: UserType, callback: Function) => {
 const cleanGameInfos = () => {
 	gameInfos = gameInfos.filter((gameInfo: GameInfoType) => {
 		if (
-			gameInfo.scores[0] + gameInfo.scores[1] === winningScore ||
+			gameInfo.scores[0] + gameInfo.scores[1] === gameInfo.winningScore ||
 			gameInfo.state === 0
 		) {
 			delete chatHistory.local[gameInfo.roomID];
@@ -213,7 +232,7 @@ const switchUser = (roomID: string) => {
 };
 const checkEndGame = (roomID: string) => {
 	const info = getGameInfo(roomID);
-	return info.scores[0] + info.scores[1] === winningScore;
+	return info.scores[0] + info.scores[1] === info.winningScore;
 };
 const addInvitation = (key: string, value: InvitationType) => {
 	invitation[key] = value;
@@ -269,42 +288,12 @@ const getMostRecentInvitation = (senderName: string, receiverName: string) => {
 	}
 };
 
-let chatHistory: ChatHistoryType = {
-	global: [],
-	local: {},
-};
-let activeUsers: { [key: string]: UserType } = {};
-let invitation: { [key: string]: InvitationType } = {};
-const initialRoomID = generateID();
-chatHistory.local[initialRoomID] = [];
-let counters: Array<CounterType> = [
-	{
-		roomID: initialRoomID,
-		countdown: false,
-	},
-];
-let gameInfos: Array<GameInfoType> = [
-	{
-		roomID: initialRoomID,
-		//state 0 = inactive, state 1 = active but no countdown
-		//state 2 = active and countdown
-		state: 1,
-		type: "matching",
-		timer: 10,
-		users: [] as Array<UserType>,
-		playingUser: chooseRandomUser() as number,
-		scores: [0, 0],
-		minesArray: createMinesArray() as Array<BlockType>,
-	},
-];
-
 app.get("/", function (res: any) {
 	res.sendFile(__dirname + "/index.html");
 });
 
 http.listen(7070, "0.0.0.0", () => {
 	console.log("listening on *:7070");
-	updateWinningScore();
 });
 
 socketIO.of("/").adapter.on("join-room", async (roomID: string, id: string) => {
@@ -393,7 +382,7 @@ socketIO.on("connection", (socket: any) => {
 				const info = gameInfos[i];
 				const sockets = await socketIO.in(info.roomID).fetchSockets();
 				if (
-					info.scores[0] + info.scores[1] !== winningScore &&
+					info.scores[0] + info.scores[1] !== info.winningScore &&
 					sockets.length < 2 &&
 					info.users.length < 2 &&
 					info.type === "matching"
@@ -576,7 +565,7 @@ socketIO.on("connection", (socket: any) => {
 			info.minesArray[index].selectedBy = name;
 			if (info.minesArray[index].value === 1) {
 				info.scores[info.playingUser] +=
-					minesConfig[info.minesArray[index].type as string].points;
+					info.minesConfig[info.minesArray[index].type as string].points;
 				socketIO.emit("active game update", info);
 			}
 			if (checkEndGame(roomID)) {
@@ -709,6 +698,9 @@ interface GameInfoType {
 	type: string;
 	state: number;
 	users: Array<UserType>;
+	gridSize: number;
+	winningScore: number;
+	minesConfig: MinesConfigType;
 	playingUser: number;
 	scores: Array<number>;
 	minesArray: Array<BlockType>;
