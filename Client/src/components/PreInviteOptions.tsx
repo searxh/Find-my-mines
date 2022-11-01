@@ -55,7 +55,7 @@ export default function PreInviteOptions({
 	return visible ? (
 		<div
 			className="absolute flex top-0 bottom-0 left-0 right-0 z-30
-        bg-black bg-opacity-80 rounded-3xl p-4 w-[50%] h-[70%] m-auto"
+        bg-black bg-opacity-80 rounded-3xl p-4 w-[50%] h-[80%] m-auto"
 		>
 			<button
 				onClick={handleOnClose}
