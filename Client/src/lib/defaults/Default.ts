@@ -20,6 +20,13 @@ export const defaultMinesConfig: MinesConfigType = {
 	},
 };
 
+export const initialMinesLeftObj = {
+	legendary: 1,
+	epic: 2,
+	rare: 3,
+	common: 5,
+};
+
 export const initialInviteMessage: InviteMessageType = {
 	message: "",
 	gameOptions: {
