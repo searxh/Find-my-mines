@@ -35,11 +35,15 @@ export default function PreInviteOptions({
 	const handleOnClick = () => {
 		if (textAreaRef.current !== null && gridSizeRef.current !== null) {
 			const size = Number(gridSizeRef.current.value);
+			const modifiedMinesConfig = { ...defaultMinesConfig };
+			Object.keys(minesAmount).forEach((key) => {
+				modifiedMinesConfig[key].amount = minesAmount[key];
+			});
 			setInviteOptions({
 				message: new filter().clean(textAreaRef.current.value),
 				gameOptions: {
 					gridSize: size * size,
-					minesConfig: defaultMinesConfig,
+					minesConfig: modifiedMinesConfig,
 				},
 				ready: true,
 			});

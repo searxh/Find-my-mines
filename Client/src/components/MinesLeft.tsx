@@ -19,8 +19,9 @@ export default function MinesLeft() {
 	);
 	React.useEffect(() => {
 		if (gameInfo.minesArray !== undefined) {
-			const minesLeftObj: MinesLeftType =
-				getMinesAmountArray(defaultMinesConfig);
+			const minesLeftObj: MinesLeftType = getMinesAmountArray(
+				gameInfo.minesConfig
+			);
 			gameInfo.minesArray.forEach((block: BlockType) => {
 				if (block.type !== null && block.selected) {
 					minesLeftObj[block.type] = minesLeftObj[block.type] - 1;
