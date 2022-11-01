@@ -416,12 +416,14 @@ socketIO.on("connection", (socket: any) => {
 			senderName,
 			receiverName,
 			inviteMessage,
+			gameOptions,
 		}: {
 			senderName: string;
 			receiverName: string;
 			inviteMessage: string;
+			gameOptions: GameOptionsType;
 		}) => {
-			const info = generateGameInfo("invitation");
+			const info = generateGameInfo("invitation", gameOptions);
 			addInvitation(info.roomID, {
 				roomID: info.roomID,
 				senderName: senderName,
@@ -677,6 +679,10 @@ interface MinesConfigType {
 		points: number;
 		amount: number;
 	};
+}
+interface GameOptionsType {
+	gridSize: number;
+	minesConfig: MinesConfigType;
 }
 interface MessageType {
 	from: string;
