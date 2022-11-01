@@ -23,7 +23,7 @@ export default function InviteButton({
 	const [trigger, setTrigger] = React.useState<boolean>(false);
 	const [inviteMessage, setInviteMessage] =
 		React.useState<InviteMessageType>(initialInviteMessage);
-	const [messageTextAreaVisible, setMessageTextAreaVisible] =
+	const [preInviteOptionsVisible, setPreInviteOptionsVisible] =
 		React.useState<boolean>(false);
 	//to make callback use the latest pendingInvite value
 	const pendingInviteRef = React.useRef<any>();
@@ -31,7 +31,7 @@ export default function InviteButton({
 
 	const handleOnClick = () => {
 		playAudio("pop.wav");
-		setMessageTextAreaVisible(true);
+		setPreInviteOptionsVisible(true);
 	};
 	const checkCanInvite = () => {
 		return (
@@ -97,8 +97,8 @@ export default function InviteButton({
 		<>
 			<PreInviteOptions
 				setInviteMessage={setInviteMessage}
-				visible={messageTextAreaVisible}
-				setMessageTextAreaVisible={setMessageTextAreaVisible}
+				visible={preInviteOptionsVisible}
+				setPreInviteOptionsVisible={setPreInviteOptionsVisible}
 			/>
 			<div className="relative">
 				<div

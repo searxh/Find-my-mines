@@ -7,18 +7,18 @@ import { defaultMinesConfig } from "../lib/defaults/Default";
 interface MessageTextAreaPropsType {
 	setInviteMessage: Dispatch<SetStateAction<InviteMessageType>>;
 	visible: boolean;
-	setMessageTextAreaVisible: Dispatch<SetStateAction<boolean>>;
+	setPreInviteOptionsVisible: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function PreInviteOptions({
 	setInviteMessage,
 	visible,
-	setMessageTextAreaVisible,
+	setPreInviteOptionsVisible,
 }: MessageTextAreaPropsType) {
 	const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 	const handleOnClose = () => {
 		playAudio("pop.wav");
-		setMessageTextAreaVisible(false);
+		setPreInviteOptionsVisible(false);
 	};
 	const handleOnClick = () => {
 		if (textAreaRef.current !== null) {
