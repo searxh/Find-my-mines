@@ -1,9 +1,10 @@
 import React, { Dispatch, SetStateAction } from "react";
-import { InviteMessageType } from "../types";
+import { InviteMessageType, MinesConfigType, MinesLeftType } from "../types";
 import { playAudio } from "../lib/utility/Audio";
 import filter from "bad-words";
 import { defaultGridSize, defaultMinesConfig } from "../lib/defaults/Default";
-
+import IncrementDecrementButton from "./IncrementDecrementButton";
+import Image from "./Image";
 interface PreInviteOptionsPropsType {
 	setInviteOptions: Dispatch<SetStateAction<InviteMessageType>>;
 	visible: boolean;
@@ -15,6 +16,16 @@ export default function PreInviteOptions({
 	visible,
 	setPreInviteOptionsVisible,
 }: PreInviteOptionsPropsType) {
+	const getMinesAmountArray = (minesConfig: MinesConfigType) => {
+		const minesLeftObj: MinesLeftType = {} as MinesLeftType;
+		Object.keys(minesConfig).forEach(
+			(key) => (minesLeftObj[key] = minesConfig[key].amount)
+		);
+		return minesLeftObj;
+	};
+	const [minesAmount, setMinesAmount] = React.useState<MinesLeftType>(
+		getMinesAmountArray(defaultMinesConfig)
+	);
 	const gridSizeRef = React.useRef<HTMLInputElement>(null);
 	const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 	const handleOnClose = () => {
@@ -40,7 +51,7 @@ export default function PreInviteOptions({
 	return visible ? (
 		<div
 			className="absolute flex top-0 bottom-0 left-0 right-0 z-30
-        bg-black bg-opacity-80 rounded-3xl p-4 w-[30%] h-1/2 m-auto"
+        bg-black bg-opacity-80 rounded-3xl p-4 w-[50%] h-[70%] m-auto"
 		>
 			<button
 				onClick={handleOnClose}
@@ -50,11 +61,11 @@ export default function PreInviteOptions({
 				X
 			</button>
 			<div className="flex flex-1 flex-col m-auto h-full justify-evenly">
-				<div className="text-neutral-300 text-3xl font-righteous mb-2">
+				<div className="text-cyan-400 text-3xl font-righteous mb-2">
 					INVITE OPTIONS
 				</div>
-				<div className="p-2">
-					GRID SIZE:
+				<div>
+					Grid size:
 					<input
 						ref={gridSizeRef}
 						className="rounded-full text-center text-lg bg-neutral-700 bg-opacity-50 mx-2"
@@ -64,6 +75,33 @@ export default function PreInviteOptions({
 						min={2}
 					/>
 				</div>
+				<div className="p-3">
+					{Object.keys(minesAmount).map((key) => {
+						return (
+							<div className="grid grid-cols-3 grid-flow-row justify-items-center">
+								<Image type={key} className="w-fit h-10 m-auto" />
+								<div className="text-base text-white m-auto">
+									{key} Mine Amount
+								</div>
+								<IncrementDecrementButton
+									stateChangeCallback={(num: number) => {
+										const newMinesAmount = { ...minesAmount };
+										newMinesAmount[key] = num;
+										setMinesAmount(newMinesAmount);
+									}}
+									initial={minesAmount[key]}
+									min={0}
+									max={10}
+									className="flex rounded-full bg-opacity-50 bg-neutral-700 w-fit p-0.5 my-0.5"
+									buttonClassName="w-7 h-7 rounded-full bg-neutral-300 opacity-20 hover:scale-110 
+									transition duration-200 hover:opacity-80 m-auto"
+									textClassName="m-auto px-5"
+									svgClassName="w-6 h-6 m-auto"
+								/>
+							</div>
+						);
+					})}
+				</div>
 				<textarea
 					placeholder="What do you want to say to the other player?"
 					ref={textAreaRef}
@@ -71,8 +109,8 @@ export default function PreInviteOptions({
                     rounded-3xl p-5 resize-none mb-3 text-center"
 				></textarea>
 				<button
-					className="basis-[10%] bg-green-600 p-2 rounded-full 
-                    hover:scale-105 transition text-white text-xl text-center"
+					className="basis-[10%] bg-green-600 p-2 rounded-full duration-300
+                    hover:scale-[102%] hover:opacity-80 transition text-white text-xl text-center"
 					onClick={handleOnClick}
 				>
 					Send Invite
