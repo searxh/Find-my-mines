@@ -17,7 +17,8 @@ export default function MinesGrid() {
 	return (
 		<div
 			style={{
-				gridTemplateColumns: "repeat(" + 6 + ", minmax(0,1fr))",
+				gridTemplateColumns:
+					"repeat(" + Math.sqrt(gameInfo.gridSize) + ", minmax(0,1fr))",
 			}}
 			className={`w-fit grid gap-2 m-auto p-5 rounded-3xl transition duration-500
         ${
@@ -66,8 +67,8 @@ function Block({ block, index }: { block: BlockType; index: number }) {
 				onClick={handleOnClick}
 				style={{
 					backgroundColor: getUserColor(activeUsers, block.selectedBy),
-					height: 30 / 6 + "rem",
-					width: 30 / 6 + "rem",
+					height: 30 / Math.sqrt(gameInfo.gridSize) + "rem",
+					width: 30 / Math.sqrt(gameInfo.gridSize) + "rem",
 				}}
 				className={`flex h-20 w-20 gap-2 transition duration-400 
                     ${

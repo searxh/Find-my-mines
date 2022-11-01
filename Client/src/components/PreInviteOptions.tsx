@@ -4,17 +4,17 @@ import { playAudio } from "../lib/utility/Audio";
 import filter from "bad-words";
 import { defaultGridSize, defaultMinesConfig } from "../lib/defaults/Default";
 
-interface MessageTextAreaPropsType {
-	setInviteMessage: Dispatch<SetStateAction<InviteMessageType>>;
+interface PreInviteOptionsPropsType {
+	setInviteOptions: Dispatch<SetStateAction<InviteMessageType>>;
 	visible: boolean;
 	setPreInviteOptionsVisible: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function PreInviteOptions({
-	setInviteMessage,
+	setInviteOptions,
 	visible,
 	setPreInviteOptionsVisible,
-}: MessageTextAreaPropsType) {
+}: PreInviteOptionsPropsType) {
 	const gridSizeRef = React.useRef<HTMLInputElement>(null);
 	const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 	const handleOnClose = () => {
@@ -23,10 +23,11 @@ export default function PreInviteOptions({
 	};
 	const handleOnClick = () => {
 		if (textAreaRef.current !== null && gridSizeRef.current !== null) {
-			setInviteMessage({
+			const size = Number(gridSizeRef.current.value);
+			setInviteOptions({
 				message: new filter().clean(textAreaRef.current.value),
 				gameOptions: {
-					gridSize: Number(gridSizeRef.current.value),
+					gridSize: size * size,
 					minesConfig: defaultMinesConfig,
 				},
 				ready: true,

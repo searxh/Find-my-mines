@@ -21,7 +21,7 @@ export default function InviteButton({
 	const { activeUsers, name, flags, receivedInvite, pendingInvite } =
 		global_state;
 	const [trigger, setTrigger] = React.useState<boolean>(false);
-	const [inviteMessage, setInviteMessage] =
+	const [inviteOptions, setInviteOptions] =
 		React.useState<InviteMessageType>(initialInviteMessage);
 	const [preInviteOptionsVisible, setPreInviteOptionsVisible] =
 		React.useState<boolean>(false);
@@ -40,11 +40,12 @@ export default function InviteButton({
 		);
 	};
 	React.useEffect(() => {
-		if (inviteMessage.ready) {
+		if (inviteOptions.ready) {
 			socket.emit("invite request", {
 				senderName: name,
 				receiverName: user.name,
-				inviteMessage: inviteMessage.message,
+				inviteMessage: inviteOptions.message,
+				gameOptions: inviteOptions.gameOptions,
 			});
 			setTrigger(true);
 			const newFlags = {
@@ -59,9 +60,9 @@ export default function InviteButton({
 				field: ["flags", "pendingInvite"],
 				payload: [newFlags, newPendingInvite],
 			});
-			setInviteMessage(initialInviteMessage);
+			setInviteOptions(initialInviteMessage);
 		}
-	}, [inviteMessage.ready]);
+	}, [inviteOptions.ready]);
 	React.useEffect(() => {
 		console.log("RECEIVED INVITES", Object.keys(receivedInvite));
 		if (Object.keys(receivedInvite).length !== 0) {
@@ -96,7 +97,7 @@ export default function InviteButton({
 	return user.name !== name ? (
 		<>
 			<PreInviteOptions
-				setInviteMessage={setInviteMessage}
+				setInviteOptions={setInviteOptions}
 				visible={preInviteOptionsVisible}
 				setPreInviteOptionsVisible={setPreInviteOptionsVisible}
 			/>
