@@ -104,21 +104,24 @@ const generateTypesIndexesFrom = (amountArray, arr) => {
     });
     return types;
 };
-const generateGameInfo = (type) => {
+const generateGameInfo = (type, gameOptions) => {
     const id = generateID();
-    const defaultConfig = Object.assign({}, defaultMinesConfig);
+    const config = gameOptions
+        ? gameOptions.minesConfig
+        : Object.assign({}, defaultMinesConfig);
+    const size = gameOptions ? gameOptions.gridSize : 36;
     const newGameInfo = {
         roomID: id,
         type: type,
         timer: 10,
         state: 1,
-        gridSize: 36,
-        minesConfig: defaultConfig,
-        winningScore: getWinningScore(defaultConfig),
+        gridSize: size,
+        minesConfig: config,
+        winningScore: getWinningScore(config),
         users: [],
         playingUser: chooseRandomUser(),
         scores: [0, 0],
-        minesArray: createMinesArray({ gridSize: 36, minesConfig: defaultConfig }),
+        minesArray: createMinesArray({ gridSize: size, minesConfig: config }),
     };
     gameInfos.push(newGameInfo);
     counters.push({
