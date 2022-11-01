@@ -19,16 +19,43 @@ const socketIO = require("socket.io")(http, {
 const Please = require("pleasejs");
 const addSeconds = require("date-fns/addSeconds");
 const compareAsc = require("date-fns/compareAsc");
-const WINNING_SCORE = 2100;
+const defaultMinesConfig = {
+    Legendary: {
+        points: 700,
+        amount: 1,
+    },
+    Epic: {
+        points: 500,
+        amount: 2,
+    },
+    Rare: {
+        points: 300,
+        amount: 3,
+    },
+    Common: {
+        points: 200,
+        amount: 5,
+    },
+};
+let minesConfig = Object.assign({}, defaultMinesConfig);
+const updateWinningScore = () => {
+    const newWinningScore = Object.values(minesConfig).reduce((sum, mine) => sum + mine.points * mine.amount, 0);
+    winningScore = newWinningScore;
+};
+const getMinesAmountArray = () => {
+    return Object.values(minesConfig).map((mine) => mine.amount);
+};
+let winningScore = 0;
+let gridSize = 49;
 const createMinesArray = () => {
     let nums = new Set();
     while (nums.size < 11) {
-        nums.add(Math.floor(Math.random() * 36));
+        nums.add(Math.floor(Math.random() * gridSize));
     }
-    const types = generateTypesIndexesFrom([1, 2, 3, 5], [...nums]);
+    const types = generateTypesIndexesFrom(getMinesAmountArray(), [...nums]);
     const bombIndexes = [];
     nums.forEach((num) => bombIndexes.push(num));
-    const arr = [...Array(36)].map((value, index) => {
+    const arr = [...Array(gridSize)].map((value, index) => {
         return bombIndexes.includes(index)
             ? {
                 selected: false,
@@ -135,7 +162,7 @@ const getCounter = (roomID) => {
 };
 const removeUser = (user, callback) => {
     let info = gameInfos.find((infoObj) => {
-        if (infoObj.scores[0] + infoObj.scores[1] !== WINNING_SCORE &&
+        if (infoObj.scores[0] + infoObj.scores[1] !== winningScore &&
             infoObj.type === "matching") {
             return (infoObj.users.find((userObj) => userObj.name === user.name) !== undefined);
         }
@@ -153,7 +180,7 @@ const removeUser = (user, callback) => {
 };
 const cleanGameInfos = () => {
     gameInfos = gameInfos.filter((gameInfo) => {
-        if (gameInfo.scores[0] + gameInfo.scores[1] === WINNING_SCORE ||
+        if (gameInfo.scores[0] + gameInfo.scores[1] === winningScore ||
             gameInfo.state === 0) {
             delete chatHistory.local[gameInfo.roomID];
             return false;
@@ -171,7 +198,7 @@ const switchUser = (roomID) => {
 };
 const checkEndGame = (roomID) => {
     const info = getGameInfo(roomID);
-    return info.scores[0] + info.scores[1] === WINNING_SCORE;
+    return info.scores[0] + info.scores[1] === winningScore;
 };
 const addInvitation = (key, value) => {
     invitation[key] = value;
@@ -255,6 +282,7 @@ app.get("/", function (res) {
 });
 http.listen(7070, "0.0.0.0", () => {
     console.log("listening on *:7070");
+    updateWinningScore();
 });
 socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`${id} has joined room ${roomID}`);
@@ -339,7 +367,7 @@ socketIO.on("connection", (socket) => {
             for (let i = 0; i < gameInfos.length; i++) {
                 const info = gameInfos[i];
                 const sockets = yield socketIO.in(info.roomID).fetchSockets();
-                if (info.scores[0] + info.scores[1] !== WINNING_SCORE &&
+                if (info.scores[0] + info.scores[1] !== winningScore &&
                     sockets.length < 2 &&
                     info.users.length < 2 &&
                     info.type === "matching") {
@@ -463,25 +491,8 @@ socketIO.on("connection", (socket) => {
         info.minesArray[index].selected = true;
         info.minesArray[index].selectedBy = name;
         if (info.minesArray[index].value === 1) {
-            let score = 0;
-            switch (info.minesArray[index].type) {
-                case "Legendary":
-                    score = 400;
-                    break;
-                case "Epic":
-                    score = 300;
-                    break;
-                case "Rare":
-                    score = 200;
-                    break;
-                case "Common":
-                    score = 100;
-                    break;
-                default:
-                    console.log("[ERROR] SELECT BLOCK NO TYPE");
-                    break;
-            }
-            info.scores[info.playingUser] += score;
+            info.scores[info.playingUser] +=
+                minesConfig[info.minesArray[index].type].points;
             socketIO.emit("active game update", info);
         }
         if (checkEndGame(roomID)) {
