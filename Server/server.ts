@@ -51,6 +51,9 @@ const chooseRandomUser = () => {
 const generateID = (): string => {
 	return uuid.v4();
 };
+const getTotalMines = (minesConfig: MinesConfigType) => {
+	return Object.values(minesConfig).reduce((sum, mine) => sum + mine.amount, 0);
+};
 const createMinesArray = ({
 	gridSize,
 	minesConfig,
@@ -59,7 +62,8 @@ const createMinesArray = ({
 	minesConfig: MinesConfigType;
 }) => {
 	let nums = new Set<number>();
-	while (nums.size < 11) {
+	const totalMines = getTotalMines(minesConfig);
+	while (nums.size < totalMines) {
 		nums.add(Math.floor(Math.random() * gridSize));
 	}
 	const types = generateTypesIndexesFrom(getMinesAmountArray(minesConfig), [
