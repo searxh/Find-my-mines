@@ -1,5 +1,29 @@
-import { InviteMessageType } from "../../types";
-import { MinesConfigType } from "../../types";
+import {
+	InviteMessageType,
+	MinesConfigType,
+	GlobalStateType,
+	GameInfoType,
+} from "../../types";
+
+export const initialState: GlobalStateType = {
+	name: "",
+	chatHistory: [],
+	activeUsers: [],
+	pendingInvite: {},
+	receivedInvite: {},
+	gameInfo: {} as GameInfoType,
+	activeGames: [],
+	socketID: "",
+	flags: {
+		activeUsersInitialized: false,
+		canMatch: true,
+		resultVisible: false,
+		userLeft: false,
+		isMatching: false,
+		confirmationVisible: false,
+		isPaused: false,
+	},
+};
 
 export const defaultMinesConfig: MinesConfigType = {
 	Legendary: {
