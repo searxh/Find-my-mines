@@ -1,5 +1,11 @@
 import { Dispatch } from "react";
 import { Socket } from "socket.io-client";
+export interface MinesConfigType {
+	[key: string]: {
+		points: number;
+		amount: number;
+	};
+}
 export interface MessageType {
 	from: string;
 	message: string;
