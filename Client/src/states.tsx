@@ -1,35 +1,11 @@
 import React from "react";
 import { createContext } from "react";
-import {
-	ActionType,
-	GameInfoType,
-	GlobalContextType,
-	GlobalStateType,
-} from "./types";
+import { initialState } from "./lib/defaults/Default";
+import { ActionType, GlobalContextType, GlobalStateType } from "./types";
 
 export const GlobalContext = createContext<GlobalContextType>(
 	{} as GlobalContextType
 );
-
-export const initialState: GlobalStateType = {
-	name: "",
-	chatHistory: [],
-	activeUsers: [],
-	pendingInvite: {},
-	receivedInvite: {},
-	gameInfo: {} as GameInfoType,
-	activeGames: [],
-	socketID: "",
-	flags: {
-		activeUsersInitialized: false,
-		canMatch: true,
-		resultVisible: false,
-		userLeft: false,
-		isMatching: false,
-		confirmationVisible: false,
-		confettiVisible: false,
-	},
-};
 
 const getSessionData = () => {
 	const state = sessionStorage.getItem("fmm-state");
@@ -75,6 +51,7 @@ export function GlobalStateProvider({
 					save(newState);
 					return newState;
 				} else return state;
+
 			case "timer":
 				newState.gameInfo = { ...newState.gameInfo, timer: action.payload };
 				save(newState);
@@ -114,7 +91,7 @@ export function GlobalStateProvider({
 				const updatedGame = newState.activeGames.filter(
 					(games) => games.roomID === action.payload.gameInfo.roomID
 				);
-				console.log(updatedGame[0]);
+				console.log(updatedGame);
 				console.log(action.payload.gameInfo.scores);
 				updatedGame[0].scores = action.payload.gameInfo.scores;
 				const oldState = newState.activeGames.filter(

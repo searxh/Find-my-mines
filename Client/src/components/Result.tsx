@@ -57,20 +57,20 @@ export default function Result() {
 		if (flags.userLeft) {
 			setPlayAgainVisible(false);
 		}
-	}, [flags]);
+	}, [flags.userLeft]);
 	return flags.resultVisible ? (
 		<div
 			className={`absolute top-0 bottom-0 left-0 right-0 w-1/2 h-[70%] text-white
             text-2xl bg-neutral-800 rounded-3xl z-50 flex m-auto`}
 		>
-			<div className='m-auto w-[70%]'>
+			<div className="m-auto w-[70%]">
 				<div
 					className={`font-righteous text-5xl
                 ${checkWinner(name) ? "text-green-400" : "text-red-400"} `}
 				>
 					{checkWinner(name) ? "VICTORY!" : "DEFEAT!"}
 				</div>
-				<div className='text-cyan-300 text-2xl'>
+				<div className="text-cyan-300 text-2xl">
 					{getWinner().toUpperCase()} WINS!
 				</div>
 				{!flags.userLeft && (
@@ -84,20 +84,20 @@ export default function Result() {
 					</>
 				)}
 				<RematchStatus />
-				<div className='flex justify-evenly pt-10'>
+				<div className="flex justify-evenly pt-10">
 					{playAgainVisible && (
 						<button
 							onClick={handleOnClickPlayAgain}
-							className='basis-[40%] bg-green-700 text-white p-4
-                            rounded-full text-xl hover:scale-105 transition'
+							className="basis-[40%] bg-green-700 text-white p-4
+                            rounded-full text-xl hover:scale-105 transition"
 						>
 							PLAY AGAIN
 						</button>
 					)}
 					<button
 						onClick={handleOnClickMenu}
-						className='basis-[40%] bg-red-700 text-white p-4
-                        rounded-full text-xl hover:scale-105 transition'
+						className="basis-[40%] bg-red-700 text-white p-4
+                        rounded-full text-xl hover:scale-105 transition"
 					>
 						LEAVE
 					</button>

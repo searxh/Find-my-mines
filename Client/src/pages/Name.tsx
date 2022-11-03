@@ -1,7 +1,8 @@
 import React, { FormEvent } from "react";
-import { GlobalContext, initialState } from "../states";
+import { GlobalContext } from "../states";
 import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../socket";
+import { initialState } from "../lib/defaults/Default";
 
 export default function Name() {
 	const { socket } = React.useContext(SocketContext);
@@ -36,32 +37,32 @@ export default function Name() {
 		}
 	}, [socket]);
 	return (
-		<div className='flex bg-gradient-to-t from-transparent to-slate-700 w-full h-screen p-5'>
+		<div className="flex bg-gradient-to-t from-transparent to-slate-700 w-full h-screen p-5">
 			<div
 				className="absolute top-0 botom-0 left-0 right-0 -z-10 bg-cover blur-sm
             bg-[url('../public/assets/images/bg.png')] flex-1 h-screen opacity-50"
 			/>
-			<form className='flex flex-col m-auto p-2'>
-				<div className='relative mb-10'>
-					<div className='font-righteous text-6xl text-white text-center animate-pulse-slow'>
+			<form className="flex flex-col m-auto p-2">
+				<div className="relative mb-10">
+					<div className="font-righteous text-6xl text-white text-center animate-pulse-slow">
 						FIND MY MINES
-						<div className='font-quicksand absolute left-0 right-0 top-20 text-3xl'>
+						<div className="font-quicksand absolute left-0 right-0 top-20 text-3xl">
 							GROUP 6
 						</div>
 					</div>
 				</div>
 				<input
-					placeholder='Enter Your Name'
-					className='rounded-full text-center p-2 font-quicksand 
+					placeholder="Enter Your Name"
+					className="rounded-full text-center p-2 font-quicksand 
                     bg-neutral-500 text-white placeholder-white shadow-md my-5
-                    hover:bg-neutral-700 transition duration-[2000ms]'
+                    hover:bg-neutral-700 transition duration-[2000ms]"
 					ref={nameRef}
 				/>
-				<div className='flex justify-center p-5'>
+				<div className="flex justify-center p-5">
 					<button
-						className='bg-green-600 text-white p-2 rounded-full 
+						className="bg-green-600 text-white p-2 rounded-full 
                         font-quicksand w-1/2 shadow-md hover:scale-105 transition
-                        hover:bg-pink-800 duration-500'
+                        hover:bg-pink-800 duration-500"
 						onClick={(e: FormEvent) => handleOnSubmit(e)}
 					>
 						PLAY

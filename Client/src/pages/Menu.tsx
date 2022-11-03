@@ -5,12 +5,8 @@ import RequestReceiver from "../components/RequestReceiver";
 import ReplyReceiver from "../components/ReplyReceiver";
 import MatchingButton from "../components/MatchingButton";
 import SocketID from "../components/SocketID";
-import MessageTextArea from "../components/MessageTextArea";
-import { GlobalContext } from "../states";
 
 export default function Menu() {
-	const { global_state } = React.useContext(GlobalContext);
-	console.log(global_state);
 	return (
 		<div
 			className='flex flex-col h-screen overflow-hidden text-center font-quicksand
