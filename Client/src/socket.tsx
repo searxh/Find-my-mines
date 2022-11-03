@@ -83,11 +83,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: gameInfo,
 				});
 			});
-			socket.on("add active game update", (info: any) => {
+			socket.on("add active game update", (activeGames: any) => {
 				dispatch({
-					type: "add game",
-
-					payload: info,
+					type: "set",
+					field: "activeGames",
+					payload: activeGames,
 				});
 			});
 			socket.on("remove active game update", (info: any) => {

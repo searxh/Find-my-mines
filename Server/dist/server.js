@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const uuid = require("uuid");
 const app = require("express")();
+``;
 const http = require("http").Server(app);
 const socketIO = require("socket.io")(http, {
     cors: {
@@ -227,6 +228,7 @@ let chatHistory = {
     local: {},
 };
 let activeUsers = {};
+let activeGames = [];
 let invitation = {};
 const initialRoomID = generateID();
 chatHistory.local[initialRoomID] = [];
@@ -269,7 +271,8 @@ socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 
             console.log("ACTIVE USERS BEFORE START GAME", activeUsers);
             socketIO.emit("active user update", activeUsers);
             socketIO.to(info.roomID).emit("start game", info);
-            socketIO.emit("add active game update", info);
+            activeGames = [...activeGames, info];
+            socketIO.emit("add active game update", activeGames);
             setTimeout(() => socketIO.emit("active user update", activeUsers), 300);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
@@ -332,7 +335,9 @@ socketIO.on("connection", (socket) => {
             inGame: user.inGame,
             color: getUserColor(),
         };
+        console.log("Active users", activeUsers);
         socketIO.emit("active user update", activeUsers);
+        socketIO.emit("add active game update", activeGames);
     });
     socket.on("matching", (user) => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Matching request", user);

@@ -11,7 +11,7 @@ const Admin = () => {
 	const { socket } = React.useContext(SocketContext);
 	const [gamesArray, setGamesArray] = useState<any[]>([]);
 
-	console.log(global_state);
+	console.log(activeGames);
 	const resetHandler = (gameInfo: GameInfoType) => {
 		socket.emit("admin reset game", gameInfo);
 	};

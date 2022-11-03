@@ -20,6 +20,7 @@ export default function Game() {
 	const { socket } = React.useContext(SocketContext);
 	const { gameInfo, name, activeUsers, flags } = global_state;
 	const navigate = useNavigate();
+	console.log(global_state);
 	const { users, scores, playingUser, timer } = gameInfo;
 	return (
 		<div

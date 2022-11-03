@@ -81,8 +81,12 @@ export function GlobalStateProvider({
 				return newState;
 
 			case "add game":
-				if (newState.activeGames.includes(action.payload)) return newState;
-				else {
+				if (!action.payload.roomID) return newState;
+				if (newState.activeGames.includes(action.payload)) {
+					console.log("called");
+					save(newState);
+					return newState;
+				} else {
 					newState.activeGames.push(action.payload);
 					save(newState);
 					return newState;

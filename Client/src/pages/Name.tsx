@@ -6,6 +6,7 @@ import { SocketContext } from "../socket";
 export default function Name() {
 	const { socket } = React.useContext(SocketContext);
 	const { dispatch } = React.useContext(GlobalContext);
+
 	const navigate = useNavigate();
 	const nameRef = React.useRef<HTMLInputElement>(null);
 	const handleOnSubmit = (e: FormEvent) => {

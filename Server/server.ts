@@ -1,6 +1,7 @@
 "use strict";
 const uuid = require("uuid");
 const app = require("express")();
+``;
 const http = require("http").Server(app);
 const socketIO = require("socket.io")(http, {
 	cors: {
@@ -242,6 +243,7 @@ let chatHistory: ChatHistoryType = {
 	local: {},
 };
 let activeUsers: { [key: string]: UserType } = {};
+let activeGames: Array<GameInfoType> = [];
 let invitation: { [key: string]: InvitationType } = {};
 const initialRoomID = generateID();
 chatHistory.local[initialRoomID] = [];
@@ -287,7 +289,8 @@ socketIO.of("/").adapter.on("join-room", async (roomID: string, id: string) => {
 			console.log("ACTIVE USERS BEFORE START GAME", activeUsers);
 			socketIO.emit("active user update", activeUsers);
 			socketIO.to(info.roomID).emit("start game", info);
-			socketIO.emit("add active game update", info);
+			activeGames = [...activeGames, info];
+			socketIO.emit("add active game update", activeGames);
 			setTimeout(() => socketIO.emit("active user update", activeUsers), 300);
 			const counter = getCounter(info.roomID);
 			if (!counter.countdown) {
@@ -352,7 +355,9 @@ socketIO.on("connection", (socket: any) => {
 			inGame: user.inGame,
 			color: getUserColor(),
 		};
+		console.log("Active users", activeUsers);
 		socketIO.emit("active user update", activeUsers);
+		socketIO.emit("add active game update", activeGames);
 	});
 	socket.on("matching", async (user: UserType) => {
 		console.log("Matching request", user);
