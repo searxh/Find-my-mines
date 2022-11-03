@@ -26,11 +26,13 @@ export default function PreInviteOptions({
 	const [minesAmount, setMinesAmount] = React.useState<MinesLeftType>(
 		getMinesAmountArray(defaultMinesConfig)
 	);
+	const [maxLimit, setMaxLimit] = React.useState<boolean>(false); 
 	const gridSizeRef = React.useRef<HTMLInputElement>(null);
 	const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 	const handleOnClose = () => {
 		playAudio("pop.wav");
 		setPreInviteOptionsVisible(false);
+		setMinesAmount(getMinesAmountArray(defaultMinesConfig));
 	};
 	const handleOnClick = () => {
 		if (textAreaRef.current !== null && gridSizeRef.current !== null) {
@@ -52,6 +54,26 @@ export default function PreInviteOptions({
 			handleOnClose();
 		}
 	};
+	const minesLimit = (gridSize:number,minesAmount:MinesLeftType) => {
+		let maxcount = minesAmount.Legendary+minesAmount.Epic+minesAmount.Rare+minesAmount.Common;
+		console.log(maxcount);
+		if (maxcount>=gridSize) {
+			setMaxLimit(true);
+		}else setMaxLimit(false);
+	};
+	const handleOnChange = () => {
+		console.log(maxLimit);
+		if (gridSizeRef.current !== null) {
+			minesLimit(Number(gridSizeRef.current.value)*Number(gridSizeRef.current.value),minesAmount);
+		}
+	}
+	React.useEffect(()=>{
+		console.log(maxLimit);
+		if (gridSizeRef.current !== null) {
+			minesLimit(Number(gridSizeRef.current.value)*Number(gridSizeRef.current.value),minesAmount);
+		}
+	},[minesAmount]);
+
 	return visible ? (
 		<div
 			className="absolute flex top-0 bottom-0 left-0 right-0 z-30
@@ -71,6 +93,7 @@ export default function PreInviteOptions({
 				<div>
 					Grid size:
 					<input
+						onChange={handleOnChange}
 						ref={gridSizeRef}
 						className="rounded-full text-center text-lg bg-neutral-700 bg-opacity-50 mx-2"
 						type="number"
@@ -95,7 +118,7 @@ export default function PreInviteOptions({
 									}}
 									initial={minesAmount[key]}
 									min={0}
-									max={10}
+									max={100}
 									className="flex rounded-full bg-opacity-50 bg-neutral-700 w-fit p-0.5 my-0.5"
 									buttonClassName="w-7 h-7 rounded-full bg-neutral-300 opacity-20 hover:scale-110 
 									transition duration-200 hover:opacity-80 m-auto"
