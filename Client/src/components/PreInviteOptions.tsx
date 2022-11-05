@@ -55,13 +55,16 @@ export default function PreInviteOptions({
 			handleOnClose();
 		}
 	};
-	const minesLimit = (gridSize: number, minesAmount: MinesLeftType) => {
-		let maxcount =
+	const getTotalMines = () => {
+		return (
 			minesAmount.Legendary +
 			minesAmount.Epic +
 			minesAmount.Rare +
-			minesAmount.Common;
-		console.log(maxcount);
+			minesAmount.Common
+		);
+	};
+	const minesLimit = (gridSize: number) => {
+		let maxcount = getTotalMines();
 		if (maxcount === gridSize) {
 			setMaxLimit(1);
 		} else if (maxcount > gridSize) {
@@ -72,8 +75,7 @@ export default function PreInviteOptions({
 		console.log(maxLimit);
 		if (gridSizeRef.current !== null) {
 			minesLimit(
-				Number(gridSizeRef.current.value) * Number(gridSizeRef.current.value),
-				minesAmount
+				Number(gridSizeRef.current.value) * Number(gridSizeRef.current.value)
 			);
 		}
 	};
@@ -81,8 +83,7 @@ export default function PreInviteOptions({
 		console.log(maxLimit);
 		if (gridSizeRef.current !== null) {
 			minesLimit(
-				Number(gridSizeRef.current.value) * Number(gridSizeRef.current.value),
-				minesAmount
+				Number(gridSizeRef.current.value) * Number(gridSizeRef.current.value)
 			);
 		}
 	}, [minesAmount]);
@@ -103,17 +104,26 @@ export default function PreInviteOptions({
 				<div className="text-cyan-400 text-3xl font-righteous mb-2">
 					INVITE OPTIONS
 				</div>
-				<div>
-					Grid size:
-					<input
-						onChange={handleOnChange}
-						ref={gridSizeRef}
-						className="rounded-full text-center text-lg bg-neutral-700 bg-opacity-50 mx-2"
-						type="number"
-						defaultValue={defaultGridSize}
-						max={10}
-						min={2}
-					/>
+				<div className="flex justify-evenly">
+					<div />
+					<div>
+						Grid size:
+						<input
+							onChange={handleOnChange}
+							ref={gridSizeRef}
+							className="rounded-full text-center text-lg bg-neutral-700 bg-opacity-50 mx-2"
+							type="number"
+							defaultValue={defaultGridSize}
+							max={10}
+							min={2}
+						/>
+					</div>
+					<div>
+						Total Mines:
+						<div className="flex rounded-full bg-opacity-50 bg-neutral-700 w-full p-0.5 my-0.5">
+							<div className="m-auto">{getTotalMines()}</div>
+						</div>
+					</div>
 				</div>
 				<div className="p-3">
 					{Object.keys(minesAmount).map((key) => {
@@ -153,7 +163,7 @@ export default function PreInviteOptions({
 					disabled={Boolean(maxLimit)}
 					className={`basis-[10%] bg-green-600 p-2 rounded-full duration-300
                     hover:scale-[102%] hover:opacity-80 transition text-white text-xl text-center
-					${maxLimit ? "bg-neutral-400" : null}`}
+					${maxLimit ? "bg-neutral-700" : null}`}
 					onClick={handleOnClick}
 				>
 					Send Invite
