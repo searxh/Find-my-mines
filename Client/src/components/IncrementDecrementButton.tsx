@@ -4,7 +4,7 @@ interface IncrementDecrementButtonPropsType {
 	stateChangeCallback: Function;
 	min: number;
 	max: number;
-	maxDisabled: boolean;
+	maxDisabled?: boolean;
 	initial: number;
 	className?: string;
 	buttonClassName?: string;
