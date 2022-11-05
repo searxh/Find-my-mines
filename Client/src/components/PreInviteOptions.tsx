@@ -170,10 +170,10 @@ export default function PreInviteOptions({
                     rounded-3xl p-5 resize-none mb-3 text-center"
 				></textarea>
 				<button
-					disabled={Boolean(maxLimit)}
+					disabled={maxLimit === 2}
 					className={`basis-[10%] bg-green-600 p-2 rounded-full duration-300 shadow-lg
                     hover:scale-[102%] hover:shadow-green-400 transition text-white text-xl text-center
-					${maxLimit ? "bg-neutral-700 opacity-50 hover:shadow-black" : null}`}
+					${maxLimit === 2 ? "bg-neutral-700 opacity-50 hover:shadow-black" : null}`}
 					onClick={handleOnClick}
 				>
 					Send Invite
