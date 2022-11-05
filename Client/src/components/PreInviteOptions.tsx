@@ -26,7 +26,8 @@ export default function PreInviteOptions({
 	const [minesAmount, setMinesAmount] = React.useState<MinesLeftType>(
 		getMinesAmountArray(defaultMinesConfig)
 	);
-	const [maxLimit, setMaxLimit] = React.useState<boolean>(false);
+	//maxLimit = 0 under limit, maxLimit = 1 at limit, maxLimit = 2 exceeded limit
+	const [maxLimit, setMaxLimit] = React.useState<number>(0);
 	const gridSizeRef = React.useRef<HTMLInputElement>(null);
 	const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 	const handleOnClose = () => {
@@ -61,9 +62,11 @@ export default function PreInviteOptions({
 			minesAmount.Rare +
 			minesAmount.Common;
 		console.log(maxcount);
-		if (maxcount >= gridSize) {
-			setMaxLimit(true);
-		} else setMaxLimit(false);
+		if (maxcount === gridSize) {
+			setMaxLimit(1);
+		} else if (maxcount > gridSize) {
+			setMaxLimit(2);
+		} else setMaxLimit(0);
 	};
 	const handleOnChange = () => {
 		console.log(maxLimit);
@@ -129,7 +132,7 @@ export default function PreInviteOptions({
 									initial={minesAmount[key]}
 									min={0}
 									max={100}
-									maxDisabled={maxLimit}
+									maxDisabled={Boolean(maxLimit)}
 									className="flex rounded-full bg-opacity-50 bg-neutral-700 w-fit p-0.5 my-0.5"
 									buttonClassName="w-7 h-7 rounded-full bg-neutral-300 hover:scale-110 
 									transition duration-200 hover:bg-opacity-80 m-auto bg-opacity-20"
@@ -147,8 +150,10 @@ export default function PreInviteOptions({
                     rounded-3xl p-5 resize-none mb-3 text-center"
 				></textarea>
 				<button
-					className="basis-[10%] bg-green-600 p-2 rounded-full duration-300
-                    hover:scale-[102%] hover:opacity-80 transition text-white text-xl text-center"
+					disabled={Boolean(maxLimit)}
+					className={`basis-[10%] bg-green-600 p-2 rounded-full duration-300
+                    hover:scale-[102%] hover:opacity-80 transition text-white text-xl text-center
+					${maxLimit ? "bg-neutral-400" : null}`}
 					onClick={handleOnClick}
 				>
 					Send Invite

@@ -25,7 +25,6 @@ export default function IncrementDecrementButton({
 }: IncrementDecrementButtonPropsType) {
 	const [number, setNumber] = React.useState<number>(initial);
 	const minMaxCheck = (num: number) => {
-		console.log(num, min, num >= min);
 		return num >= min && num <= max;
 	};
 	const handleOnClick = (isIncrement: boolean) => {
