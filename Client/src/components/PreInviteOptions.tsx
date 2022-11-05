@@ -8,6 +8,7 @@ import {
 } from "../lib/defaults/Default";
 import IncrementDecrementButton from "./IncrementDecrementButton";
 import Image from "./Image";
+import GridSizeButton from "./GridSizeButton";
 interface PreInviteOptionsPropsType {
 	setInviteOptions: Dispatch<SetStateAction<InviteMessageType>>;
 	visible: boolean;
@@ -110,21 +111,20 @@ export default function PreInviteOptions({
 					INVITE OPTIONS
 				</div>
 				<div className="flex justify-evenly">
-					<div />
-					<div>
-						Grid size:
-						<input
-							onChange={handleOnChange}
-							ref={gridSizeRef}
-							className="rounded-full text-center text-lg bg-neutral-700 bg-opacity-50 mx-2"
-							type="number"
-							defaultValue={defaultGridSizeInput}
-							max={10}
+					<div className="w-[15%]" />
+					<div className="w-[15%]">
+						<div className="text-white">Grid size:</div>
+						<GridSizeButton
+							stateChangeCallback={(num: number) => {
+								setGridSizeInput(num);
+							}}
+							initial={defaultGridSizeInput}
 							min={2}
+							max={10}
 						/>
 					</div>
-					<div>
-						Total Mines:
+					<div className="w-[15%]">
+						<div className="text-white">Total mines:</div>
 						<div className="flex rounded-full bg-opacity-50 bg-neutral-700 w-full p-0.5 my-0.5">
 							<div className="m-auto">{getTotalMines()}</div>
 						</div>
