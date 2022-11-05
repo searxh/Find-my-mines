@@ -30,10 +30,10 @@ export default function GridSizeButton({
 		stateChangeCallback(number);
 	}, [number]);
 	return (
-		<div className="flex rounded-full bg-opacity-50 bg-neutral-700 w-full p-0.5 my-0.5">
+		<div className="relative flex rounded-full bg-opacity-50 bg-neutral-700 w-full p-0.5 my-0.5">
 			<button
 				onClick={() => handleOnClick(false)}
-				className="hover:scale-125 transition"
+				className="hover:scale-125 transition absolute -left-5 top-0 bottom-0"
 			>
 				<svg
 					className="w-5 h-5 hover:fill-white fill-neutral-500"
@@ -51,7 +51,7 @@ export default function GridSizeButton({
 
 			<button
 				onClick={() => handleOnClick(true)}
-				className="hover:scale-125 transition"
+				className="hover:scale-125 transition absolute -right-5 top-0 bottom-0"
 			>
 				<svg
 					className="w-5 h-5 hover:fill-white fill-neutral-500"

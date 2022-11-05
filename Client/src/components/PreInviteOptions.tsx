@@ -34,7 +34,6 @@ export default function PreInviteOptions({
 	const [gridSizeInput, setGridSizeInput] =
 		React.useState<number>(defaultGridSizeInput);
 	const [maxLimit, setMaxLimit] = React.useState<number>(0);
-	const gridSizeRef = React.useRef<HTMLInputElement>(null);
 	const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 	const handleOnClose = () => {
 		playAudio("pop.wav");
@@ -42,8 +41,7 @@ export default function PreInviteOptions({
 		setMinesAmount(getMinesAmountArray(defaultMinesConfig));
 	};
 	const handleOnClick = () => {
-		if (textAreaRef.current !== null && gridSizeRef.current !== null) {
-			const size = Number(gridSizeRef.current.value);
+		if (textAreaRef.current !== null) {
 			const modifiedMinesConfig = { ...defaultMinesConfig };
 			Object.keys(minesAmount).forEach((key) => {
 				modifiedMinesConfig[key].amount = minesAmount[key];
@@ -51,13 +49,12 @@ export default function PreInviteOptions({
 			setInviteOptions({
 				message: new filter().clean(textAreaRef.current.value),
 				gameOptions: {
-					gridSize: size * size,
+					gridSize: gridSizeInput * gridSizeInput,
 					minesConfig: modifiedMinesConfig,
 				},
 				ready: true,
 			});
 			textAreaRef.current.value = "";
-			gridSizeRef.current.value = defaultGridSizeInput.toString();
 			handleOnClose();
 		}
 	};
@@ -77,22 +74,10 @@ export default function PreInviteOptions({
 			setMaxLimit(2);
 		} else setMaxLimit(0);
 	};
-	const handleOnChange = () => {
-		console.log(maxLimit);
-		if (gridSizeRef.current !== null) {
-			minesLimit(
-				Number(gridSizeRef.current.value) * Number(gridSizeRef.current.value)
-			);
-		}
-	};
 	React.useEffect(() => {
 		console.log(maxLimit);
-		if (gridSizeRef.current !== null) {
-			minesLimit(
-				Number(gridSizeRef.current.value) * Number(gridSizeRef.current.value)
-			);
-		}
-	}, [minesAmount]);
+		minesLimit(gridSizeInput * gridSizeInput);
+	}, [minesAmount, gridSizeInput]);
 
 	return visible ? (
 		<div
@@ -110,9 +95,9 @@ export default function PreInviteOptions({
 				<div className="text-cyan-400 text-3xl font-righteous mb-2">
 					INVITE OPTIONS
 				</div>
-				<div className="flex justify-evenly">
-					<div className="w-[15%]" />
-					<div className="w-[15%]">
+				<div className="grid grid-cols-3 grid-flow-row justify-items-center">
+					<div className="" />
+					<div className="">
 						<div className="text-white">Grid size:</div>
 						<GridSizeButton
 							stateChangeCallback={(num: number) => {
@@ -123,7 +108,7 @@ export default function PreInviteOptions({
 							max={10}
 						/>
 					</div>
-					<div className="w-[15%]">
+					<div className="">
 						<div className="text-white">Total mines:</div>
 						<div className="flex rounded-full bg-opacity-50 bg-neutral-700 w-full p-0.5 my-0.5">
 							<div className="m-auto">{getTotalMines()}</div>
