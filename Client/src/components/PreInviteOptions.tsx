@@ -75,7 +75,6 @@ export default function PreInviteOptions({
 		} else setMaxLimit(0);
 	};
 	React.useEffect(() => {
-		console.log(maxLimit);
 		minesLimit(gridSizeInput * gridSizeInput);
 	}, [minesAmount, gridSizeInput]);
 
@@ -108,10 +107,31 @@ export default function PreInviteOptions({
 							max={10}
 						/>
 					</div>
-					<div className="">
+					<div className="relative">
+						<div
+							className={`absolute -top-7 left-0 right-0 ${
+								maxLimit === 1
+									? "text-yellow-300"
+									: maxLimit === 2
+									? "text-red-400"
+									: null
+							}`}
+						>
+							{maxLimit === 1 ? "MAX" : maxLimit === 2 ? "EXCEEDED" : null}
+						</div>
 						<div className="text-white">Total mines:</div>
 						<div className="flex rounded-full bg-opacity-50 bg-neutral-700 w-full p-0.5 my-0.5">
-							<div className="m-auto">{getTotalMines()}</div>
+							<div
+								className={`m-auto ${
+									maxLimit === 1
+										? "text-yellow-300"
+										: maxLimit === 2
+										? "text-red-400"
+										: null
+								}`}
+							>
+								{getTotalMines()}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -151,9 +171,9 @@ export default function PreInviteOptions({
 				></textarea>
 				<button
 					disabled={Boolean(maxLimit)}
-					className={`basis-[10%] bg-green-600 p-2 rounded-full duration-300
-                    hover:scale-[102%] hover:opacity-80 transition text-white text-xl text-center
-					${maxLimit ? "bg-neutral-700" : null}`}
+					className={`basis-[10%] bg-green-600 p-2 rounded-full duration-300 shadow-lg
+                    hover:scale-[102%] hover:shadow-green-400 transition text-white text-xl text-center
+					${maxLimit ? "bg-neutral-700 opacity-50 hover:shadow-black" : null}`}
 					onClick={handleOnClick}
 				>
 					Send Invite
