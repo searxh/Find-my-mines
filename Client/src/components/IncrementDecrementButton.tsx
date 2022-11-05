@@ -4,6 +4,7 @@ interface IncrementDecrementButtonPropsType {
 	stateChangeCallback: Function;
 	min: number;
 	max: number;
+	maxDisabled: boolean;
 	initial: number;
 	className?: string;
 	buttonClassName?: string;
@@ -15,6 +16,7 @@ export default function IncrementDecrementButton({
 	stateChangeCallback,
 	min,
 	max,
+	maxDisabled,
 	initial,
 	className,
 	buttonClassName,
@@ -40,7 +42,13 @@ export default function IncrementDecrementButton({
 	}, [number]);
 	return (
 		<div className={className}>
-			<button onClick={() => handleOnClick(true)} className={buttonClassName}>
+			<button
+				disabled={maxDisabled}
+				onClick={() => handleOnClick(true)}
+				className={`${buttonClassName} ${
+					maxDisabled ? "opacity-0" : "opacity-100"
+				}`}
+			>
 				<svg
 					className={svgClassName}
 					xmlns="http://www.w3.org/2000/svg"

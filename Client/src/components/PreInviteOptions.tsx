@@ -26,7 +26,7 @@ export default function PreInviteOptions({
 	const [minesAmount, setMinesAmount] = React.useState<MinesLeftType>(
 		getMinesAmountArray(defaultMinesConfig)
 	);
-	const [maxLimit, setMaxLimit] = React.useState<boolean>(false); 
+	const [maxLimit, setMaxLimit] = React.useState<boolean>(false);
 	const gridSizeRef = React.useRef<HTMLInputElement>(null);
 	const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 	const handleOnClose = () => {
@@ -54,25 +54,35 @@ export default function PreInviteOptions({
 			handleOnClose();
 		}
 	};
-	const minesLimit = (gridSize:number,minesAmount:MinesLeftType) => {
-		let maxcount = minesAmount.Legendary+minesAmount.Epic+minesAmount.Rare+minesAmount.Common;
+	const minesLimit = (gridSize: number, minesAmount: MinesLeftType) => {
+		let maxcount =
+			minesAmount.Legendary +
+			minesAmount.Epic +
+			minesAmount.Rare +
+			minesAmount.Common;
 		console.log(maxcount);
-		if (maxcount>=gridSize) {
+		if (maxcount >= gridSize) {
 			setMaxLimit(true);
-		}else setMaxLimit(false);
+		} else setMaxLimit(false);
 	};
 	const handleOnChange = () => {
 		console.log(maxLimit);
 		if (gridSizeRef.current !== null) {
-			minesLimit(Number(gridSizeRef.current.value)*Number(gridSizeRef.current.value),minesAmount);
+			minesLimit(
+				Number(gridSizeRef.current.value) * Number(gridSizeRef.current.value),
+				minesAmount
+			);
 		}
-	}
-	React.useEffect(()=>{
+	};
+	React.useEffect(() => {
 		console.log(maxLimit);
 		if (gridSizeRef.current !== null) {
-			minesLimit(Number(gridSizeRef.current.value)*Number(gridSizeRef.current.value),minesAmount);
+			minesLimit(
+				Number(gridSizeRef.current.value) * Number(gridSizeRef.current.value),
+				minesAmount
+			);
 		}
-	},[minesAmount]);
+	}, [minesAmount]);
 
 	return visible ? (
 		<div
@@ -119,9 +129,10 @@ export default function PreInviteOptions({
 									initial={minesAmount[key]}
 									min={0}
 									max={100}
+									maxDisabled={maxLimit}
 									className="flex rounded-full bg-opacity-50 bg-neutral-700 w-fit p-0.5 my-0.5"
-									buttonClassName="w-7 h-7 rounded-full bg-neutral-300 opacity-20 hover:scale-110 
-									transition duration-200 hover:opacity-80 m-auto"
+									buttonClassName="w-7 h-7 rounded-full bg-neutral-300 hover:scale-110 
+									transition duration-200 hover:bg-opacity-80 m-auto bg-opacity-20"
 									textClassName="m-auto px-5"
 									svgClassName="w-6 h-6 m-auto"
 								/>
