@@ -2,7 +2,10 @@ import React, { Dispatch, SetStateAction } from "react";
 import { InviteMessageType, MinesConfigType, MinesLeftType } from "../types";
 import { playAudio } from "../lib/utility/Audio";
 import filter from "bad-words";
-import { defaultGridSize, defaultMinesConfig } from "../lib/defaults/Default";
+import {
+	defaultGridSizeInput,
+	defaultMinesConfig,
+} from "../lib/defaults/Default";
 import IncrementDecrementButton from "./IncrementDecrementButton";
 import Image from "./Image";
 interface PreInviteOptionsPropsType {
@@ -27,6 +30,8 @@ export default function PreInviteOptions({
 		getMinesAmountArray(defaultMinesConfig)
 	);
 	//maxLimit = 0 under limit, maxLimit = 1 at limit, maxLimit = 2 exceeded limit
+	const [gridSizeInput, setGridSizeInput] =
+		React.useState<number>(defaultGridSizeInput);
 	const [maxLimit, setMaxLimit] = React.useState<number>(0);
 	const gridSizeRef = React.useRef<HTMLInputElement>(null);
 	const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -51,7 +56,7 @@ export default function PreInviteOptions({
 				ready: true,
 			});
 			textAreaRef.current.value = "";
-			gridSizeRef.current.value = defaultGridSize.toString();
+			gridSizeRef.current.value = defaultGridSizeInput.toString();
 			handleOnClose();
 		}
 	};
@@ -113,7 +118,7 @@ export default function PreInviteOptions({
 							ref={gridSizeRef}
 							className="rounded-full text-center text-lg bg-neutral-700 bg-opacity-50 mx-2"
 							type="number"
-							defaultValue={defaultGridSize}
+							defaultValue={defaultGridSizeInput}
 							max={10}
 							min={2}
 						/>
