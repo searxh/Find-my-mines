@@ -44,12 +44,14 @@ export const defaultMinesConfig: MinesConfigType = {
 	},
 };
 
-export const defaultGridSize = 6;
+export const defaultGridSizeInput = 6;
+
+export const defaultGridSize = 36;
 
 export const initialInviteMessage: InviteMessageType = {
 	message: "",
 	gameOptions: {
-		gridSize: defaultGridSize * defaultGridSize,
+		gridSize: defaultGridSize,
 		minesConfig: defaultMinesConfig,
 	},
 	ready: false,
