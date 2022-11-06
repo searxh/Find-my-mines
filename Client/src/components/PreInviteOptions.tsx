@@ -41,22 +41,25 @@ export default function PreInviteOptions({
 		setMinesAmount(getMinesAmountArray(defaultMinesConfig));
 	};
 	const handleOnClick = () => {
-		if (textAreaRef.current !== null) {
-			const modifiedMinesConfig = { ...defaultMinesConfig };
-			Object.keys(minesAmount).forEach((key) => {
-				modifiedMinesConfig[key].amount = minesAmount[key];
-			});
-			setInviteOptions({
-				message: new filter().clean(textAreaRef.current.value),
-				gameOptions: {
-					gridSize: gridSizeInput * gridSizeInput,
-					minesConfig: modifiedMinesConfig,
-				},
-				ready: true,
-			});
-			textAreaRef.current.value = "";
-			handleOnClose();
-		}
+		console.log(textAreaRef.current?.value);
+		let msg =
+			textAreaRef.current !== null && textAreaRef.current.value.length > 0
+				? new filter().clean(textAreaRef.current.value)
+				: "";
+		const modifiedMinesConfig = { ...defaultMinesConfig };
+		Object.keys(minesAmount).forEach((key) => {
+			modifiedMinesConfig[key].amount = minesAmount[key];
+		});
+		if (textAreaRef.current) textAreaRef.current.value = "";
+		setInviteOptions({
+			message: msg,
+			gameOptions: {
+				gridSize: gridSizeInput * gridSizeInput,
+				minesConfig: modifiedMinesConfig,
+			},
+			ready: true,
+		});
+		handleOnClose();
 	};
 	const getTotalMines = () => {
 		return (
