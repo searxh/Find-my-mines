@@ -379,6 +379,10 @@ socketIO.of("/").adapter.on("leave-room", (roomID: string, id: string) => {
 
 socketIO.on("connection", (socket: any) => {
 	console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
+	socket.on("name probe", (userName: string) => {
+		const nameExists = activeUsers[userName] !== undefined;
+		socketIO.to(socket.id).emit("name probe response", nameExists);
+	});
 	socket.on("name register", (user: UserType) => {
 		socket.data.name = user.name;
 		activeUsers[user.name] = {
@@ -678,7 +682,9 @@ socketIO.on("connection", (socket: any) => {
 			socketIO.of("/").sockets.size
 		);
 		delete activeUsers[socket.data.name];
-		socketIO.emit("active user update", activeUsers);
+		//prevents failing name probing users (no name user) from spamming active user update
+		if (socket.data.name !== undefined)
+			socketIO.emit("active user update", activeUsers);
 	});
 });
 interface MinesConfigType {

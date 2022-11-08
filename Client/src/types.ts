@@ -65,6 +65,9 @@ export interface EffectsType {
 	text: string;
 	points: number;
 }
+export interface PersistentFlagsType {
+	canAutoNameRegister: boolean;
+}
 export interface FlagsType {
 	//shows whether active users are present in the server or not (sent from server)
 	activeUsersInitialized: boolean;
@@ -108,6 +111,7 @@ export interface GlobalStateType extends GlobalStateKeys {
 	gameInfo: GameInfoType;
 	socketID: string;
 	flags: FlagsType;
+	persistentFlags: PersistentFlagsType;
 }
 export interface ActionType {
 	type: string;

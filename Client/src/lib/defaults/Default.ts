@@ -14,6 +14,9 @@ export const initialState: GlobalStateType = {
 	gameInfo: {} as GameInfoType,
 	activeGames: [],
 	socketID: "",
+	persistentFlags: {
+		canAutoNameRegister: false,
+	},
 	flags: {
 		activeUsersInitialized: false,
 		canMatch: true,

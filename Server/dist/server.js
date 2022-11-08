@@ -391,6 +391,10 @@ socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
 });
 socketIO.on("connection", (socket) => {
 	console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
+	socket.on("name probe", (userName) => {
+		const nameExists = activeUsers[userName] !== undefined;
+		socketIO.to(socket.id).emit("name probe response", nameExists);
+	});
 	socket.on("name register", (user) => {
 		socket.data.name = user.name;
 		activeUsers[user.name] = {
@@ -399,9 +403,7 @@ socketIO.on("connection", (socket) => {
 			inGame: user.inGame,
 			color: getUserColor(),
 		};
-		console.log("Active users", activeUsers);
 		socketIO.emit("active user update", activeUsers);
-		socketIO.emit("add active game update", activeGames);
 	});
 	socket.on("matching", (user) =>
 		__awaiter(void 0, void 0, void 0, function* () {
@@ -641,6 +643,8 @@ socketIO.on("connection", (socket) => {
 			socketIO.of("/").sockets.size
 		);
 		delete activeUsers[socket.data.name];
-		socketIO.emit("active user update", activeUsers);
+		//prevents failing name probing users (no name user) from spamming active user update
+		if (socket.data.name !== undefined)
+			socketIO.emit("active user update", activeUsers);
 	});
 });
