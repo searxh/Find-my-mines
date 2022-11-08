@@ -17,7 +17,7 @@ export const SocketContext = createContext<SocketContextType>(
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 	const { global_state, dispatch } = React.useContext(GlobalContext);
-	const { gameInfo, name, flags, activeUsers } = global_state;
+	const { gameInfo, name, flags, activeUsers, persistentFlags } = global_state;
 	const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
 	const [reconnectInGame, setReconnectInGame] = React.useState<boolean>(false);
 	const navigate = useNavigate();
@@ -30,11 +30,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					field: "socketID",
 					payload: socket.id,
 				});
-				socket.emit("name register", {
-					name: name,
-					id: socket.id,
-					inGame: false,
-				});
+				if (persistentFlags.canAutoNameRegister) {
+					socket.emit("name register", {
+						name: name,
+						id: socket.id,
+						inGame: false,
+					});
+				}
 			});
 			socket.on("chat update", (chat: MessageType) => {
 				dispatch({
@@ -44,6 +46,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				});
 			});
 			socket.on("active user update", (activeUsersFromServer: any) => {
+				console.log("ACTIVE USER UPDATE FROM GLOBAL SOCKET");
 				const users: Array<UserType> = Object.values(activeUsersFromServer);
 				const newFlags = { ...flags, activeUsersInitialized: true };
 				dispatch({
