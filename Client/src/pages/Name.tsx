@@ -3,38 +3,87 @@ import { GlobalContext } from "../states";
 import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../socket";
 import { initialState } from "../lib/defaults/Default";
+import { io } from "socket.io-client";
 
 export default function Name() {
-	const { socket } = React.useContext(SocketContext);
-	const { dispatch } = React.useContext(GlobalContext);
+	const { socket, setSocket } = React.useContext(SocketContext);
+	const { global_state, dispatch } = React.useContext(GlobalContext);
+	const { name, persistentFlags } = global_state;
 	const navigate = useNavigate();
 	const nameRef = React.useRef<HTMLInputElement>(null);
+	const [lock, setLock] = React.useState<boolean>(false);
 	const handleOnSubmit = (e: FormEvent) => {
 		e.preventDefault();
-		if (nameRef.current !== null) {
+		if (nameRef.current !== null && socket === undefined) {
+			setSocket(io("http://" + process.env.REACT_APP_IP + ":7070"));
+			setLock(true);
 			dispatch({
 				type: "set",
 				field: "name",
 				payload: nameRef.current.value,
 			});
-			if (nameRef.current.value.toLocaleLowerCase() === "admin") {
-				navigate("admin");
-			} else {
-				nameRef.current.value = "";
-				navigate("menu");
-			}
 		}
 	};
 	React.useEffect(() => {
-		sessionStorage.setItem("fmm-state", JSON.stringify(initialState));
-		dispatch({
-			type: "set",
-			payload: initialState,
-		});
-		if (socket !== undefined) {
-			socket.disconnect();
+		if (lock && socket !== undefined && name.length !== 0) {
+			socket.emit("name probe", name);
+			socket.on("name probe response", (nameExists: boolean) => {
+				console.log("NAMEEXISTS", nameExists);
+				if (nameExists) {
+					console.log("user already exists");
+					dispatch({
+						type: "set",
+						field: "name",
+						payload: "",
+					});
+					setLock(false);
+				} else {
+					console.log("SEND NAME REGISTER", name);
+					socket.emit("name register", {
+						name: name,
+						id: socket.id,
+						inGame: false,
+					});
+					const newPersistentFlags = {
+						...persistentFlags,
+						canAutoNameRegister: true,
+					};
+					dispatch({
+						type: "set",
+						field: "persistentFlags",
+						payload: newPersistentFlags,
+					});
+					if (nameRef.current?.value.toLocaleLowerCase() === "admin") {
+						navigate("admin");
+					} else {
+						if (nameRef.current !== null) nameRef.current.value = "";
+						navigate("menu");
+					}
+				}
+			});
+			return () => socket.off("name probe response") as any;
+		} else if (!lock && socket !== undefined) {
+			sessionStorage.setItem("fmm-state", JSON.stringify(initialState));
+			dispatch({
+				type: "set",
+				payload: initialState,
+			});
+			if (socket !== undefined) {
+				console.log("socket forcibly disconnected");
+				socket.disconnect();
+				setSocket(undefined as any);
+				const newPersistentFlags = {
+					...persistentFlags,
+					canAutoNameRegister: false,
+				};
+				dispatch({
+					type: "set",
+					field: "persistentFlags",
+					payload: newPersistentFlags,
+				});
+			}
 		}
-	}, [socket]);
+	}, [socket, lock, name]);
 	return (
 		<div className="flex bg-gradient-to-t from-transparent to-slate-700 w-full h-screen p-5">
 			<div
