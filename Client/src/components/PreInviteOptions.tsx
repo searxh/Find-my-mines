@@ -2,9 +2,13 @@ import React, { Dispatch, SetStateAction } from "react";
 import { InviteMessageType, MinesConfigType, MinesLeftType } from "../types";
 import { playAudio } from "../lib/utility/Audio";
 import filter from "bad-words";
-import { defaultGridSize, defaultMinesConfig } from "../lib/defaults/Default";
+import {
+	defaultGridSizeInput,
+	defaultMinesConfig,
+} from "../lib/defaults/Default";
 import IncrementDecrementButton from "./IncrementDecrementButton";
 import Image from "./Image";
+import GridSizeButton from "./GridSizeButton";
 interface PreInviteOptionsPropsType {
 	setInviteOptions: Dispatch<SetStateAction<InviteMessageType>>;
 	visible: boolean;
@@ -26,8 +30,10 @@ export default function PreInviteOptions({
 	const [minesAmount, setMinesAmount] = React.useState<MinesLeftType>(
 		getMinesAmountArray(defaultMinesConfig)
 	);
-	const [maxLimit, setMaxLimit] = React.useState<boolean>(false); 
-	const gridSizeRef = React.useRef<HTMLInputElement>(null);
+	//maxLimit = 0 under limit, maxLimit = 1 at limit, maxLimit = 2 exceeded limit
+	const [gridSizeInput, setGridSizeInput] =
+		React.useState<number>(defaultGridSizeInput);
+	const [maxLimit, setMaxLimit] = React.useState<number>(0);
 	const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 	const handleOnClose = () => {
 		playAudio("pop.wav");
@@ -35,44 +41,45 @@ export default function PreInviteOptions({
 		setMinesAmount(getMinesAmountArray(defaultMinesConfig));
 	};
 	const handleOnClick = () => {
-		if (textAreaRef.current !== null && gridSizeRef.current !== null) {
-			const size = Number(gridSizeRef.current.value);
-			const modifiedMinesConfig = { ...defaultMinesConfig };
-			Object.keys(minesAmount).forEach((key) => {
-				modifiedMinesConfig[key].amount = minesAmount[key];
-			});
-			setInviteOptions({
-				message: new filter().clean(textAreaRef.current.value),
-				gameOptions: {
-					gridSize: size * size,
-					minesConfig: modifiedMinesConfig,
-				},
-				ready: true,
-			});
-			textAreaRef.current.value = "";
-			gridSizeRef.current.value = defaultGridSize.toString();
-			handleOnClose();
-		}
+		console.log(textAreaRef.current?.value);
+		let msg =
+			textAreaRef.current !== null && textAreaRef.current.value.length > 0
+				? new filter().clean(textAreaRef.current.value)
+				: "";
+		const modifiedMinesConfig = { ...defaultMinesConfig };
+		Object.keys(minesAmount).forEach((key) => {
+			modifiedMinesConfig[key].amount = minesAmount[key];
+		});
+		if (textAreaRef.current) textAreaRef.current.value = "";
+		setInviteOptions({
+			message: msg,
+			gameOptions: {
+				gridSize: gridSizeInput * gridSizeInput,
+				minesConfig: modifiedMinesConfig,
+			},
+			ready: true,
+		});
+		handleOnClose();
 	};
-	const minesLimit = (gridSize:number,minesAmount:MinesLeftType) => {
-		let maxcount = minesAmount.Legendary+minesAmount.Epic+minesAmount.Rare+minesAmount.Common;
-		console.log(maxcount);
-		if (maxcount>=gridSize) {
-			setMaxLimit(true);
-		}else setMaxLimit(false);
+	const getTotalMines = () => {
+		return (
+			minesAmount.Legendary +
+			minesAmount.Epic +
+			minesAmount.Rare +
+			minesAmount.Common
+		);
 	};
-	const handleOnChange = () => {
-		console.log(maxLimit);
-		if (gridSizeRef.current !== null) {
-			minesLimit(Number(gridSizeRef.current.value)*Number(gridSizeRef.current.value),minesAmount);
-		}
-	}
-	React.useEffect(()=>{
-		console.log(maxLimit);
-		if (gridSizeRef.current !== null) {
-			minesLimit(Number(gridSizeRef.current.value)*Number(gridSizeRef.current.value),minesAmount);
-		}
-	},[minesAmount]);
+	const minesLimit = (gridSize: number) => {
+		let maxcount = getTotalMines();
+		if (maxcount === gridSize) {
+			setMaxLimit(1);
+		} else if (maxcount > gridSize) {
+			setMaxLimit(2);
+		} else setMaxLimit(0);
+	};
+	React.useEffect(() => {
+		minesLimit(gridSizeInput * gridSizeInput);
+	}, [minesAmount, gridSizeInput]);
 
 	return visible ? (
 		<div
@@ -90,17 +97,46 @@ export default function PreInviteOptions({
 				<div className="text-cyan-400 text-3xl font-righteous mb-2">
 					INVITE OPTIONS
 				</div>
-				<div>
-					Grid size:
-					<input
-						onChange={handleOnChange}
-						ref={gridSizeRef}
-						className="rounded-full text-center text-lg bg-neutral-700 bg-opacity-50 mx-2"
-						type="number"
-						defaultValue={defaultGridSize}
-						max={10}
-						min={2}
-					/>
+				<div className="grid grid-cols-3 grid-flow-row justify-items-center">
+					<div className="" />
+					<div className="">
+						<div className="text-white">Grid size:</div>
+						<GridSizeButton
+							stateChangeCallback={(num: number) => {
+								setGridSizeInput(num);
+							}}
+							initial={defaultGridSizeInput}
+							min={2}
+							max={10}
+						/>
+					</div>
+					<div className="relative">
+						<div
+							className={`absolute -top-7 left-0 right-0 ${
+								maxLimit === 1
+									? "text-yellow-300"
+									: maxLimit === 2
+									? "text-red-400"
+									: null
+							}`}
+						>
+							{maxLimit === 1 ? "MAX" : maxLimit === 2 ? "EXCEEDED" : null}
+						</div>
+						<div className="text-white">Total mines:</div>
+						<div className="flex rounded-full bg-opacity-50 bg-neutral-700 w-full p-0.5 my-0.5">
+							<div
+								className={`m-auto ${
+									maxLimit === 1
+										? "text-yellow-300"
+										: maxLimit === 2
+										? "text-red-400"
+										: null
+								}`}
+							>
+								{getTotalMines()}
+							</div>
+						</div>
+					</div>
 				</div>
 				<div className="p-3">
 					{Object.keys(minesAmount).map((key) => {
@@ -119,9 +155,10 @@ export default function PreInviteOptions({
 									initial={minesAmount[key]}
 									min={0}
 									max={100}
+									maxDisabled={Boolean(maxLimit)}
 									className="flex rounded-full bg-opacity-50 bg-neutral-700 w-fit p-0.5 my-0.5"
-									buttonClassName="w-7 h-7 rounded-full bg-neutral-300 opacity-20 hover:scale-110 
-									transition duration-200 hover:opacity-80 m-auto"
+									buttonClassName="w-7 h-7 rounded-full bg-neutral-300 hover:scale-110 
+									transition duration-200 hover:bg-opacity-80 m-auto bg-opacity-20"
 									textClassName="m-auto px-5"
 									svgClassName="w-6 h-6 m-auto"
 								/>
@@ -136,8 +173,10 @@ export default function PreInviteOptions({
                     rounded-3xl p-5 resize-none mb-3 text-center"
 				></textarea>
 				<button
-					className="basis-[10%] bg-green-600 p-2 rounded-full duration-300
-                    hover:scale-[102%] hover:opacity-80 transition text-white text-xl text-center"
+					disabled={maxLimit === 2}
+					className={`basis-[10%] bg-green-600 p-2 rounded-full duration-300 shadow-lg
+                    hover:scale-[102%] hover:shadow-green-400 transition text-white text-xl text-center
+					${maxLimit === 2 ? "bg-neutral-700 opacity-50 hover:shadow-black" : null}`}
 					onClick={handleOnClick}
 				>
 					Send Invite

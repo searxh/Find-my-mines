@@ -22,28 +22,28 @@ export default function FoundMineEffect({
 			case "Legendary":
 				setEffects({
 					gifSize: "scale-[400%] left-4 top-3",
-					text: "text-3xl text-yellow-500 -right-48",
+					text: "text-3xl text-yellow-500 drop-shadow-[2px_2px_2px_rgba(0,0,0,1)] -right-48",
 					points: defaultMinesConfig["Legendary"].points,
 				});
 				break;
 			case "Epic":
 				setEffects({
 					gifSize: "scale-[300%] left-4 top-3",
-					text: "text-2xl text-red-500 -right-28",
+					text: "text-2xl text-red-500 drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] -right-28",
 					points: defaultMinesConfig["Epic"].points,
 				});
 				break;
 			case "Rare":
 				setEffects({
 					gifSize: "scale-[200%] left-3 top-1",
-					text: "text-xl text-cyan-400 -right-24",
+					text: "text-xl text-cyan-400 drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] -right-24",
 					points: defaultMinesConfig["Rare"].points,
 				});
 				break;
 			case "Common":
 				setEffects({
 					gifSize: "scale-[100%] left-1 top-1",
-					text: "text-lg text-neutral-400 -right-20",
+					text: "text-lg text-neutral-400 drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] -right-20",
 					points: defaultMinesConfig["Common"].points,
 				});
 				break;
@@ -54,13 +54,13 @@ export default function FoundMineEffect({
 	React.useEffect(() => {
 		if (trigger) {
 			setVisible(true);
-			setTimeout(() => setVisible(false), 1500);
+			setTimeout(() => setVisible(false), 1000);
 		}
 	}, [trigger]);
 	React.useEffect(() => {
 		if (visible) {
 			setTimeout(() => setTransition(true), 100);
-			setTimeout(() => setTransition(false), 1400);
+			setTimeout(() => setTransition(false), 700);
 		}
 	}, [visible]);
 	return visible && minesType !== null ? (
@@ -72,11 +72,11 @@ export default function FoundMineEffect({
 				alt=""
 			/>
 			<div
-				className={`absolute transition duration-[1000ms] brightness-150 z-20 drop-shadow-sm
+				className={`absolute transition duration-[700ms] brightness-150 z-20
                 ${
 									transition
 										? "-translate-y-20 opacity-100 scale-100"
-										: "translate-y-0 opacity-0 scale-50"
+										: "translate-y-0 opacity-0 scale-60"
 								} 
                 font-righteous ${effects.text}`}
 			>
