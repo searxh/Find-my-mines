@@ -31,6 +31,7 @@ export default function Name() {
 				console.log("NAMEEXISTS", nameExists);
 				if (nameExists) {
 					console.log("user already exists");
+					if (nameRef.current !== null) nameRef.current.value = "";
 					dispatch({
 						type: "set",
 						field: "name",
@@ -38,7 +39,6 @@ export default function Name() {
 					});
 					setLock(false);
 				} else {
-					console.log("SEND NAME REGISTER", name);
 					socket.emit("name register", {
 						name: name,
 						id: socket.id,
@@ -56,13 +56,12 @@ export default function Name() {
 					if (nameRef.current?.value.toLocaleLowerCase() === "admin") {
 						navigate("admin");
 					} else {
-						if (nameRef.current !== null) nameRef.current.value = "";
 						navigate("menu");
 					}
 				}
 			});
 			return () => socket.off("name probe response") as any;
-		} else if (!lock && socket !== undefined) {
+		} else if (!lock) {
 			sessionStorage.setItem("fmm-state", JSON.stringify(initialState));
 			dispatch({
 				type: "set",

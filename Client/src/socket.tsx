@@ -46,7 +46,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 				});
 			});
 			socket.on("active user update", (activeUsersFromServer: any) => {
-				console.log("ACTIVE USER UPDATE FROM GLOBAL SOCKET");
 				const users: Array<UserType> = Object.values(activeUsersFromServer);
 				const newFlags = { ...flags, activeUsersInitialized: true };
 				dispatch({
