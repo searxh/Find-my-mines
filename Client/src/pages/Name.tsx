@@ -29,6 +29,7 @@ export default function Name() {
 
 	const handleOnSubmit = (e: FormEvent) => {
 		e.preventDefault();
+		console.log(nameRef.current?.value, socket);
 		if (nameRef.current !== null && socket === undefined) {
 			setSocket(io("http://" + process.env.REACT_APP_IP + ":7070"));
 			setLock(true);
@@ -37,12 +38,16 @@ export default function Name() {
 				field: "name",
 				payload: nameRef.current.value,
 			});
+		} else if (socket !== undefined) {
+			socket.disconnect();
+			setSocket(undefined as any);
 		}
 	};
 	React.useEffect(() => {
 		if (lock && socket !== undefined && name.length !== 0) {
 			socket.emit("name probe", name);
 			socket.on("name probe response", (nameExists: boolean) => {
+				console.log("locked");
 				console.log("NAMEEXISTS", nameExists);
 				if (nameExists) {
 					console.log("user already exists");
@@ -77,6 +82,7 @@ export default function Name() {
 			});
 			return () => socket.off("name probe response") as any;
 		} else if (!lock) {
+			console.log("unlocked");
 			sessionStorage.setItem("fmm-state", JSON.stringify(initialState));
 			dispatch({
 				type: "set",
@@ -101,34 +107,34 @@ export default function Name() {
 		}
 	}, [socket, lock, name]);
 	return (
-		<div className='flex bg-gradient-to-t from-transparent to-slate-700 w-full h-screen p-5'>
+		<div className="flex bg-gradient-to-t from-transparent to-slate-700 w-full h-screen p-5">
 			<div
 				className="absolute top-0 botom-0 left-0 right-0 -z-10 bg-cover blur-sm
             bg-[url('../public/assets/images/bg.png')] flex-1 h-screen opacity-50"
 			/>
-			<form className='flex flex-col m-auto p-2'>
-				<div className='relative mb-10'>
-					<div className='font-righteous text-6xl text-white text-center animate-pulse-slow'>
+			<form className="flex flex-col m-auto p-2">
+				<div className="relative mb-10">
+					<div className="font-righteous text-6xl text-white text-center animate-pulse-slow">
 						FIND MY MINES
-						<div className='font-quicksand absolute left-0 right-0 top-20 text-3xl'>
+						<div className="font-quicksand absolute left-0 right-0 top-20 text-3xl">
 							GROUP 6
 						</div>
 					</div>
 				</div>
 				<input
-					placeholder='Enter Your Name'
+					placeholder="Enter Your Name"
 					className={invalidClass}
 					onChange={onChangeInputHandler}
 					ref={nameRef}
 				/>
 				{formInvalid && (
-					<h1 className='text-red-400'>Username already in use</h1>
+					<h1 className="text-red-400">Username already in use</h1>
 				)}
-				<div className='flex justify-center p-5'>
+				<div className="flex justify-center p-5">
 					<button
-						className='bg-green-600 text-white p-2 rounded-full 
+						className="bg-green-600 text-white p-2 rounded-full 
                         font-quicksand w-1/2 shadow-md hover:scale-105 transition
-                        hover:bg-pink-800 duration-500'
+                        hover:bg-pink-800 duration-500"
 						onClick={(e: FormEvent) => handleOnSubmit(e)}
 					>
 						PLAY
