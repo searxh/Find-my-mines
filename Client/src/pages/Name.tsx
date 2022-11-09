@@ -109,8 +109,8 @@ export default function Name() {
 	return (
 		<div className="flex bg-gradient-to-t from-transparent to-slate-700 w-full h-screen p-5">
 			<div
-				className="absolute top-0 botom-0 left-0 right-0 -z-10 bg-cover blur-sm
-            bg-[url('../public/assets/images/bg.png')] flex-1 h-screen opacity-50"
+				className="absolute top-0 botom-0 left-0 right-0 -z-10 bg-cover bg-center blur-sm
+            bg-[url('../public/assets/images/bg.gif')] flex-1 h-screen opacity-50"
 			/>
 			<form className="flex flex-col m-auto p-2">
 				<div className="relative mb-10">
@@ -128,7 +128,9 @@ export default function Name() {
 					ref={nameRef}
 				/>
 				{formInvalid && (
-					<h1 className="text-red-400">Username already in use</h1>
+					<h1 className="text-red-400 font-quicksand text-center">
+						Username already in use
+					</h1>
 				)}
 				<div className="flex justify-center p-5">
 					<button
