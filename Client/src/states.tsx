@@ -80,7 +80,7 @@ export function GlobalStateProvider({
 				console.log("games ", newState);
 
 				if (newState.activeGames?.length === 0) return newState;
-				const removedState = newState.activeGames?.filter(
+				const removedState = newState.activeGames.filter(
 					(games) => games.roomID !== action.payload.gameInfo.roomID
 				);
 				newState.activeGames = removedState;

@@ -11,7 +11,8 @@ const Admin = () => {
 	const { socket } = React.useContext(SocketContext);
 	const [gamesArray, setGamesArray] = useState<any[]>([]);
 
-	console.log(activeGames);
+	console.log(global_state);
+
 	const resetHandler = (gameInfo: GameInfoType) => {
 		socket.emit("admin reset game", gameInfo);
 	};
@@ -59,24 +60,43 @@ const Admin = () => {
 
 						{gamesArray.map((game) => (
 							<span key={Math.random()}>
-								<p>
-									{game?.users[0]?.name} VS. {game?.users[1]?.name}
-								</p>
-								<span className='flex p-2 bg-neutral-800 justify-between rounded-full my-2 shadow-md text-slate-50 text-l'>
-									<p className='my-1'>
-										Current Scores: {game?.scores[0]} : {game?.scores[1]}
+								<div className='p-2 bg-neutral-800 rounded text-slate-50 text-xl text-center'>
+									<p>
+										{game?.users[0]?.name} VS. {game?.users[1]?.name}
 									</p>
-									<button
-										className='rounded-full bg-rose-400 p-1 hover:scale-105 transition
+									<span className='text-base'>
+										<span className='flex p-2 bg-neutral-500 justify-between rounded-full my-0 shadow-md text-slate-50 '>
+											<p className='my-1'>
+												Current Scores: {game?.scores[0]} : {game?.scores[1]}
+											</p>
+											<button
+												className='rounded-full bg-rose-400 p-1 hover:scale-105 transition
 										hover:bg-pink-800 duration-500'
-										onClick={() => {
-											console.log("click");
-											resetHandler(game);
-										}}
-									>
-										RESET
-									</button>
-								</span>
+												onClick={() => {
+													console.log("click");
+													resetHandler(game);
+												}}
+											>
+												RESET
+											</button>
+										</span>
+										<span>
+											Grid size: {Math.sqrt(game.gridSize)} X{" "}
+											{Math.sqrt(game.gridSize)}
+											<br />
+											Mine Config
+											<ul>
+												{`Legendary: ${game.minesConfig.Legendary.amount}`}{" "}
+												&emsp;
+												{`Epic: ${game.minesConfig.Epic.amount}`}
+											</ul>
+											<ul>
+												{`Rare: ${game.minesConfig.Rare.amount}`} &emsp;
+												{`Common: ${game.minesConfig.Common.amount}`}
+											</ul>
+										</span>
+									</span>
+								</div>
 							</span>
 						))}
 					</div>

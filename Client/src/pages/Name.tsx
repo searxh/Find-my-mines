@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import React, { ChangeEvent, FormEvent } from "react";
 import { GlobalContext } from "../states";
 import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../socket";
@@ -11,7 +11,22 @@ export default function Name() {
 	const { name, persistentFlags } = global_state;
 	const navigate = useNavigate();
 	const nameRef = React.useRef<HTMLInputElement>(null);
+	const inputClasses: Array<string> = [
+		"rounded-full text-center p-2 font-quicksand bg-neutral-500 text-white placeholder-white shadow-md my-5 hover:bg-neutral-700 transition duration-[2000ms]",
+		"rounded-full text-center p-2 font-quicksand bg-red-500 text-white placeholder-white shadow-md my-5",
+	];
 	const [lock, setLock] = React.useState<boolean>(false);
+	const [invalidClass, setInvalidClass] = React.useState<string>(
+		inputClasses[0]
+	);
+	const [formInvalid, setFormInvalid] = React.useState<boolean>(false);
+	const onChangeInputHandler = (e: any) => {
+		if (e.target.value.length > 0) {
+			setInvalidClass(inputClasses[0]);
+			setFormInvalid(false);
+		}
+	};
+
 	const handleOnSubmit = (e: FormEvent) => {
 		e.preventDefault();
 		if (nameRef.current !== null && socket === undefined) {
@@ -69,6 +84,8 @@ export default function Name() {
 			});
 			if (socket !== undefined) {
 				console.log("socket forcibly disconnected");
+				setFormInvalid(true);
+				setInvalidClass(inputClasses[1]);
 				socket.disconnect();
 				setSocket(undefined as any);
 				const newPersistentFlags = {
@@ -100,11 +117,13 @@ export default function Name() {
 				</div>
 				<input
 					placeholder='Enter Your Name'
-					className='rounded-full text-center p-2 font-quicksand 
-                    bg-neutral-500 text-white placeholder-white shadow-md my-5
-                    hover:bg-neutral-700 transition duration-[2000ms]'
+					className={invalidClass}
+					onChange={onChangeInputHandler}
 					ref={nameRef}
 				/>
+				{formInvalid && (
+					<h1 className='text-red-400'>Username already in use</h1>
+				)}
 				<div className='flex justify-center p-5'>
 					<button
 						className='bg-green-600 text-white p-2 rounded-full 

@@ -36,6 +36,7 @@ let chatHistory: ChatHistoryType = {
 	local: {},
 };
 let activeUsers: { [key: string]: UserType } = {};
+let activeGames: Array<any> = [];
 let invitation: { [key: string]: InvitationType } = {};
 let counters: Array<CounterType> = [];
 let gameInfos: Array<GameInfoType> = [];
@@ -323,7 +324,8 @@ socketIO.of("/").adapter.on("join-room", async (roomID: string, id: string) => {
 			console.log("ACTIVE USERS BEFORE START GAME", activeUsers);
 			socketIO.emit("active user update", activeUsers);
 			socketIO.to(info.roomID).emit("start game", info);
-			socketIO.emit("add active game update", info);
+			activeGames = [...activeGames, info];
+			socketIO.emit("add active game update", activeGames);
 			const counter = getCounter(info.roomID);
 			if (!counter.countdown) {
 				console.log("set countdown");
@@ -378,6 +380,7 @@ socketIO.of("/").adapter.on("leave-room", (roomID: string, id: string) => {
 });
 
 socketIO.on("connection", (socket: any) => {
+	``;
 	console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
 	socket.on("name probe", (userName: string) => {
 		const nameExists = activeUsers[userName] !== undefined;
