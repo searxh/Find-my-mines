@@ -1,0 +1,13 @@
+{
+    "semi": true,
+    "singleQuote": false,
+    "jsxSingleQuote": false,
+    "overrides": [
+      {
+        "files": ["**/*.css", "**/*.scss", "**/*.html"],
+        "options": {
+          "singleQuote": false
+        }
+      }
+    ]
+  }
