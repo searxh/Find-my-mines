@@ -17,7 +17,7 @@ export const SocketContext = createContext<SocketContextType>(
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 	const { global_state, dispatch } = React.useContext(GlobalContext);
-	const { gameInfo, name, flags, activeUsers } = global_state;
+	const { gameInfo, name, flags, activeUsers, persistentFlags } = global_state;
 	const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
 	const [reconnectInGame, setReconnectInGame] = React.useState<boolean>(false);
 	const navigate = useNavigate();
@@ -30,11 +30,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					field: "socketID",
 					payload: socket.id,
 				});
-				socket.emit("name register", {
-					name: name,
-					id: socket.id,
-					inGame: false,
-				});
+				if (persistentFlags.canAutoNameRegister) {
+					socket.emit("name register", {
+						name: name,
+						id: socket.id,
+						inGame: false,
+					});
+				}
 			});
 			socket.on("chat update", (chat: MessageType) => {
 				dispatch({
@@ -83,11 +85,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 					payload: gameInfo,
 				});
 			});
-			socket.on("add active game update", (info: any) => {
+			socket.on("add active game update", (activeGames: any) => {
 				dispatch({
-					type: "add game",
-
-					payload: info,
+					type: "set",
+					field: "activeGames",
+					payload: activeGames,
 				});
 			});
 			socket.on("remove active game update", (info: any) => {

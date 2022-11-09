@@ -12,7 +12,7 @@ export default function ActiveUsers() {
 	const { activeUsers, name } = global_state;
 	const [priorities, setPriorities] = React.useState<Array<PriorityType>>([]);
 	const location = useLocation();
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (activeUsers !== undefined) {
 			const prioritiesArr = activeUsers.map((user: UserType) => {
 				if (user.name === name) {

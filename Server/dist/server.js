@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const uuid = require("uuid");
 const app = require("express")();
+``;
 const http = require("http").Server(app);
 const socketIO = require("socket.io")(http, {
     cors: {
@@ -42,6 +43,7 @@ let chatHistory = {
     local: {},
 };
 let activeUsers = {};
+let activeGames = [];
 let invitation = {};
 let counters = [];
 let gameInfos = [];
@@ -288,7 +290,8 @@ socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 
             console.log("ACTIVE USERS BEFORE START GAME", activeUsers);
             socketIO.emit("active user update", activeUsers);
             socketIO.to(info.roomID).emit("start game", info);
-            socketIO.emit("add active game update", info);
+            activeGames = [...activeGames, info];
+            socketIO.emit("add active game update", activeGames);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
                 console.log("set countdown");
@@ -341,7 +344,12 @@ socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
     }
 });
 socketIO.on("connection", (socket) => {
+    ``;
     console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
+    socket.on("name probe", (userName) => {
+        const nameExists = activeUsers[userName] !== undefined;
+        socketIO.to(socket.id).emit("name probe response", nameExists);
+    });
     socket.on("name register", (user) => {
         socket.data.name = user.name;
         activeUsers[user.name] = {
@@ -350,7 +358,9 @@ socketIO.on("connection", (socket) => {
             inGame: user.inGame,
             color: getUserColor(),
         };
+        console.log("Active users", activeUsers);
         socketIO.emit("active user update", activeUsers);
+        socketIO.emit("add active game update", activeGames);
     });
     socket.on("matching", (user) => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Matching request", user);
@@ -559,6 +569,8 @@ socketIO.on("connection", (socket) => {
     socket.on("disconnect", () => {
         console.log(socket.data.name + " has disconnected", socketIO.of("/").sockets.size);
         delete activeUsers[socket.data.name];
-        socketIO.emit("active user update", activeUsers);
+        //prevents failing name probing users (no name user) from spamming active user update
+        if (socket.data.name !== undefined)
+            socketIO.emit("active user update", activeUsers);
     });
 });

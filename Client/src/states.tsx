@@ -58,8 +58,12 @@ export function GlobalStateProvider({
 				return newState;
 
 			case "add game":
-				if (newState.activeGames.includes(action.payload)) return newState;
-				else {
+				if (!action.payload.roomID) return newState;
+				if (newState.activeGames.includes(action.payload)) {
+					console.log("called");
+					save(newState);
+					return newState;
+				} else {
 					newState.activeGames.push(action.payload);
 					save(newState);
 					return newState;
@@ -76,7 +80,7 @@ export function GlobalStateProvider({
 				console.log("games ", newState);
 
 				if (newState.activeGames?.length === 0) return newState;
-				const removedState = newState.activeGames?.filter(
+				const removedState = newState.activeGames.filter(
 					(games) => games.roomID !== action.payload.gameInfo.roomID
 				);
 				newState.activeGames = removedState;
