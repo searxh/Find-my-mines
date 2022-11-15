@@ -71,6 +71,7 @@ export interface EffectsType {
 }
 export interface PersistentFlagsType {
   canAutoNameRegister: boolean;
+  howToPlayIsActive: boolean;
 }
 export interface FlagsType {
   //shows whether active users are present in the server or not (sent from server)
