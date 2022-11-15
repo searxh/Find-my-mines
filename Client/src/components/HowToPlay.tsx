@@ -41,38 +41,50 @@ const HowToPlay = () => {
   }, [currentPage]);
   return (
     <PopUp>
-      {currentPage === 0 ? (
-        <Welcome />
-      ) : currentPage === 1 ? (
-        <Page1 />
-      ) : currentPage === 2 ? (
-        <Page2 />
-      ) : currentPage === 3 ? (
-        <Page3 />
-      ) : currentPage === 4 ? (
-        <Page4 />
-      ) : null}
-      {visible?.backButton ? (
-        <button
-          onClick={() => {
-            handleOnClick(true);
-          }}
-          className="text-white"
-        >
-          {"<"}
-        </button>
-      ) : null}
-      <div className="text-white">{currentPage}</div>
-      {visible?.frontButton ? (
-        <button
-          onClick={() => {
-            handleOnClick(false);
-          }}
-          className="text-white"
-        >
-          {">"}
-        </button>
-      ) : null}
+      <div className="flex flex-col m-auto">
+        {currentPage === 0 ? (
+          <Welcome />
+        ) : currentPage === 1 ? (
+          <Page1 />
+        ) : currentPage === 2 ? (
+          <Page2 />
+        ) : currentPage === 3 ? (
+          <Page3 />
+        ) : currentPage === 4 ? (
+          <Page4 />
+        ) : null}
+      </div>
+      <div className="absolute flex justify-between bottom-0 w-full">
+        {visible?.backButton ? (
+          <button
+            onClick={() => {
+              handleOnClick(true);
+            }}
+            className="text-white"
+          >
+            {"<"}
+          </button>
+        ) : (
+          <div />
+        )}
+        {currentPage !== 0 ? (
+          <div className="text-white">
+            {currentPage}/{lastPage}
+          </div>
+        ) : null}
+        {visible?.frontButton ? (
+          <button
+            onClick={() => {
+              handleOnClick(false);
+            }}
+            className="text-white"
+          >
+            {">"}
+          </button>
+        ) : (
+          <div />
+        )}
+      </div>
     </PopUp>
   );
 };
