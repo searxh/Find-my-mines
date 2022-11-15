@@ -14,21 +14,21 @@ Back-end
 
 ## Installation
 
-### In the client directory
+### In the client directory:
 
-### With npm
-### `npm install` or `npm i`
+  ### With npm
+  ### `npm install` or `npm i`
 
-### With yarn
-### `yarn install`
+  ### With yarn
+  ### `yarn install`
 
-### In the server directory
+### In the server directory:
 
-### With npm
-### `npm install` or `npm i`
+  ### With npm
+  ### `npm install` or `npm i`
 
-### With yarn
-### `yarn install`
+  ### With yarn
+  ### `yarn install`
 
 ## Set up
 
@@ -41,31 +41,31 @@ Back-end
 
 ### In the server directory, you can run:
 
-### With npm
-### `npm start` or `npm run start`
+  ### With npm
+  ### `npm start` or `npm run start`
 
-### With yarn
-### `yarn start`
+  ### With yarn
+  ### `yarn start`
 
 ## Starting the development server
 
 ### In the server directory, you can run:
 
-### With npm
-### `npm run dev`
+  ### With npm
+  ### `npm run dev`
 
-### With yarn
-### `yarn dev`
+  ### With yarn
+  ### `yarn dev`
 
 ## Starting the client
 
 ### In the client directory, you can run:
 
-### With npm
-### `npm start`
+  ### With npm
+  ### `npm start`
 
-### With yarn
-### `yarn start`
+  ### With yarn
+  ### `yarn start`
 
 
 ## Available Scripts (React Default)
