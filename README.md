@@ -14,20 +14,20 @@ Back-end
 
 ## Installation
 
-### In the client directory:
+  In the client directory:
 
-  ### With npm
+  If you are using npm,
   ### `npm install` or `npm i`
 
-  ### With yarn
+  If you are using yarn,
   ### `yarn install`
 
-### In the server directory:
+  In the server directory:
 
-  ### With npm
+  If you are using npm,
   ### `npm install` or `npm i`
 
-  ### With yarn
+  If you are using yarn,
   ### `yarn install`
 
 ## Set up
@@ -39,32 +39,32 @@ Back-end
 
 ## Starting the server
 
-### In the server directory, you can run:
+  In the server directory, you can run:
 
-  ### With npm
+  If you are using npm,
   ### `npm start` or `npm run start`
 
-  ### With yarn
+  If you are using yarn,
   ### `yarn start`
 
 ## Starting the development server
 
-### In the server directory, you can run:
+  In the server directory, you can run:
 
-  ### With npm
+  If you are using npm,
   ### `npm run dev`
 
-  ### With yarn
+  If you are using yarn,
   ### `yarn dev`
 
 ## Starting the client
 
-### In the client directory, you can run:
+  In the client directory, you can run:
 
-  ### With npm
+  If you are using npm,
   ### `npm start`
 
-  ### With yarn
+  If you are using yarn,
   ### `yarn start`
 
 
