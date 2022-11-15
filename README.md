@@ -1,8 +1,74 @@
-# Getting Started with Create React App
+# Find My Mines - Getting Started
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a part of Netcentric Architecture Term project and was bootstrapped with 
+[Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+Front-end
+  - React
+  - Typescript
+
+Back-end
+  - NodeJS
+  - Typescript
+  - Socket.IO
+
+## Installation
+
+### In the client directory
+
+### With npm
+### `npm install` or `npm i`
+
+### With yarn
+### `yarn install`
+
+### In the server directory
+
+### With npm
+### `npm install` or `npm i`
+
+### With yarn
+### `yarn install`
+
+## Set up
+
+1. Find your ip address using ipconfig or ifconfig
+2. Change directory to find-my-mines/client
+3. Edit REACT_APP_IP in .env.example to your ip (ex. REACT_APP_IP=192.168.X.XXX)
+4. Rename to .env
+
+## Starting the server
+
+### In the server directory, you can run:
+
+### With npm
+### `npm start` or `npm run start`
+
+### With yarn
+### `yarn start`
+
+## Starting the development server
+
+### In the server directory, you can run:
+
+### With npm
+### `npm run dev`
+
+### With yarn
+### `yarn dev`
+
+## Starting the client
+
+### In the client directory, you can run:
+
+### With npm
+### `npm start`
+
+### With yarn
+### `yarn start`
+
+
+## Available Scripts (React Default)
 
 In the project directory, you can run:
 
