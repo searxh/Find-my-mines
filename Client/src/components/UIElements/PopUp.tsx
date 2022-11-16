@@ -1,10 +1,12 @@
 import React from "react";
+import { playAudio } from "../../lib/utility/Audio";
 
 export const PopUp = (props: any) => {
   const [visible, setVisible] = React.useState<boolean>(true);
   const handleOnClose = () => {
     setVisible(false);
     props.onClose();
+    playAudio("pop.wav");
   };
   return (
     <>
