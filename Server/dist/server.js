@@ -458,7 +458,9 @@ socketIO.on("connection", (socket) => {
         //chat histories are private (different roomID will not have access to each other's chat history)
         //console.log("CHAT REQUEST ARG", name, roomID, activeUsers)
         if (((_a = activeUsers[name]) === null || _a === void 0 ? void 0 : _a.inGame) && roomID !== undefined) {
-            socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
+            socketIO
+                .to(roomID)
+                .emit("chat update", chatHistory.local[roomID]);
         }
         else {
             socketIO
@@ -472,7 +474,9 @@ socketIO.on("connection", (socket) => {
         //chat histories are private (different roomID will not have access to each other's chat history)
         if (((_a = activeUsers[name]) === null || _a === void 0 ? void 0 : _a.inGame) && roomID !== undefined) {
             chatHistory.local[roomID].push(msg);
-            socketIO.to(roomID).emit("chat update", chatHistory.local[roomID]);
+            socketIO
+                .to(roomID)
+                .emit("chat update", chatHistory.local[roomID]);
         }
         else {
             chatHistory.global.push(msg);
@@ -525,14 +529,18 @@ socketIO.on("connection", (socket) => {
                     socketIO.to(info.roomID).emit("gameInfo update", info);
                 }
             }, 1000);
-            socketIO.to(info.roomID).emit("pause/unpause update", { pause: false });
+            socketIO
+                .to(info.roomID)
+                .emit("pause/unpause update", { pause: false });
         }
         else {
             //pause
             console.log("[PAUSE]", roomID, requester);
             clearInterval(counter.countdown);
             counter.countdown = false;
-            socketIO.to(info.roomID).emit("pause/unpause update", { pause: true });
+            socketIO
+                .to(info.roomID)
+                .emit("pause/unpause update", { pause: true });
         }
     });
     socket.on("leave room request", (roomID) => {
@@ -563,7 +571,9 @@ socketIO.on("connection", (socket) => {
     socket.on("confetti", ({ targetPlayer }) => {
         if (activeUsers[targetPlayer] !== undefined) {
             console.log("[CONFETTI] sent from", socket.data.name, "to", targetPlayer);
-            socket.to(activeUsers[targetPlayer].id).emit("confetti from sender");
+            socket
+                .to(activeUsers[targetPlayer].id)
+                .emit("confetti from sender");
         }
     });
     socket.on("disconnect", () => {
