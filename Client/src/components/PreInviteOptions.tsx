@@ -30,7 +30,8 @@ export default function PreInviteOptions({
     const [minesAmount, setMinesAmount] = React.useState<MinesLeftType>(
         getMinesAmountArray(defaultMinesConfig)
     );
-    //maxLimit = 0 under limit, maxLimit = 1 at limit, maxLimit = 2 exceeded limit
+    //maxLimit = 0 under limit, maxLimit = 1 at limit,
+    //maxLimit = 2 exceeded limit, maxLimit = 3 special case: mines = 0
     const [gridSizeInput, setGridSizeInput] =
         React.useState<number>(defaultGridSizeInput);
     const [maxLimit, setMaxLimit] = React.useState<number>(0);
@@ -74,6 +75,8 @@ export default function PreInviteOptions({
             setMaxLimit(1);
         } else if (maxcount > gridSize) {
             setMaxLimit(2);
+        } else if (maxcount === 0) {
+            setMaxLimit(3);
         } else setMaxLimit(0);
     };
     React.useEffect(() => {
@@ -163,7 +166,9 @@ export default function PreInviteOptions({
                                     initial={minesAmount[key]}
                                     min={0}
                                     max={100}
-                                    maxDisabled={Boolean(maxLimit)}
+                                    maxDisabled={
+                                        Boolean(maxLimit) && maxLimit !== 3
+                                    }
                                     className="flex rounded-full bg-opacity-50 bg-neutral-700 w-fit p-0.5 my-0.5"
                                     buttonClassName="w-7 h-7 rounded-full bg-neutral-300 hover:scale-110 
 									transition duration-200 hover:bg-opacity-80 m-auto bg-opacity-20"
@@ -181,10 +186,10 @@ export default function PreInviteOptions({
                     rounded-3xl p-5 resize-none mb-3 text-center"
                 ></textarea>
                 <button
-                    disabled={maxLimit === 2}
+                    disabled={maxLimit >= 2}
                     className={`basis-[10%] bg-green-600 p-2 rounded-full duration-300 shadow-lg
                     hover:scale-[102%] hover:shadow-green-400 transition text-white text-xl text-center
-					${maxLimit === 2 ? "bg-neutral-700 opacity-50 hover:shadow-black" : null}`}
+					${maxLimit >= 2 ? "bg-neutral-700 opacity-50 hover:shadow-black" : null}`}
                     onClick={handleOnClick}
                 >
                     Send Invite
