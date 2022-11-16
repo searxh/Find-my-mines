@@ -1,6 +1,6 @@
 # Find My Mines - Getting Started
 
-This project is a part of Netcentric Architecture Term project and was bootstrapped with 
+This project is a part of Netcentric Architecture Term project
 [Create React App](https://github.com/facebook/create-react-app).
 
 Front-end
