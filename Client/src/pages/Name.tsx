@@ -2,8 +2,9 @@ import React, { FormEvent } from "react";
 import { GlobalContext } from "../states";
 import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../socket";
-import { initialState } from "../lib/defaults/Default";
+import { initialState, ioString } from "../lib/defaults/Default";
 import { io } from "socket.io-client";
+import Image from "../components/Image";
 
 export default function Name() {
     const { socket, setSocket } = React.useContext(SocketContext);
@@ -49,7 +50,7 @@ export default function Name() {
         e.preventDefault();
         console.log(nameRef.current?.value, socket);
         if (nameRef.current !== null && socket === undefined) {
-            setSocket(io("https://fmm.reaw.me/"));
+            setSocket(io(ioString));
             setLock(true);
             dispatch({
                 type: "set",
@@ -133,13 +134,17 @@ export default function Name() {
                 className="absolute top-0 botom-0 left-0 right-0 -z-10 bg-cover bg-center blur-sm
             bg-[url('../public/assets/images/bg.gif')] flex-1 h-screen opacity-50"
             />
+            <Image
+                type="Common"
+                className="absolute w-1/2 top-0 left-0 bottom-0 right-0 m-auto -z-10 animate-spin-slow blur-sm"
+            />
             <form className="flex flex-col m-auto p-2">
-                <div className="relative mb-10">
-                    <div className="font-righteous text-6xl text-white text-center animate-pulse-slow">
+                <div className="relative mb-10 text-white text-center">
+                    <div className="font-righteous text-6xl animate-pulse-slow drop-shadow-[5px_5px_0px_rgba(0,0,0,1)]">
                         FIND MY MINES
-                        <div className="font-quicksand absolute left-0 right-0 top-20 text-3xl">
-                            GROUP 6
-                        </div>
+                    </div>
+                    <div className="font-quicksand absolute left-0 right-0 top-20 text-3xl">
+                        GROUP 6
                     </div>
                 </div>
                 <input
@@ -156,8 +161,8 @@ export default function Name() {
                 <div className="flex justify-center p-5">
                     <button
                         className="bg-green-600 text-white p-2 rounded-full 
-                        font-quicksand w-1/2 shadow-md hover:scale-105 transition
-                        hover:brightness-125 duration-500"
+                        font-quicksand w-1/2 shadow-lg hover:scale-105 transition
+                        hover:brightness-125 duration-500 hover:shadow-green-500"
                         onClick={(e: FormEvent) => handleOnSubmit(e)}
                     >
                         PLAY

@@ -8,7 +8,7 @@ export const CloseButton = ({ onClick }: CloseButtonPropsType) => {
     return (
         <button
             onClick={() => onClick()}
-            className="absolute -top-1 -left-1 w-10 h-10 bg-neutral-500 text-red-500 shadow-md z-30
+            className="absolute -top-1 -right-1 w-10 h-10 bg-neutral-500 text-red-500 shadow-md z-30
             text-center rounded-full font-righteous hover:scale-110 transition hover:bg-red-700"
         >
             <svg
