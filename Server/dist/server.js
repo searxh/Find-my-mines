@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const uuid = require("uuid");
 const app = require("express")();
-``;
 const http = require("http").Server(app);
 const socketIO = require("socket.io")(http, {
     cors: {

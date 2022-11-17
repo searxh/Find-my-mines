@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../socket";
 import { initialState } from "../lib/defaults/Default";
 import { io } from "socket.io-client";
-import Image from "../components/Image";
 
 export default function Name() {
     const { socket, setSocket } = React.useContext(SocketContext);
@@ -16,15 +15,33 @@ export default function Name() {
         "rounded-full text-center p-2 font-quicksand bg-neutral-500 text-white placeholder-white shadow-md my-5 hover:bg-neutral-700 transition duration-[2000ms]",
         "rounded-full text-center p-2 font-quicksand bg-red-500 text-white placeholder-white shadow-md my-5",
     ];
+
+    const errorText: Array<string> = [
+        "Username already in use",
+        "Username too long (Max 16 Characters)",
+        "Name must not contain only whitespace",
+    ];
+    const [errorTxt, setErrorTxt] = React.useState("");
     const [lock, setLock] = React.useState<boolean>(false);
     const [invalidClass, setInvalidClass] = React.useState<string>(
         inputClasses[0]
     );
     const [formInvalid, setFormInvalid] = React.useState<boolean>(false);
     const onChangeInputHandler = (e: any) => {
-        if (e.target.value.length > 0) {
+        const input = e.target.value;
+        if (input.length > 0) {
             setInvalidClass(inputClasses[0]);
             setFormInvalid(false);
+        }
+        if (input.length > 16) {
+            setInvalidClass(inputClasses[1]);
+            setFormInvalid(true);
+            setErrorTxt(errorText[1]);
+        }
+        if (!input.replace(/\s/g, "").length) {
+            setInvalidClass(inputClasses[1]);
+            setFormInvalid(true);
+            setErrorTxt(errorText[2]);
         }
     };
 
@@ -94,6 +111,7 @@ export default function Name() {
             if (socket !== undefined) {
                 console.log("socket forcibly disconnected");
                 setFormInvalid(true);
+                setErrorTxt(errorText[0]);
                 setInvalidClass(inputClasses[1]);
                 socket.disconnect();
                 setSocket(undefined as any);
@@ -115,17 +133,13 @@ export default function Name() {
                 className="absolute top-0 botom-0 left-0 right-0 -z-10 bg-cover bg-center blur-sm
             bg-[url('../public/assets/images/bg.gif')] flex-1 h-screen opacity-50"
             />
-            <Image
-                type="Common"
-                className="absolute animate-spin-slow -z-10 top-0 left-0 bottom-0 right-0 m-auto w-1/2 blur-sm"
-            />
             <form className="flex flex-col m-auto p-2">
-                <div className="relative mb-10 text-center text-white">
-                    <div className="font-righteous text-6xl text-center animate-pulse-slow drop-shadow-[5px_5px_0px_rgba(0,0,0,1)]">
+                <div className="relative mb-10">
+                    <div className="font-righteous text-6xl text-white text-center animate-pulse-slow">
                         FIND MY MINES
-                    </div>
-                    <div className="font-quicksand absolute left-0 right-0 top-20 text-3xl">
-                        GROUP 6
+                        <div className="font-quicksand absolute left-0 right-0 top-20 text-3xl">
+                            GROUP 6
+                        </div>
                     </div>
                 </div>
                 <input
@@ -136,7 +150,7 @@ export default function Name() {
                 />
                 {formInvalid && (
                     <h1 className="text-red-400 font-quicksand text-center">
-                        Username already in use
+                        {errorTxt}
                     </h1>
                 )}
                 <div className="flex justify-center p-5">
