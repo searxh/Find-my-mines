@@ -49,7 +49,7 @@ export default function Name() {
         e.preventDefault();
         console.log(nameRef.current?.value, socket);
         if (nameRef.current !== null && socket === undefined) {
-            setSocket(io("http://" + process.env.REACT_APP_IP + ":7070"));
+            setSocket(io("https://fmm.reaw.me/"));
             setLock(true);
             dispatch({
                 type: "set",
