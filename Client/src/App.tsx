@@ -7,15 +7,17 @@ import Game from "./pages/Game";
 import HowToPlay from "./pages/HowToPlay";
 
 function App() {
-	return (
-		<Routes>
-			<Route path='/' element={<Name />} />
-			<Route path='/menu' element={<Menu />} />
-			<Route path='/game' element={<Game />} />
-			<Route path='/admin' element={<Admin />} />
-			<Route path='/howtoplay' element={<HowToPlay />} />
-		</Routes>
-	);
+    return (
+        <div className="relative overflow-hidden">
+            <Routes>
+                <Route path="/" element={<Name />} />
+                <Route path="/menu" element={<Menu />} />
+                <Route path="/game" element={<Game />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/howtoplay" element={<HowToPlay />} />
+            </Routes>
+        </div>
+    );
 }
 
 export default App;
