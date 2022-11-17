@@ -24,6 +24,6 @@
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "concurrently \"tsc -w\" \"nodemon dist/server.js\""
+    "dev": "concurrently \"tsc -w\" \"nodemon server.js\""
   }
 }
