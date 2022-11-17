@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../socket";
 import { initialState } from "../lib/defaults/Default";
 import { io } from "socket.io-client";
-import Image from "../components/Image";
 
 export default function Name() {
     const { socket, setSocket } = React.useContext(SocketContext);
@@ -20,7 +19,7 @@ export default function Name() {
     const errorText: Array<string> = [
         "Username already in use",
         "Username too long (Max 16 Characters)",
-        "Please enter a name",
+        "Name must not contain only whitespace",
     ];
     const [errorTxt, setErrorTxt] = React.useState("");
     const [lock, setLock] = React.useState<boolean>(false);
@@ -29,22 +28,20 @@ export default function Name() {
     );
     const [formInvalid, setFormInvalid] = React.useState<boolean>(false);
     const onChangeInputHandler = (e: any) => {
-        const input = e.target.value.length;
-        switch (input) {
-            case input > 0:
-                setInvalidClass(inputClasses[0]);
-                setFormInvalid(false);
-                break;
-            case input === 0:
-                setInvalidClass(inputClasses[1]);
-                setFormInvalid(true);
-                setErrorTxt(errorText[2]);
-                break;
-            case input > 16:
-                setInvalidClass(inputClasses[1]);
-                setFormInvalid(true);
-                setErrorTxt(errorText[1]);
-                break;
+        const input = e.target.value;
+        if (input.length > 0) {
+            setInvalidClass(inputClasses[0]);
+            setFormInvalid(false);
+        }
+        if (input.length > 16) {
+            setInvalidClass(inputClasses[1]);
+            setFormInvalid(true);
+            setErrorTxt(errorText[1]);
+        }
+        if (!input.replace(/\s/g, "").length) {
+            setInvalidClass(inputClasses[1]);
+            setFormInvalid(true);
+            setErrorTxt(errorText[2]);
         }
     };
 
