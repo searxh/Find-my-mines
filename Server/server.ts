@@ -1,7 +1,7 @@
 "use strict";
 const uuid = require("uuid");
 const app = require("express")();
-``;
+
 const http = require("http").Server(app);
 const socketIO = require("socket.io")(http, {
     cors: {
