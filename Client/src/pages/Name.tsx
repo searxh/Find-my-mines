@@ -15,15 +15,28 @@ export default function Name() {
     "rounded-full text-center p-2 font-quicksand bg-neutral-500 text-white placeholder-white shadow-md my-5 hover:bg-neutral-700 transition duration-[2000ms]",
     "rounded-full text-center p-2 font-quicksand bg-red-500 text-white placeholder-white shadow-md my-5",
   ];
+
+  const errorText: Array<string> = [
+    "Username already in use",
+    "Username too long (Max 16 Characters)",
+  ];
+  const [errorTxt, setErrorTxt] = React.useState("");
   const [lock, setLock] = React.useState<boolean>(false);
   const [invalidClass, setInvalidClass] = React.useState<string>(
     inputClasses[0]
   );
   const [formInvalid, setFormInvalid] = React.useState<boolean>(false);
   const onChangeInputHandler = (e: any) => {
+    console.log(e.target.value.length);
+
     if (e.target.value.length > 0) {
       setInvalidClass(inputClasses[0]);
       setFormInvalid(false);
+    }
+    if (e.target.value.length > 16) {
+      setInvalidClass(inputClasses[1]);
+      setFormInvalid(true);
+      setErrorTxt(errorText[1]);
     }
   };
 
@@ -91,6 +104,7 @@ export default function Name() {
       if (socket !== undefined) {
         console.log("socket forcibly disconnected");
         setFormInvalid(true);
+        setErrorTxt(errorText[0]);
         setInvalidClass(inputClasses[1]);
         socket.disconnect();
         setSocket(undefined as any);
@@ -129,7 +143,7 @@ export default function Name() {
         />
         {formInvalid && (
           <h1 className="text-red-400 font-quicksand text-center">
-            Username already in use
+            {errorTxt}
           </h1>
         )}
         <div className="flex justify-center p-5">

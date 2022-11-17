@@ -287,7 +287,7 @@ socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 
             info.users.forEach((user) => {
                 activeUsers[user.name].inGame = true;
             });
-            console.log("ACTIVE USERS BEFORE START GAME", activeUsers);
+            `console.log("ACTIVE USERS BEFORE START GAME", activeUsers);`;
             socketIO.emit("active user update", activeUsers);
             socketIO.to(info.roomID).emit("start game", info);
             activeGames = [...activeGames, info];
