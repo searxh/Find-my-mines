@@ -10,6 +10,7 @@ import {
 } from "./types";
 import { io } from "socket.io-client";
 import isEqual from "lodash/isEqual";
+import { ioString } from "./lib/defaults/Default";
 
 export const SocketContext = createContext<SocketContextType>(
     {} as SocketContextType
@@ -176,25 +177,19 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                     location.pathname.includes("game") &&
                     socket === undefined
                 ) {
-                    setSocket(
-                        io("http://" + process.env.REACT_APP_IP + ":7070")
-                    );
+                    setSocket(io(ioString));
                     setReconnectInGame(true);
                 } else if (
                     location.pathname.includes("menu") &&
                     socket === undefined
                 ) {
                     console.log("setting socket");
-                    setSocket(
-                        io("http://" + process.env.REACT_APP_IP + ":7070")
-                    );
+                    setSocket(io(ioString));
                 } else if (
                     location.pathname.includes("admin") &&
                     socket === undefined
                 ) {
-                    setSocket(
-                        io("http://" + process.env.REACT_APP_IP + ":7070")
-                    );
+                    setSocket(io(ioString));
                 }
             }, 300);
         }
