@@ -9,6 +9,7 @@ import {
 import IncrementDecrementButton from "./IncrementDecrementButton";
 import Image from "./Image";
 import GridSizeButton from "./GridSizeButton";
+import CloseButton from "./CloseButton";
 interface PreInviteOptionsPropsType {
     setInviteOptions: Dispatch<SetStateAction<InviteMessageType>>;
     visible: boolean;
@@ -85,16 +86,10 @@ export default function PreInviteOptions({
 
     return visible ? (
         <div
-            className="absolute flex top-0 bottom-0 left-0 right-0 z-30
-        bg-black bg-opacity-80 rounded-3xl p-4 w-[50%] h-[80%] m-auto"
+            className="absolute flex top-0 bottom-0 left-0 right-0 z-30 shadow-md
+        bg-black bg-opacity-90 rounded-3xl p-4 w-[50%] h-[80%] m-auto"
         >
-            <button
-                onClick={handleOnClose}
-                className="absolute -top-1 -left-1 w-10 h-10 bg-neutral-500 text-white
-                text-center rounded-full font-righteous hover:scale-110 transition"
-            >
-                X
-            </button>
+            <CloseButton onClick={handleOnClose} />
             <div className="flex flex-1 flex-col m-auto h-full justify-evenly">
                 <div className="text-cyan-400 text-3xl font-righteous mb-2">
                     INVITE OPTIONS
@@ -153,7 +148,7 @@ export default function PreInviteOptions({
                                     className="w-fit h-10 m-auto"
                                 />
                                 <div className="text-base text-white m-auto">
-                                    {key} Mine Amount
+                                    Number of {key} Mines
                                 </div>
                                 <IncrementDecrementButton
                                     stateChangeCallback={(num: number) => {
