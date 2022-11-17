@@ -1,0 +1,15 @@
+# Packages
+node_modules
+
+# Local Build files
+dist
+
+# Local setting
+.git
+.github
+.vscode
+dockerfile
+docker-compose.yaml
+.dockerignore
+.prettierrc
+.gitignore
