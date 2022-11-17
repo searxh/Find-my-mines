@@ -51,6 +51,12 @@ export const defaultGridSizeInput = 6;
 
 export const defaultGridSize = 36;
 
+const isLocal = true;
+
+export const ioString = isLocal
+    ? "http://" + process.env.REACT_APP_IP + ":7070"
+    : "https://fmm.reaw.me";
+
 export const initialInviteMessage: InviteMessageType = {
     message: "",
     gameOptions: {
