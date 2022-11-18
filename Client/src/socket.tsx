@@ -1,16 +1,12 @@
 import React, { createContext } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { GlobalContext } from "./states";
-import {
-    GameInfoType,
-    MessageType,
-    UserType,
-    SocketContextType,
-} from "./types";
+import { GameInfoType, UserType, SocketContextType } from "./types";
 import { io } from "socket.io-client";
 import isEqual from "lodash/isEqual";
 import { ioString } from "./lib/defaults/Default";
+import { NavigateContext } from "./lib/utility/Navigate";
 
 export const SocketContext = createContext<SocketContextType>(
     {} as SocketContextType
@@ -18,12 +14,12 @@ export const SocketContext = createContext<SocketContextType>(
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const { global_state, dispatch } = React.useContext(GlobalContext);
+    const { setDestination } = React.useContext(NavigateContext);
     const { gameInfo, name, flags, activeUsers, persistentFlags } =
         global_state;
     const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
     const [reconnectInGame, setReconnectInGame] =
         React.useState<boolean>(false);
-    const navigate = useNavigate();
     const location = useLocation();
     React.useEffect(() => {
         if (socket !== undefined) {
@@ -74,7 +70,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                     field: ["gameInfo", "flags", "pendingInvite"],
                     payload: [gameInfo, newFlags, {}],
                 });
-                setTimeout(() => navigate("/game"), 1000);
+                setTimeout(() => setDestination("game"), 1000);
             });
             socket.on("gameInfo update", (gameInfo: GameInfoType) => {
                 dispatch({

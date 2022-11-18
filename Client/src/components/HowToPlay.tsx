@@ -38,12 +38,12 @@ const HowToPlay = () => {
         }
     };
     //init visible state through function
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         if (visible === null) {
             setVisible(getVisibleState());
         }
     }, []);
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         setVisible(getVisibleState());
     }, [currentPage]);
     return (

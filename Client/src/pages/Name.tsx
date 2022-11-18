@@ -1,7 +1,7 @@
 import React, { FormEvent } from "react";
 import { GlobalContext } from "../states";
-import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../socket";
+import { NavigateContext } from "../lib/utility/Navigate";
 import { initialState, ioString } from "../lib/defaults/Default";
 import { io } from "socket.io-client";
 import Image from "../components/Image";
@@ -9,8 +9,8 @@ import Image from "../components/Image";
 export default function Name() {
     const { socket, setSocket } = React.useContext(SocketContext);
     const { global_state, dispatch } = React.useContext(GlobalContext);
+    const { setDestination } = React.useContext(NavigateContext);
     const { name, persistentFlags } = global_state;
-    const navigate = useNavigate();
     const nameRef = React.useRef<HTMLInputElement>(null);
     const inputClasses: Array<string> = [
         "rounded-full text-center p-2 font-quicksand bg-neutral-500 text-white placeholder-white shadow-md my-5 hover:bg-neutral-700 transition duration-[2000ms]",
@@ -95,9 +95,9 @@ export default function Name() {
                     if (
                         nameRef.current?.value.toLocaleLowerCase() === "admin"
                     ) {
-                        navigate("admin");
+                        setDestination("admin");
                     } else {
-                        navigate("menu");
+                        setDestination("menu");
                     }
                 }
             });
