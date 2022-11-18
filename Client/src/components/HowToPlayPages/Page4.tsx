@@ -23,10 +23,18 @@ export const Page4 = () => {
                     <div className="">
                         <div className="w-fit my-4 mx-auto">
                             <div
-                                className={`flex m-auto bg-neutral-800 rounded-full py-3 px-10 text-center
+                                className={`relative flex m-auto bg-neutral-800 rounded-full py-3 px-10 text-center
                             text-white shadow-md text-xl my-auto w-fit`}
                             >
                                 MATCH
+                                <img
+                                    src="assets/images/click.png"
+                                    className="absolute w-20 h-20 rotate-12 -right-[20%] -top-[10%]"
+                                    onLoad={() => {
+                                        setLoading(false);
+                                    }}
+                                    alt=""
+                                />
                             </div>
                         </div>
                         <div className="text-left p-1">
@@ -39,6 +47,14 @@ export const Page4 = () => {
                         rounded-full bg-green-800 text-lg z-20 w-fit my-4 mx-auto`}
                         >
                             <div className="text-white text-xl">Invite</div>
+                            <img
+                                src="assets/images/click.png"
+                                className="absolute w-20 h-20 rotate-12 -right-[20%] -top-[10%]"
+                                onLoad={() => {
+                                    setLoading(false);
+                                }}
+                                alt=""
+                            />
                             <svg
                                 className="fill-white w-8 h-8 m-auto mx-2"
                                 xmlns="http://www.w3.org/2000/svg"

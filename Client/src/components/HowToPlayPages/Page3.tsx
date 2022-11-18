@@ -34,12 +34,20 @@ export const Page3 = () => {
                         }}
                         alt=""
                     />
-                    <div className="basis-[25%] m-auto">
+                    <div className="relative basis-[25%] m-auto">
                         SERVER CHAT:
                         <br />
                         Chat with other online players
                         <br />
                         in the server lobby.
+                        <img
+                            src="assets/images/arrow.png"
+                            className="absolute w-56 h-44 rotate-180 -scale-x-100 -left-1/2 top-[70%]"
+                            onLoad={() => {
+                                setLoading(false);
+                            }}
+                            alt=""
+                        />
                     </div>
                 </div>
             </div>

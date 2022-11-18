@@ -26,14 +26,14 @@ export const Welcome = () => {
                     the location of the mines, the player with the points worth
                     of mines win!
                 </div>
-                <Image
-                    type="Epic"
+                <img
+                    src="assets/images/clickshovel.png"
                     className="w-[35%] m-auto"
                     onLoad={() => {
                         setLoading(false);
                     }}
+                    alt=""
                 />
-                <img src="" alt="" />
             </div>
         </>
     );
