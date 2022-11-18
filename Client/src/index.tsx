@@ -14,14 +14,16 @@ const root = ReactDOM.createRoot(
 root.render(
     <BrowserRouter>
         <AudioPlayer />
-        <NavigateProvider>
-            <GlobalStateProvider>
-                <SocketProvider>
-                    <NavigateProvider>
-                        <App />
-                    </NavigateProvider>
-                </SocketProvider>
-            </GlobalStateProvider>
-        </NavigateProvider>
+        <div className="relative overflow-hidden">
+            <NavigateProvider>
+                <GlobalStateProvider>
+                    <SocketProvider>
+                        <NavigateProvider>
+                            <App />
+                        </NavigateProvider>
+                    </SocketProvider>
+                </GlobalStateProvider>
+            </NavigateProvider>
+        </div>
     </BrowserRouter>
 );

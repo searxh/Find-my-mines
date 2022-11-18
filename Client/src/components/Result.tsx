@@ -39,7 +39,7 @@ export default function Result() {
                     field: ["flags", "gameInfo"],
                     payload: [newFlags, []],
                 });
-            }, 5000);
+            }, 3000);
             setPlayAgainVisible(true);
             setDestination("menu");
         }
