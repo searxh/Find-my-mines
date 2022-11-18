@@ -64,7 +64,7 @@ export default function Name() {
     };
     React.useEffect(() => {
         if (lock && socket !== undefined && name.length !== 0) {
-            socket.emit("name probe", name);
+            socket.emit("name probe", name.toLocaleLowerCase());
             socket.on("name probe response", (nameExists: boolean) => {
                 console.log("locked");
                 console.log("NAMEEXISTS", nameExists);
@@ -79,7 +79,7 @@ export default function Name() {
                     setLock(false);
                 } else {
                     socket.emit("name register", {
-                        name: name,
+                        name: name.toLocaleLowerCase(),
                         id: socket.id,
                         inGame: false,
                     });
