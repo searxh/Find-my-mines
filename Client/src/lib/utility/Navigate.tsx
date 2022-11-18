@@ -16,8 +16,9 @@ export const NavigateProvider = ({
     const [destination, setDestination] = React.useState<string>("");
     const [transition, setTransition] = React.useState<number>(0);
     React.useEffect(() => {
-        if (transition === 1 && destination !== "") {
-            console.log("navigate to " + destination);
+        if (destination === "root") {
+            navigate("/");
+        } else if (transition === 1 && destination !== "") {
             navigate("/" + destination);
         }
     }, [transition, destination]);

@@ -7,6 +7,7 @@ import { GlobalStateProvider } from "./states";
 import { SocketProvider } from "./socket";
 import { NavigateProvider } from "./lib/utility/Navigate";
 import AudioPlayer from "./lib/utility/AudioPlayer";
+import RouteCheck from "./lib/utility/RouteCheck";
 
 const root = ReactDOM.createRoot(
     document.getElementById("root") as HTMLElement
@@ -18,9 +19,9 @@ root.render(
             <NavigateProvider>
                 <GlobalStateProvider>
                     <SocketProvider>
-                        <NavigateProvider>
+                        <RouteCheck>
                             <App />
-                        </NavigateProvider>
+                        </RouteCheck>
                     </SocketProvider>
                 </GlobalStateProvider>
             </NavigateProvider>
