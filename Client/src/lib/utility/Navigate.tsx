@@ -1,15 +1,11 @@
-import React, { SetStateAction, Dispatch, createContext } from "react";
+import React, { createContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Transition from "../../components/Transition";
+import { NavigateContextType } from "../../types";
 
 export const NavigateContext = createContext<NavigateContextType>(
     {} as NavigateContextType
 );
-
-interface NavigateContextType {
-    destination: string;
-    setDestination: Dispatch<SetStateAction<string>>;
-}
 
 export const NavigateProvider = ({
     children,
@@ -21,6 +17,7 @@ export const NavigateProvider = ({
     const [transition, setTransition] = React.useState<number>(0);
     React.useEffect(() => {
         if (transition === 1 && destination !== "") {
+            console.log("navigate to " + destination);
             navigate("/" + destination);
         }
     }, [transition, destination]);
@@ -34,7 +31,10 @@ export const NavigateProvider = ({
             {destination !== "" && (
                 <Transition
                     midCallback={() => setTransition(1)}
-                    endCallback={() => setDestination("")}
+                    endCallback={() => {
+                        setDestination("");
+                        setTransition(0);
+                    }}
                 />
             )}
             {children}

@@ -14,12 +14,14 @@ const root = ReactDOM.createRoot(
 root.render(
     <BrowserRouter>
         <AudioPlayer />
-        <GlobalStateProvider>
-            <SocketProvider>
-                <NavigateProvider>
-                    <App />
-                </NavigateProvider>
-            </SocketProvider>
-        </GlobalStateProvider>
+        <NavigateProvider>
+            <GlobalStateProvider>
+                <SocketProvider>
+                    <NavigateProvider>
+                        <App />
+                    </NavigateProvider>
+                </SocketProvider>
+            </GlobalStateProvider>
+        </NavigateProvider>
     </BrowserRouter>
 );

@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "./Image";
 
 const visibleTime = 2000;
 const middleTime = 1000;
@@ -31,10 +32,10 @@ const Transition = ({
     return visible ? (
         <div
             className={`absolute h-full w-full transition duration-500
-         bg-black z-50 ${transition ? "translate-x-0" : "translate-x-[100%]"}`}
-        >
-            Transition
-        </div>
+            bg-[url('../public/assets/images/bg.png')] z-50 brightness-150 ${
+                transition ? "translate-x-0" : "translate-x-[100%]"
+            }`}
+        ></div>
     ) : null;
 };
 

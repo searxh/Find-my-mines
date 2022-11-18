@@ -1,4 +1,4 @@
-import { Dispatch } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { Socket } from "socket.io-client";
 export interface MinesConfigType {
     [key: string]: {
@@ -132,4 +132,8 @@ export interface SocketContextType {
 export interface GlobalContextType {
     global_state: GlobalStateType;
     dispatch: Dispatch<ActionType>;
+}
+export interface NavigateContextType {
+    destination: string;
+    setDestination: Dispatch<SetStateAction<string>>;
 }
