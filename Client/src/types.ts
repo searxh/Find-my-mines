@@ -70,23 +70,26 @@ export interface EffectsType {
     points: number;
 }
 export interface PersistentFlagsType {
+    //controls whether user can auto name register or not
+    //(allows auto name register in reconnection cases)
     canAutoNameRegister: boolean;
+    //controls whether how to play should be active or not
     howToPlayIsActive: boolean;
 }
 export interface FlagsType {
     //shows whether active users are present in the server or not (sent from server)
     activeUsersInitialized: boolean;
-    //controls if matching is allowed or not
+    //controls whether matching is allowed or not
     canMatch: boolean;
-    //shows if the other user has left or not
+    //shows whether the other user has left or not
     userLeft: boolean;
-    //if the result should be visible has left or not
+    //controls whether the result should be visible has left or not
     resultVisible: boolean;
     //controls whether the user is matching or not
     isMatching: boolean;
     //controls whether confirmation component is visible or not
     confirmationVisible: boolean;
-    //shows if game is paused or not
+    //shows whether the game is paused or not
     isPaused: boolean;
 }
 interface MinesLeftKey {
