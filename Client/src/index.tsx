@@ -1,22 +1,25 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import { BrowserRouter } from 'react-router-dom';
-import { GlobalStateProvider } from './states';
-import { SocketProvider } from './socket';
-import AudioPlayer from './lib/utility/AudioPlayer';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import { BrowserRouter } from "react-router-dom";
+import { GlobalStateProvider } from "./states";
+import { SocketProvider } from "./socket";
+import { NavigateProvider } from "./lib/utility/Navigate";
+import AudioPlayer from "./lib/utility/AudioPlayer";
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+    document.getElementById("root") as HTMLElement
 );
 root.render(
-      <BrowserRouter>
+    <BrowserRouter>
         <AudioPlayer />
         <GlobalStateProvider>
-          <SocketProvider>
-            <App />
-          </SocketProvider>
+            <SocketProvider>
+                <NavigateProvider>
+                    <App />
+                </NavigateProvider>
+            </SocketProvider>
         </GlobalStateProvider>
-      </BrowserRouter>
+    </BrowserRouter>
 );
