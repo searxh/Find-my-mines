@@ -1,7 +1,7 @@
 import React from "react";
 import ChatInput from "./ChatInput";
 import { GlobalContext } from "../states";
-import { MessageType, UserType } from "../types";
+import { MessageType } from "../types";
 import { SocketContext } from "../socket";
 import AutoScroll from "@brianmcallister/react-auto-scroll";
 import { getUserColor } from "../lib/utility/GetUserColor";
@@ -9,7 +9,7 @@ import format from "date-fns/format";
 
 export default function Chat() {
     const { global_state } = React.useContext(GlobalContext);
-    const { name, gameInfo, activeUsers, flags } = global_state;
+    const { name, gameInfo, activeUsers } = global_state;
     const { socket } = React.useContext(SocketContext);
     const [chat, setChat] = React.useState<Array<MessageType>>([]);
     const [chatHeight, setChatHeight] = React.useState<number>(0);
