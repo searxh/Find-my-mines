@@ -1,51 +1,49 @@
-import React from 'react'
-import { SocketContext } from '../socket'
-import { GlobalContext } from '../states'
-import { UserType } from '../types'
-import { playAudio } from '../lib/utility/Audio'
+import React from "react";
+import { SocketContext } from "../socket";
+import { GlobalContext } from "../states";
+import { UserType } from "../types";
+import { playAudio } from "../lib/utility/Audio";
 
 export default function RematchStatus() {
-    const { global_state } = React.useContext(GlobalContext)
-    const { socket } = React.useContext(SocketContext)
-    const { gameInfo, name, flags } = global_state
-    const [ status, setStatus ] = React.useState<string>("")
+    const { global_state } = React.useContext(GlobalContext);
+    const { socket } = React.useContext(SocketContext);
+    const { gameInfo, name, persistentFlags } = global_state;
+    const [status, setStatus] = React.useState<string>("");
     //mode 0 = not visible, mode 1 = challenged user view
     //mode 2 = challenger user view, mode 3 = one of the user has left
-    const [ mode, setMode ] = React.useState<number>(0)
+    const [mode, setMode] = React.useState<number>(0);
     const handleOnClick = () => {
         if (socket !== undefined) {
-            playAudio('pop.wav');
-            socket.emit('rematch accepted', gameInfo.roomID)
-            setMode(0)
+            playAudio("pop.wav");
+            socket.emit("rematch accepted", gameInfo.roomID);
+            setMode(0);
         }
-    }
-    React.useEffect(()=>{
+    };
+    React.useEffect(() => {
         if (socket !== undefined) {
-            socket.on('rematch request',(requester:UserType)=>{
+            socket.on("rematch request", (requester: UserType) => {
                 if (requester.name !== name) {
-                    setMode(1)
-                    setStatus(requester.name+" is requesting for a rematch!")
+                    setMode(1);
+                    setStatus(requester.name + " is requesting for a rematch!");
                 } else {
-                    setMode(2)
-                    setStatus("Waiting for other player's response...")
+                    setMode(2);
+                    setStatus("Waiting for other player's response...");
                 }
-            })
+            });
         }
-        if (flags.userLeft) {
-            setMode(3)
-            setStatus("Other user has left the room")
+        if (persistentFlags.userLeft) {
+            setMode(3);
+            setStatus("Other user has left the room");
         }
-        return ()=>{
-            socket?.off('rematch request')
-        }
-    },[flags])
-    return (mode===1||mode===2?
+        return () => {
+            socket?.off("rematch request");
+        };
+    }, [persistentFlags.userLeft]);
+    return mode === 1 || mode === 2 ? (
         <div className="flex flex-col mt-10">
-            <div className="text-yellow-500">
-                {status}
-            </div>
+            <div className="text-yellow-500">{status}</div>
 
-            {mode===1 &&
+            {mode === 1 && (
                 <button
                     onClick={handleOnClick}
                     className="bg-cyan-600 text-white px-10 py-2 
@@ -53,12 +51,9 @@ export default function RematchStatus() {
                 >
                     ACCEPT
                 </button>
-            }
-        </div>:
-        mode===3?
-        <div className="text-yellow-500">
-            {status}
+            )}
         </div>
-        :null
-    )
+    ) : mode === 3 ? (
+        <div className="text-yellow-500">{status}</div>
+    ) : null;
 }

@@ -37,42 +37,47 @@ export default function Chat() {
         }
     }, [socket, gameInfo.roomID, activeUsers]);
     return (
-        <div
-            className={`flex flex-col justify-evenly font-quicksand text-xl h-full`}
-        >
-            <div
-                ref={chatWindowRef}
-                className="basis-[95%] bg-neutral-800 rounded-3xl mb-5 shadow-md overflow-hidden"
-            >
-                <AutoScroll height={chatHeight} showOption={false}>
-                    {chat.map((msg: MessageType, index: number) => {
-                        return (
-                            <div
-                                key={index}
-                                className="flex justify-between px-5 py-1 text-neutral-400"
-                                style={{
-                                    color: getUserColor(activeUsers, msg.from),
-                                }}
-                            >
-                                <div className="flex brightness-125">
-                                    <div className="">
+        <div className={`relative font-quicksand text-xl h-full`}>
+            <div className="absolute flex flex-col top-0 bottom-0 left-0 right-0 m-auto flex-1">
+                <div
+                    ref={chatWindowRef}
+                    className="basis-[95%] bg-neutral-800 rounded-3xl mb-5 shadow-md"
+                >
+                    <AutoScroll height={chatHeight} showOption={false}>
+                        {chat.map((msg: MessageType, index: number) => {
+                            return (
+                                <div
+                                    key={index}
+                                    className="flex justify-between px-5 py-1 text-neutral-400"
+                                    style={{
+                                        color: getUserColor(
+                                            activeUsers,
+                                            msg.from
+                                        ),
+                                    }}
+                                >
+                                    <div className="text-left brightness-125">
                                         {msg.from.toUpperCase()}:
                                     </div>
-                                    <div className="ml-3">{msg.message}</div>
+                                    <div className="flex-1 px-3 break-words overflow-hidden">
+                                        <div className="m-auto text-left">
+                                            {msg.message}
+                                        </div>
+                                    </div>
+                                    <div className="text-green-300">
+                                        {format(new Date(msg.at), "HH:mm")}
+                                    </div>
                                 </div>
-                                <div className="text-green-300">
-                                    {format(new Date(msg.at), "HH:mm")}
-                                </div>
-                            </div>
-                        );
-                    })}
-                    {chat.length === 0 ? (
-                        <div className="px-5 py-1"> </div>
-                    ) : null}
-                </AutoScroll>
-            </div>
-            <div className="basis-[5%]">
-                <ChatInput />
+                            );
+                        })}
+                        {chat.length === 0 ? (
+                            <div className="px-5 py-1"> </div>
+                        ) : null}
+                    </AutoScroll>
+                </div>
+                <div className="basis-[5%]">
+                    <ChatInput />
+                </div>
             </div>
         </div>
     );

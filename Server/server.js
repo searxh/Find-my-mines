@@ -281,7 +281,7 @@ socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 
     if (roomID.length > 20) {
         const info = getGameInfo(roomID);
         const sockets = yield socketIO.in(info.roomID).fetchSockets();
-        if (sockets.length === 2) {
+        if (sockets.length === 2 && info.state !== 2) {
             console.log("starting game for room ", info.roomID);
             info.users.forEach((user) => {
                 activeUsers[user.name].inGame = true;
@@ -289,7 +289,7 @@ socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 
             console.log("ACTIVE USERS BEFORE START GAME", activeUsers);
             socketIO.emit("active user update", activeUsers);
             socketIO.to(info.roomID).emit("start game", info);
-            activeGames = [...activeGames, info];
+            activeGames.push(info);
             socketIO.emit("add active game update", activeGames);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
@@ -337,6 +337,7 @@ socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
                 clearInterval(counter.countdown);
                 console.log("CLEAN GAME INFO", roomID);
                 socketIO.emit("remove active game update", info);
+                activeGames = activeGames.filter((activeGame) => activeGame.roomID !== info.roomID);
                 cleanGameInfos();
             }
         }), 1500);
@@ -373,7 +374,9 @@ socketIO.on("connection", (socket) => {
                     info.type === "matching") {
                     info.users.push(user);
                     socket.join(info.roomID);
-                    console.log(gameInfos);
+                    gameInfos.forEach((gameInfo) => {
+                        console.log(gameInfo === null || gameInfo === void 0 ? void 0 : gameInfo.roomID, gameInfo === null || gameInfo === void 0 ? void 0 : gameInfo.users[0], gameInfo === null || gameInfo === void 0 ? void 0 : gameInfo.users[1]);
+                    });
                     return;
                 }
             }
@@ -448,7 +451,7 @@ socketIO.on("connection", (socket) => {
         }
     });
     socket.on("active user request", () => {
-        socketIO.emit("active user update", activeUsers);
+        socketIO.to(socket.id).emit("active user update", activeUsers);
         console.log(Object.keys(activeUsers).length + " users are registered");
     });
     socket.on("chat request", ({ name, roomID }) => {
@@ -483,6 +486,12 @@ socketIO.on("connection", (socket) => {
                 .except(gameInfos.map((gameInfo) => gameInfo.roomID))
                 .emit("chat update", chatHistory.global);
         }
+    });
+    socket.on("admin clear chat", () => {
+        chatHistory.global = [];
+        socketIO
+            .except(gameInfos.map((gameInfo) => gameInfo.roomID))
+            .emit("chat update", chatHistory.global);
     });
     socket.on("admin reset game", (gameInfo) => {
         socketIO
@@ -549,6 +558,9 @@ socketIO.on("connection", (socket) => {
             socketIO.emit("active user update", activeUsers);
         }
         socket.leave(roomID);
+        const counter = getCounter(roomID);
+        if (counter)
+            clearInterval(counter.countdown);
     });
     socket.on("reconnect game", ({ roomID }) => {
         if (activeUsers[socket.data.name] !== undefined) {

@@ -1,7 +1,7 @@
 import React from "react";
 import { SocketContext } from "../socket";
 import { GlobalContext } from "../states";
-import { InviteInfoType, InviteStorageType } from "../types";
+import { FlagsType, InviteInfoType, InviteStorageType } from "../types";
 import Countdown from "./Countdown";
 import { playAudio } from "../lib/utility/Audio";
 import CloseButton from "./CloseButton";
@@ -36,7 +36,7 @@ export default function RequestReceiver() {
         } else {
             console.log("error occured at invite onClick()");
         }
-        const newFlags = { ...flags, canMatch: true };
+        const newFlags: FlagsType = { ...flags, canMatch: true };
         dispatch({
             type: "set",
             field: "flags",
@@ -70,7 +70,10 @@ export default function RequestReceiver() {
                         roomID !== undefined &&
                         inviteMessage !== undefined
                     ) {
-                        const newFlags = { ...flags, canMatch: false };
+                        const newFlags: FlagsType = {
+                            ...flags,
+                            canMatch: false,
+                        };
                         dispatch({
                             type: "set",
                             field: "flags",

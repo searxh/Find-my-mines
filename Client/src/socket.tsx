@@ -2,7 +2,13 @@ import React, { createContext } from "react";
 import { useLocation } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { GlobalContext } from "./states";
-import { GameInfoType, UserType, SocketContextType } from "./types";
+import {
+    GameInfoType,
+    UserType,
+    SocketContextType,
+    FlagsType,
+    PersistentFlagsType,
+} from "./types";
 import { io } from "socket.io-client";
 import isEqual from "lodash/isEqual";
 import { ioString } from "./lib/defaults/Default";
@@ -12,11 +18,25 @@ export const SocketContext = createContext<SocketContextType>(
     {} as SocketContextType
 );
 
+const events = [
+    "connect",
+    "active user update",
+    "start game",
+    "gameInfo update",
+    "add active game update",
+    "remove active game update",
+    "active game update",
+    "reset game",
+    "counter",
+    "pause/unpause update",
+    "end game",
+    "other user left",
+];
+
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const { global_state, dispatch } = React.useContext(GlobalContext);
-    const { setDestination } = React.useContext(NavigateContext);
-    const { gameInfo, name, flags, activeUsers, persistentFlags } =
-        global_state;
+    const { navigate } = React.useContext(NavigateContext);
+    const { gameInfo, name, flags, persistentFlags } = global_state;
     const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
     const [reconnectInGame, setReconnectInGame] =
         React.useState<boolean>(false);
@@ -41,38 +61,67 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                 const users: Array<UserType> = Object.values(
                     activeUsersFromServer
                 );
-                const newFlags = { ...flags, activeUsersInitialized: true };
-                dispatch({
-                    type: "multi-set",
-                    field: ["activeUsers", "flags"],
-                    payload: [users, newFlags],
-                });
-                setTimeout(() => {
+                if (!flags.activeUsersInitialized) {
+                    const newFlags: FlagsType = {
+                        ...flags,
+                        activeUsersInitialized: true,
+                    };
+                    dispatch({
+                        type: "multi-set",
+                        field: ["activeUsers", "flags"],
+                        payload: [users, newFlags],
+                    });
+                } else {
+                    dispatch({
+                        type: "set",
+                        field: "activeUsers",
+                        payload: users,
+                    });
+                }
+                /*setTimeout(() => {
                     if (!isEqual(activeUsers, users)) {
                         console.log("[RE-DISPATCH] ACTIVE USERS");
                         dispatch({
-                            type: "set",
-                            field: "activeUsers",
-                            payload: users,
+                            type: "multi-set",
+                            field: ["activeUsers", "flags"],
+                            payload: [
+                                users,
+                                {
+                                    ...flags,
+                                    resultVisible: true,
+                                    userLeft: true,
+                                },
+                            ],
                         });
                     }
-                }, 500);
+                }, 1000);*/
             });
             socket.on("start game", (gameInfo: GameInfoType) => {
-                const newFlags = {
+                console.log("starting game");
+                const newFlags: FlagsType = {
                     ...flags,
+                    isMatching: false,
+                };
+                const newPersistentFlags: PersistentFlagsType = {
+                    ...persistentFlags,
                     resultVisible: false,
                     userLeft: false,
-                    isMatching: false,
+                    isPaused: false,
                 };
                 dispatch({
                     type: "multi-set",
-                    field: ["gameInfo", "flags", "pendingInvite"],
-                    payload: [gameInfo, newFlags, {}],
+                    field: [
+                        "gameInfo",
+                        "flags",
+                        "persistentFlags",
+                        "pendingInvite",
+                    ],
+                    payload: [gameInfo, newFlags, newPersistentFlags, {}],
                 });
-                setTimeout(() => setDestination("game"), 1000);
+                setTimeout(() => navigate("game"), 1000);
             });
             socket.on("gameInfo update", (gameInfo: GameInfoType) => {
+                console.log("let's gameInfo update lol");
                 dispatch({
                     type: "set",
                     field: "gameInfo",
@@ -116,11 +165,14 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
             socket.on(
                 "pause/unpause update",
                 ({ pause }: { pause: boolean }) => {
-                    const newFlags = { ...flags, isPaused: pause };
+                    const newPersistentFlags: PersistentFlagsType = {
+                        ...persistentFlags,
+                        isPaused: pause,
+                    };
                     dispatch({
                         type: "set",
-                        field: "flags",
-                        payload: newFlags,
+                        field: "persistentFlags",
+                        payload: newPersistentFlags,
                     });
                 }
             );
@@ -132,46 +184,54 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                 });
                 //delay showing results (to allow users to see last mine first)
                 setTimeout(() => {
-                    const newFlags = { ...flags, resultVisible: true };
+                    const newPersistentFlags: PersistentFlagsType = {
+                        ...persistentFlags,
+                        resultVisible: true,
+                    };
                     dispatch({
                         type: "set",
-                        field: "flags",
-                        payload: newFlags,
+                        field: "persistentFlags",
+                        payload: newPersistentFlags,
                     });
                 }, 2000);
             });
             socket.on("other user left", () => {
                 console.log("OTHER USER LEFT");
-                const newFlags = {
-                    ...flags,
+                const newPersistentFlags: PersistentFlagsType = {
+                    ...persistentFlags,
                     resultVisible: true,
                     userLeft: true,
                 };
                 dispatch({
                     type: "set",
-                    field: "flags",
-                    payload: newFlags,
+                    field: "persistentFlags",
+                    payload: newPersistentFlags,
                 });
                 //in the case where dispatch fails
-                setTimeout(() => {
+                /*setTimeout(() => {
                     if (
-                        flags.resultVisible !== true &&
-                        flags.userLeft !== true
+                        persistentFlags.resultVisible !== true &&
+                        persistentFlags.userLeft !== true
                     ) {
                         console.log("[RE-DISPATCH] OTHER USER LEFT");
                         dispatch({
                             type: "set",
-                            field: "flags",
-                            payload: newFlags,
+                            field: "persistentFlags",
+                            payload: {
+                                ...persistentFlags,
+                                resultVisible: true,
+                                userLeft: true,
+                            },
                         });
                     }
-                }, 1000);
+                }, 1000);*/
             });
         } else {
             setTimeout(() => {
                 if (
                     location.pathname.includes("game") &&
-                    socket === undefined
+                    socket === undefined &&
+                    !persistentFlags.userLeft
                 ) {
                     setSocket(io(ioString));
                     setReconnectInGame(true);
@@ -189,12 +249,14 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                 }
             }, 300);
         }
+        return () => events.forEach((event) => socket?.off(event));
     }, [socket, location.pathname]);
     React.useEffect(() => {
         if (
             reconnectInGame &&
             socket !== undefined &&
-            flags.activeUsersInitialized
+            flags.activeUsersInitialized &&
+            gameInfo.roomID !== undefined
         ) {
             console.log("attempting to reconnect game");
             socket.emit("reconnect game", { roomID: gameInfo.roomID });

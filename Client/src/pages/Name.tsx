@@ -5,11 +5,12 @@ import { NavigateContext } from "../lib/utility/Navigate";
 import { initialState, ioString } from "../lib/defaults/Default";
 import { io } from "socket.io-client";
 import Image from "../components/Image";
+import { PersistentFlagsType } from "../types";
 
 export default function Name() {
     const { socket, setSocket } = React.useContext(SocketContext);
     const { global_state, dispatch } = React.useContext(GlobalContext);
-    const { setDestination } = React.useContext(NavigateContext);
+    const { navigate } = React.useContext(NavigateContext);
     const { name, persistentFlags } = global_state;
     const nameRef = React.useRef<HTMLInputElement>(null);
     const inputClasses: Array<string> = [
@@ -83,7 +84,7 @@ export default function Name() {
                         id: socket.id,
                         inGame: false,
                     });
-                    const newPersistentFlags = {
+                    const newPersistentFlags: PersistentFlagsType = {
                         ...persistentFlags,
                         canAutoNameRegister: true,
                     };
@@ -95,9 +96,9 @@ export default function Name() {
                     if (
                         nameRef.current?.value.toLocaleLowerCase() === "admin"
                     ) {
-                        setDestination("admin");
+                        navigate("admin");
                     } else {
-                        setDestination("menu");
+                        navigate("menu");
                     }
                 }
             });
@@ -116,7 +117,7 @@ export default function Name() {
                 setInvalidClass(inputClasses[1]);
                 socket.disconnect();
                 setSocket(undefined as any);
-                const newPersistentFlags = {
+                const newPersistentFlags: PersistentFlagsType = {
                     ...persistentFlags,
                     canAutoNameRegister: false,
                 };

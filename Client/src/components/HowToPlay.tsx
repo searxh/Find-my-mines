@@ -1,5 +1,5 @@
 import React from "react";
-import { HowToPlayVisibleType } from "../types";
+import { HowToPlayVisibleType, PersistentFlagsType } from "../types";
 import Welcome from "./HowToPlayPages/Welcome";
 import Page1 from "./HowToPlayPages/Page1";
 import Page2 from "./HowToPlayPages/Page2";
@@ -53,7 +53,7 @@ const HowToPlay = () => {
                     onClose={() => {
                         //set how to play is active flag to false
                         //(prevents it from displaying to user again)
-                        const newPersistentFlags = {
+                        const newPersistentFlags: PersistentFlagsType = {
                             ...persistentFlags,
                             howToPlayIsActive: false,
                         };
