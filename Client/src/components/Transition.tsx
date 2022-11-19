@@ -32,7 +32,7 @@ const Transition = ({
     return visible ? (
         <div
             className={`absolute flex h-screen w-full transition duration-500 shadow-md bg-contain
-            bg-[url('../public/assets/images/bg.png')] z-50 backdrop-blur-md ${
+            bg-[url('../public/assets/images/bg.png')] z-[100] backdrop-blur-md ${
                 transition ? "translate-x-0" : "translate-x-[100%]"
             }`}
         >

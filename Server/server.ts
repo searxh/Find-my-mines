@@ -420,7 +420,13 @@ socketIO.on("connection", (socket: any) => {
                 ) {
                     info.users.push(user);
                     socket.join(info.roomID);
-                    console.log(gameInfos);
+                    gameInfos.forEach((gameInfo) => {
+                        console.log(
+                            gameInfo?.roomID,
+                            gameInfo?.users[0],
+                            gameInfo?.users[1]
+                        );
+                    });
                     return;
                 }
             }

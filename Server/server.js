@@ -373,7 +373,9 @@ socketIO.on("connection", (socket) => {
                     info.type === "matching") {
                     info.users.push(user);
                     socket.join(info.roomID);
-                    console.log(gameInfos);
+                    gameInfos.forEach((gameInfo) => {
+                        console.log(gameInfo === null || gameInfo === void 0 ? void 0 : gameInfo.roomID, gameInfo === null || gameInfo === void 0 ? void 0 : gameInfo.users[0], gameInfo === null || gameInfo === void 0 ? void 0 : gameInfo.users[1]);
+                    });
                     return;
                 }
             }

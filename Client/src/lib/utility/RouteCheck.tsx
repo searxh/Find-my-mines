@@ -8,7 +8,7 @@ const RouteCheck = ({ children }: { children: React.ReactNode }) => {
     const { global_state, dispatch } = React.useContext(GlobalContext);
     const { socket } = React.useContext(SocketContext);
     const { navigate } = React.useContext(NavigateContext);
-    const { gameInfo, persistentFlags } = global_state;
+    const { name, gameInfo, persistentFlags } = global_state;
     const location = useLocation();
     React.useEffect(() => {
         //kicks player if they have not registered their name
@@ -18,13 +18,15 @@ const RouteCheck = ({ children }: { children: React.ReactNode }) => {
             navigate("root");
         }
         //kicks player if gameInfo is already invalid and player is still in the game page
-        //(can go back through browser)
-        else if (location.pathname === "/game" && gameInfoLength === 0) {
+        //(can go back to game through browser)
+        if (location.pathname === "/game" && gameInfoLength === 0) {
             persistentFlags.canAutoNameRegister
                 ? navigate("menu")
                 : navigate("root");
-        } else if (location.pathname !== "/game" && gameInfoLength !== 0) {
-            console.log("still see gameInfo in other path wtf");
+        }
+        //clears game info when out of the game
+        //(can go back to menu through browser)
+        if (location.pathname !== "/game" && gameInfoLength !== 0) {
             if (socket !== undefined) {
                 socket.emit("leave room request", gameInfo.roomID);
             }
@@ -33,6 +35,18 @@ const RouteCheck = ({ children }: { children: React.ReactNode }) => {
                 field: "gameInfo",
                 payload: {},
             });
+        }
+        //kicks player who is not admin from entering console
+        //(can go to admin through browser)
+        if (location.pathname === "/admin" && name.toLowerCase() !== "admin") {
+            persistentFlags.canAutoNameRegister
+                ? navigate("menu")
+                : navigate("root");
+        }
+        //kicks admin back to admin console
+        //(can go to other pages through browser)
+        if (location.pathname !== "/admin" && name.toLowerCase() === "admin") {
+            navigate("admin");
         }
     }, [location.pathname]);
     return <>{children}</>;
