@@ -289,7 +289,7 @@ socketIO.of("/").adapter.on("join-room", (roomID, id) => __awaiter(void 0, void 
             console.log("ACTIVE USERS BEFORE START GAME", activeUsers);
             socketIO.emit("active user update", activeUsers);
             socketIO.to(info.roomID).emit("start game", info);
-            activeGames = [...activeGames, info];
+            activeGames.push(info);
             socketIO.emit("add active game update", activeGames);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
@@ -337,6 +337,7 @@ socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
                 clearInterval(counter.countdown);
                 console.log("CLEAN GAME INFO", roomID);
                 socketIO.emit("remove active game update", info);
+                activeGames = activeGames.filter((activeGame) => activeGame.roomID !== info.roomID);
                 cleanGameInfos();
             }
         }), 1500);

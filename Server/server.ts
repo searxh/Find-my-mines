@@ -36,7 +36,7 @@ let chatHistory: ChatHistoryType = {
     local: {},
 };
 let activeUsers: { [key: string]: UserType } = {};
-let activeGames: Array<any> = [];
+let activeGames: Array<GameInfoType> = [];
 let invitation: { [key: string]: InvitationType } = {};
 let counters: Array<CounterType> = [];
 let gameInfos: Array<GameInfoType> = [];
@@ -330,7 +330,7 @@ socketIO.of("/").adapter.on("join-room", async (roomID: string, id: string) => {
             console.log("ACTIVE USERS BEFORE START GAME", activeUsers);
             socketIO.emit("active user update", activeUsers);
             socketIO.to(info.roomID).emit("start game", info);
-            activeGames = [...activeGames, info];
+            activeGames.push(info);
             socketIO.emit("add active game update", activeGames);
             const counter = getCounter(info.roomID);
             if (!counter.countdown) {
@@ -381,6 +381,10 @@ socketIO.of("/").adapter.on("leave-room", (roomID: string, id: string) => {
                 );
                 console.log("CLEAN GAME INFO", roomID);
                 socketIO.emit("remove active game update", info);
+                activeGames = activeGames.filter(
+                    (activeGame: GameInfoType) =>
+                        activeGame.roomID !== info.roomID
+                );
                 cleanGameInfos();
             }
         }, 1500);
