@@ -1,16 +1,17 @@
 import React, { FormEvent } from "react";
 import { GlobalContext } from "../states";
-import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../socket";
+import { NavigateContext } from "../lib/utility/Navigate";
 import { initialState, ioString } from "../lib/defaults/Default";
 import { io } from "socket.io-client";
 import Image from "../components/Image";
+import { PersistentFlagsType } from "../types";
 
 export default function Name() {
     const { socket, setSocket } = React.useContext(SocketContext);
     const { global_state, dispatch } = React.useContext(GlobalContext);
+    const { navigate } = React.useContext(NavigateContext);
     const { name, persistentFlags } = global_state;
-    const navigate = useNavigate();
     const nameRef = React.useRef<HTMLInputElement>(null);
     const inputClasses: Array<string> = [
         "rounded-full text-center p-2 font-quicksand bg-neutral-500 text-white placeholder-white shadow-md my-5 hover:bg-neutral-700 transition duration-[2000ms]",
@@ -64,7 +65,7 @@ export default function Name() {
     };
     React.useEffect(() => {
         if (lock && socket !== undefined && name.length !== 0) {
-            socket.emit("name probe", name);
+            socket.emit("name probe", name.toLocaleLowerCase());
             socket.on("name probe response", (nameExists: boolean) => {
                 console.log("locked");
                 console.log("NAMEEXISTS", nameExists);
@@ -79,11 +80,11 @@ export default function Name() {
                     setLock(false);
                 } else {
                     socket.emit("name register", {
-                        name: name,
+                        name: name.toLocaleLowerCase(),
                         id: socket.id,
                         inGame: false,
                     });
-                    const newPersistentFlags = {
+                    const newPersistentFlags: PersistentFlagsType = {
                         ...persistentFlags,
                         canAutoNameRegister: true,
                     };
@@ -116,7 +117,7 @@ export default function Name() {
                 setInvalidClass(inputClasses[1]);
                 socket.disconnect();
                 setSocket(undefined as any);
-                const newPersistentFlags = {
+                const newPersistentFlags: PersistentFlagsType = {
                     ...persistentFlags,
                     canAutoNameRegister: false,
                 };

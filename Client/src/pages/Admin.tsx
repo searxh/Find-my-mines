@@ -16,7 +16,10 @@ const Admin = () => {
     console.log(global_state);
 
     const resetHandler = (gameInfo: GameInfoType) => {
-        socket.emit("admin reset game", gameInfo);
+        if (socket !== undefined) socket.emit("admin reset game", gameInfo);
+    };
+    const handleOnClickClearGlobalChat = () => {
+        if (socket !== undefined) socket.emit("admin clear chat");
     };
 
     useEffect(() => {
@@ -31,6 +34,13 @@ const Admin = () => {
             <div className="font-righteous text-4xl text-white pt-5">
                 ADMIN CONSOLE
             </div>
+            <button
+                onClick={handleOnClickClearGlobalChat}
+                className="mx-auto text-lg text-white bg-slate-600 hover:scale-105 transition 
+                rounded-full w-fit px-5 py-1 hover:bg-rose-700"
+            >
+                CLEAR GLOBAL CHAT
+            </button>
             <div className="flex justify-between text-white text-2xl text-center pb-2">
                 <h1 className="basis-1/2">
                     CURRENT ONLINE USERS: {usersArray.length}
