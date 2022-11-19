@@ -75,22 +75,22 @@ export interface PersistentFlagsType {
     canAutoNameRegister: boolean;
     //controls whether how to play should be active or not
     howToPlayIsActive: boolean;
+    //shows whether the other user has left or not
+    userLeft: boolean;
+    //controls whether the result should be visible has left or not
+    resultVisible: boolean;
+    //shows whether the game is paused or not
+    isPaused: boolean;
 }
 export interface FlagsType {
     //shows whether active users are present in the server or not (sent from server)
     activeUsersInitialized: boolean;
     //controls whether matching is allowed or not
     canMatch: boolean;
-    //shows whether the other user has left or not
-    userLeft: boolean;
-    //controls whether the result should be visible has left or not
-    resultVisible: boolean;
     //controls whether the user is matching or not
     isMatching: boolean;
     //controls whether confirmation component is visible or not
     confirmationVisible: boolean;
-    //shows whether the game is paused or not
-    isPaused: boolean;
 }
 interface MinesLeftKey {
     [key: string]: number;
@@ -134,6 +134,5 @@ export interface GlobalContextType {
     dispatch: Dispatch<ActionType>;
 }
 export interface NavigateContextType {
-    destination: string;
-    setDestination: Dispatch<SetStateAction<string>>;
+    navigate: Function;
 }

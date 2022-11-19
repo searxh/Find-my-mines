@@ -4,6 +4,7 @@ import {
     GlobalStateType,
     GameInfoType,
 } from "../../types";
+import { isLocal } from "../options/Option";
 
 export const initialState: GlobalStateType = {
     name: "",
@@ -16,15 +17,15 @@ export const initialState: GlobalStateType = {
     persistentFlags: {
         canAutoNameRegister: false,
         howToPlayIsActive: true,
+        resultVisible: false,
+        userLeft: false,
+        isPaused: false,
     },
     flags: {
         activeUsersInitialized: false,
         canMatch: true,
-        resultVisible: false,
-        userLeft: false,
         isMatching: false,
         confirmationVisible: false,
-        isPaused: false,
     },
 };
 
@@ -50,8 +51,6 @@ export const defaultMinesConfig: MinesConfigType = {
 export const defaultGridSizeInput = 6;
 
 export const defaultGridSize = 36;
-
-const isLocal = false;
 
 export const ioString = isLocal
     ? "http://" + process.env.REACT_APP_IP + ":7070"
