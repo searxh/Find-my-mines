@@ -11,18 +11,17 @@ import MinesLeft from "../components/MinesLeft";
 import SurrenderButton from "../components/SurrenderButton";
 import Confirmation from "../components/Confirmation";
 import { SocketContext } from "../socket";
-import { useNavigate } from "react-router-dom";
 import Confetti from "../components/Confetti";
 import ConfettiButton from "../components/ConfettiButton";
 import PauseButton from "../components/PauseButton";
 import Pause from "../components/Pause";
+import { NavigateContext } from "../lib/utility/Navigate";
 
 export default function Game() {
     const { global_state, dispatch } = React.useContext(GlobalContext);
     const { socket } = React.useContext(SocketContext);
+    const { setDestination } = React.useContext(NavigateContext);
     const { gameInfo, name, activeUsers, flags } = global_state;
-    const navigate = useNavigate();
-    console.log(global_state);
     const { users, scores, playingUser, timer } = gameInfo;
     return (
         <div
@@ -43,7 +42,7 @@ export default function Game() {
                 decisionCallback={(decision: boolean) => {
                     if (decision && socket !== undefined) {
                         socket.emit("leave room request", gameInfo.roomID);
-                        navigate("/menu");
+                        setDestination("menu");
                     }
                     const newFlags = { ...flags, confirmationVisible: false };
                     dispatch({
@@ -69,7 +68,7 @@ export default function Game() {
                             style={{
                                 color: getUserColor(
                                     activeUsers,
-                                    users[playingUser].name
+                                    users[playingUser]?.name
                                 ),
                             }}
                             className="font-righteous text-4xl text-white p-3 drop-shadow-md"

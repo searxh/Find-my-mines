@@ -51,7 +51,7 @@ export const defaultGridSizeInput = 6;
 
 export const defaultGridSize = 36;
 
-const isLocal = true;
+const isLocal = false;
 
 export const ioString = isLocal
     ? "http://" + process.env.REACT_APP_IP + ":7070"
