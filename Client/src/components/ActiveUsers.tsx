@@ -88,7 +88,7 @@ export default function ActiveUsers() {
                                                 user.name
                                             ),
                                         }}
-                                        className="my-auto brightness-125 text-xl text-clip"
+                                        className="my-auto brightness-125 text-xl whitespace-nowrap"
                                     >
                                         {user.name.toUpperCase()}
                                     </div>
