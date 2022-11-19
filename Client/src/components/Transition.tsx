@@ -1,8 +1,9 @@
 import React from "react";
 import Image from "./Image";
 
-const visibleTime = 2000;
-const middleTime = 1000;
+//duration = 500ms for each transition
+const transitionCycleTime = 1000;
+const loadingTime = 500;
 
 const Transition = ({
     midCallback,
@@ -18,20 +19,21 @@ const Transition = ({
         setTimeout(() => {
             endCallback();
             setVisible(false);
-        }, visibleTime);
+        }, transitionCycleTime + loadingTime);
     }, []);
     React.useEffect(() => {
         if (visible) {
             setTimeout(() => setTransition(true), 50);
-            setTimeout(() => midCallback(), middleTime);
+            setTimeout(() => {}, loadingTime);
             setTimeout(() => {
                 setTransition(false);
-            }, visibleTime / 2);
+                midCallback();
+            }, transitionCycleTime / 2 + loadingTime);
         }
     }, [visible]);
     return visible ? (
         <div
-            className={`absolute flex h-screen w-full transition duration-500 shadow-md bg-contain
+            className={`absolute flex h-screen w-full transition duration-500 shadow-md bg-cover
             bg-[url('../public/assets/images/bg.png')] z-[100] backdrop-blur-md ${
                 transition ? "translate-x-0" : "translate-x-[100%]"
             }`}
