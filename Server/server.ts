@@ -322,7 +322,7 @@ socketIO.of("/").adapter.on("join-room", async (roomID: string, id: string) => {
     if (roomID.length > 20) {
         const info = getGameInfo(roomID);
         const sockets = await socketIO.in(info.roomID).fetchSockets();
-        if (sockets.length === 2) {
+        if (sockets.length === 2 && info.state !== 2) {
             console.log("starting game for room ", info.roomID);
             info.users.forEach((user) => {
                 activeUsers[user.name].inGame = true;
@@ -538,7 +538,7 @@ socketIO.on("connection", (socket: any) => {
         }
     );
     socket.on("active user request", () => {
-        socketIO.emit("active user update", activeUsers);
+        socketIO.to(socket.id).emit("active user update", activeUsers);
         console.log(Object.keys(activeUsers).length + " users are registered");
     });
     socket.on(
@@ -677,6 +677,9 @@ socketIO.on("connection", (socket: any) => {
             socketIO.emit("active user update", activeUsers);
         }
         socket.leave(roomID);
+        const counter = getCounter(roomID);
+        if (counter)
+            clearInterval(counter.countdown as ReturnType<typeof setInterval>);
     });
     socket.on("reconnect game", ({ roomID }: { roomID: string }) => {
         if (activeUsers[socket.data.name] !== undefined) {
