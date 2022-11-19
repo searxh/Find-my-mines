@@ -45,7 +45,11 @@ const getRandomInt = (min: number, max: number) => {
     return Math.round(Math.random() * (max - min) + min);
 };
 const getUserColor = () => {
-    return Please.make_color();
+    return Please.make_color({
+        saturation: 0.4,
+        value: 0.7,
+        format: "rgb-string",
+    });
 };
 const chooseRandomUser = () => {
     return Math.random() > 0.5 ? 1 : 0;
