@@ -21,7 +21,7 @@ export const NavigateProvider = ({
         setDestination(dest);
     };
     React.useEffect(() => {
-        if (destination === "root") {
+        if (transition === 1 && destination === "root") {
             navigate("/");
         } else if (transition === 1 && destination !== "") {
             navigate("/" + destination);
