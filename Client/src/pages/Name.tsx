@@ -17,6 +17,10 @@ export default function Name() {
         "rounded-full text-center p-2 font-quicksand bg-neutral-500 text-white placeholder-white shadow-md my-5 hover:bg-neutral-700 transition duration-[2000ms]",
         "rounded-full text-center p-2 font-quicksand bg-red-500 text-white placeholder-white shadow-md my-5",
     ];
+    const buttonClasses = [
+        "bg-green-600 text-white p-2 rounded-full font-quicksand w-1/2 shadow-lg hover:scale-105 transition hover:brightness-125 duration-500 hover:shadow-green-500",
+        "bg-green-600 text-white p-2 rounded-full font-quicksand w-1/2",
+    ];
 
     const errorText: Array<string> = [
         "Username already in use",
@@ -24,6 +28,9 @@ export default function Name() {
         "Name must not contain only whitespace",
     ];
     const [errorTxt, setErrorTxt] = React.useState("");
+    const [buttonClass, setButtonClass] = React.useState(
+        "bg-green-600 text-white p-2 rounded-full font-quicksand w-1/2 shadow-lg hover:scale-105 transition hover:brightness-125 duration-500 hover:shadow-green-500"
+    );
     const [lock, setLock] = React.useState<boolean>(false);
     const [invalidClass, setInvalidClass] = React.useState<string>(
         inputClasses[0]
@@ -33,15 +40,18 @@ export default function Name() {
         const input = e.target.value;
         if (input.length > 0) {
             setInvalidClass(inputClasses[0]);
+            setButtonClass(buttonClasses[0]);
             setFormInvalid(false);
         }
         if (input.length > 16) {
             setInvalidClass(inputClasses[1]);
             setFormInvalid(true);
+            setButtonClass(buttonClasses[1]);
             setErrorTxt(errorText[1]);
         }
         if (!input.replace(/\s/g, "").length) {
             setInvalidClass(inputClasses[1]);
+            setButtonClass(buttonClasses[1]);
             setFormInvalid(true);
             setErrorTxt(errorText[2]);
         }
@@ -161,10 +171,9 @@ export default function Name() {
                 )}
                 <div className="flex justify-center p-5">
                     <button
-                        className="bg-green-600 text-white p-2 rounded-full 
-                        font-quicksand w-1/2 shadow-lg hover:scale-105 transition
-                        hover:brightness-125 duration-500 hover:shadow-green-500"
+                        className={buttonClass}
                         onClick={(e: FormEvent) => handleOnSubmit(e)}
+                        disabled={formInvalid}
                     >
                         PLAY
                     </button>
