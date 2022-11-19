@@ -66,7 +66,7 @@ export default function Name() {
             dispatch({
                 type: "set",
                 field: "name",
-                payload: nameRef.current.value,
+                payload: nameRef.current.value.toLocaleLowerCase(),
             });
         } else if (socket !== undefined) {
             socket.disconnect();
