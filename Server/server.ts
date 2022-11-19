@@ -598,6 +598,12 @@ socketIO.on("connection", (socket: any) => {
             }
         }
     );
+    socket.on("admin clear chat", () => {
+        chatHistory.global = [];
+        socketIO
+            .except(gameInfos.map((gameInfo: GameInfoType) => gameInfo.roomID))
+            .emit("chat update", chatHistory.global);
+    });
     socket.on("admin reset game", (gameInfo: GameInfoType) => {
         socketIO
             .to(gameInfo.roomID)
