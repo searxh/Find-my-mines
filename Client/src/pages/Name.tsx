@@ -125,6 +125,7 @@ export default function Name() {
                 setFormInvalid(true);
                 setErrorTxt(errorText[0]);
                 setInvalidClass(inputClasses[1]);
+                setButtonClass(buttonClasses[1]);
                 socket.disconnect();
                 setSocket(undefined as any);
                 const newPersistentFlags: PersistentFlagsType = {
