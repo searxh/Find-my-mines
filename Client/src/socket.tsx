@@ -104,6 +104,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                 };
                 const newPersistentFlags: PersistentFlagsType = {
                     ...persistentFlags,
+                    howToPlayIsActive: false,
                     resultVisible: false,
                     userLeft: false,
                     isPaused: false,
