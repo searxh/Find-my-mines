@@ -78,7 +78,7 @@ export default function Result() {
                 )}
                 <RematchStatus />
                 {kickNoticeVisible && (
-                    <div className="text-red-500 text-lg">
+                    <div className="text-red-400 text-lg">
                         The room will automatically close in
                         <Countdown
                             seconds={10}
