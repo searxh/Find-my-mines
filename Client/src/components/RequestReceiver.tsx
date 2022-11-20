@@ -128,10 +128,12 @@ export default function RequestReceiver() {
                         Inviter: {inviteStorage.senderName}
                     </div>
                     <div
-                        className="text-lg text-neutral-300 bg-neutral-800 bg-opacity-80 
-                        h-24 overflow-y-scroll p-5 rounded-3xl w-[70%] mx-auto"
+                        className="relative text-lg text-neutral-300 bg-neutral-800 bg-opacity-80 
+                        h-24 overflow-y-scroll break-words p-5 rounded-3xl w-[70%] mx-auto no-scrollbar"
                     >
-                        {inviteStorage.inviteMessage}
+                        <div className="absolute top-0 bottom-0 right-0 left-0 p-5">
+                            {inviteStorage.inviteMessage}
+                        </div>
                     </div>
                     <div className="flex w-full justify-evenly pt-5">
                         <button
