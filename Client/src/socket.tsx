@@ -119,7 +119,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                     ],
                     payload: [gameInfo, newFlags, newPersistentFlags, {}],
                 });
-                setTimeout(() => navigate("game"), 1000);
+                setTimeout(() => navigate("game"), 500);
             });
             socket.on("gameInfo update", (gameInfo: GameInfoType) => {
                 console.log("let's gameInfo update lol");
