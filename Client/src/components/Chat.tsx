@@ -33,7 +33,6 @@ export default function Chat({ mode }: { mode: string }) {
             socket.on(
                 "chat update",
                 (chat: { [key: string]: Array<MessageType> }) => {
-                    console.log(chat);
                     if (mode === "local" && chat.local !== undefined) {
                         setChat(chat.local);
                     } else if (mode === "global" && chat.global !== undefined) {
