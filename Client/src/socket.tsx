@@ -36,7 +36,8 @@ const events = [
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const { global_state, dispatch } = React.useContext(GlobalContext);
     const { navigate } = React.useContext(NavigateContext);
-    const { gameInfo, name, flags, persistentFlags } = global_state;
+    const { gameInfo, name, flags, persistentFlags, activeUsers } =
+        global_state;
     const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
     const [reconnectInGame, setReconnectInGame] =
         React.useState<boolean>(false);
@@ -53,7 +54,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                     socket.emit("name register", {
                         name: name,
                         id: socket.id,
-                        inGame: false,
+                        inGame: activeUsers.find(
+                            (user: UserType) => user.name === name
+                        )?.inGame,
                     });
                 }
             });
@@ -263,7 +266,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
             socket.emit("reconnect game", { roomID: gameInfo.roomID });
             setReconnectInGame(false);
         }
-    }, [reconnectInGame, flags.activeUsersInitialized]);
+    }, [reconnectInGame, flags.activeUsersInitialized, gameInfo.roomID]);
     return (
         <SocketContext.Provider
             value={

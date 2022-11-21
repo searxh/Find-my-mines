@@ -322,7 +322,7 @@ socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
         const saveUser = Object.keys(activeUsers).find((value) => {
             return activeUsers[value].id === id;
         });
-        //delay for 2 seconds to allow user to reconnect
+        //delay for 1.75 seconds to allow user to reconnect
         setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
             //checks if the user has reconnected,
             //if not notify other user that they have left
@@ -344,11 +344,10 @@ socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
                 activeGames = activeGames.filter((activeGame) => activeGame.roomID !== info.roomID);
                 cleanGameInfos();
             }
-        }), 1500);
+        }), 1750);
     }
 });
 socketIO.on("connection", (socket) => {
-    ``;
     console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
     socket.on("name probe", (userName) => {
         const nameExists = activeUsers[userName] !== undefined;
@@ -466,12 +465,13 @@ socketIO.on("connection", (socket) => {
         if (((_a = activeUsers[name]) === null || _a === void 0 ? void 0 : _a.inGame) && roomID !== undefined) {
             socketIO
                 .to(roomID)
-                .emit("chat update", chatHistory.local[roomID]);
+                .emit("chat update", { local: chatHistory.local[roomID] });
         }
         else {
+            const filteredGameInfos = gameInfos.filter((gameInfo) => gameInfo.state === 2);
             socketIO
-                .except(gameInfos.map((gameInfo) => gameInfo.roomID))
-                .emit("chat update", chatHistory.global);
+                .except(filteredGameInfos.map((gameInfo) => gameInfo.roomID))
+                .emit("chat update", { global: chatHistory.global });
         }
     });
     socket.on("chat message", ({ msg, name, roomID, }) => {
@@ -482,13 +482,14 @@ socketIO.on("connection", (socket) => {
             chatHistory.local[roomID].push(msg);
             socketIO
                 .to(roomID)
-                .emit("chat update", chatHistory.local[roomID]);
+                .emit("chat update", { local: chatHistory.local[roomID] });
         }
         else {
             chatHistory.global.push(msg);
+            const filteredGameInfos = gameInfos.filter((gameInfo) => gameInfo.state === 2);
             socketIO
-                .except(gameInfos.map((gameInfo) => gameInfo.roomID))
-                .emit("chat update", chatHistory.global);
+                .except(filteredGameInfos.map((gameInfo) => gameInfo.roomID))
+                .emit("chat update", { global: chatHistory.global });
         }
     });
     socket.on("admin clear chat", () => {
