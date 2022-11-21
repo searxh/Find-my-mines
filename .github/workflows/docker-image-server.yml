@@ -26,6 +26,6 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./Server
+          context: "{{defaultContext}}:Server"
           push: true
           tags: reaw55/find-my-mine:latest
