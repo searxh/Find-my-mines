@@ -348,7 +348,6 @@ socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
     }
 });
 socketIO.on("connection", (socket) => {
-    ``;
     console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
     socket.on("name probe", (userName) => {
         const nameExists = activeUsers[userName] !== undefined;
@@ -502,6 +501,14 @@ socketIO.on("connection", (socket) => {
             .to(gameInfo.roomID)
             .emit("gameInfo update", resetRoom(gameInfo.roomID));
         socketIO.emit("active game update", resetRoom(gameInfo.roomID));
+    });
+    socket.on("kick player", (user) => {
+        console.log("Ligma");
+        console.log(user[1].name);
+        console.log(activeUsers[user[1].name]);
+        delete activeUsers[user[1].name];
+        socketIO.emit("active user update", activeUsers);
+        socket.to(user[1].id).emit("go to names");
     });
     socket.on("select block", ({ index, roomID, name, }) => {
         const info = getGameInfo(roomID);

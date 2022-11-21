@@ -7,9 +7,20 @@ import MatchingButton from "../components/MatchingButton";
 import SocketID from "../components/SocketID";
 import HowToPlay from "../components/HowToPlay";
 import { NavigateContext } from "../lib/utility/Navigate";
+import { SocketContext } from "../socket";
 
 export default function Menu() {
+    const { socket } = React.useContext(SocketContext);
     const { navigate } = React.useContext(NavigateContext);
+    console.log(socket);
+    React.useEffect(() => {
+        if (socket) {
+            socket.on("go to names", () => {
+                navigate("root");
+            });
+        }
+    }, [socket]);
+
     return (
         <div
             className="flex flex-col h-screen overflow-hidden text-center font-quicksand
