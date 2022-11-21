@@ -17,6 +17,8 @@ import PauseButton from "../components/PauseButton";
 import Pause from "../components/Pause";
 import { NavigateContext } from "../lib/utility/Navigate";
 import { FlagsType } from "../types";
+import ExtraButtons from "../components/ExtraButtons";
+import HowToPlay from "../components/HowToPlay";
 
 export default function Game() {
     const { global_state, dispatch } = React.useContext(GlobalContext);
@@ -37,8 +39,10 @@ export default function Game() {
                     />
                     <Result />
                     <Pause />
+                    <HowToPlay />
                     <Backdrop />
                     <Confetti />
+                    <ExtraButtons />
                     <Confirmation
                         title="Are you sure you wish to surrender?"
                         content="You will lose and leave the game room immediately"
