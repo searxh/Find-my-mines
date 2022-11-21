@@ -592,25 +592,11 @@ socketIO.on("connection", (socket: any) => {
             //server selects and sends the chat history according to user status (online or in-game)
             //chat histories are private (different roomID will not have access to each other's chat history)
             if (activeUsers[name]?.inGame && roomID !== undefined) {
-                console.log(
-                    "Requester",
-                    name,
-                    "RETURN LOCAL CHAT",
-                    activeUsers[name]?.inGame,
-                    roomID
-                );
                 chatHistory.local[roomID].push(msg);
                 socketIO
                     .to(roomID)
                     .emit("chat update", { local: chatHistory.local[roomID] });
             } else {
-                console.log(
-                    "Requester",
-                    name,
-                    "RETURN LOCAL CHAT",
-                    activeUsers[name]?.inGame,
-                    roomID
-                );
                 chatHistory.global.push(msg);
                 const filteredGameInfos = gameInfos.filter(
                     (gameInfo: GameInfoType) => gameInfo.state === 2

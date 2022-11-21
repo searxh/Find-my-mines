@@ -475,18 +475,16 @@ socketIO.on("connection", (socket) => {
         }
     });
     socket.on("chat message", ({ msg, name, roomID, }) => {
-        var _a, _b, _c;
+        var _a;
         //server selects and sends the chat history according to user status (online or in-game)
         //chat histories are private (different roomID will not have access to each other's chat history)
         if (((_a = activeUsers[name]) === null || _a === void 0 ? void 0 : _a.inGame) && roomID !== undefined) {
-            console.log("Requester", name, "RETURN LOCAL CHAT", (_b = activeUsers[name]) === null || _b === void 0 ? void 0 : _b.inGame, roomID);
             chatHistory.local[roomID].push(msg);
             socketIO
                 .to(roomID)
                 .emit("chat update", { local: chatHistory.local[roomID] });
         }
         else {
-            console.log("Requester", name, "RETURN LOCAL CHAT", (_c = activeUsers[name]) === null || _c === void 0 ? void 0 : _c.inGame, roomID);
             chatHistory.global.push(msg);
             const filteredGameInfos = gameInfos.filter((gameInfo) => gameInfo.state === 2);
             socketIO
