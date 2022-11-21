@@ -57,7 +57,7 @@ export default function Menu() {
                         CHAT
                     </div>
                     <div className="h-full bg-zinc-600 bg-opacity-80 p-5 rounded-3xl shadow-md">
-                        <Chat />
+                        <Chat mode="global" />
                     </div>
                 </div>
             </div>

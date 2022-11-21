@@ -106,7 +106,7 @@ export default function Game() {
                         </div>
                         <div className="flex flex-col basis-[30%] m-auto relative">
                             <div className="w-[90%] bg-zinc-600 h-[70vh] bg-opacity-70 p-5 rounded-3xl m-auto">
-                                <Chat />
+                                <Chat mode="local" />
                             </div>
                             <SurrenderButton />
                             <ConfettiButton />

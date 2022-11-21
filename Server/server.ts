@@ -364,7 +364,7 @@ socketIO.of("/").adapter.on("leave-room", (roomID: string, id: string) => {
         const saveUser = Object.keys(activeUsers).find((value: string) => {
             return activeUsers[value].id === id;
         });
-        //delay for 2 seconds to allow user to reconnect
+        //delay for 1.75 seconds to allow user to reconnect
         setTimeout(async () => {
             //checks if the user has reconnected,
             //if not notify other user that they have left
@@ -391,12 +391,11 @@ socketIO.of("/").adapter.on("leave-room", (roomID: string, id: string) => {
                 );
                 cleanGameInfos();
             }
-        }, 1500);
+        }, 1750);
     }
 });
 
 socketIO.on("connection", (socket: any) => {
-    ``;
     console.log("Connected!", socket.id, socketIO.of("/").sockets.size);
     socket.on("name probe", (userName: string) => {
         const nameExists = activeUsers[userName] !== undefined;
@@ -564,7 +563,7 @@ socketIO.on("connection", (socket: any) => {
             if (activeUsers[name]?.inGame && roomID !== undefined) {
                 socketIO
                     .to(roomID)
-                    .emit("chat update", chatHistory.local[roomID]);
+                    .emit("chat update", { local: chatHistory.local[roomID] });
             } else {
                 const filteredGameInfos = gameInfos.filter(
                     (gameInfo: GameInfoType) => gameInfo.state === 2
@@ -575,7 +574,7 @@ socketIO.on("connection", (socket: any) => {
                             (gameInfo: GameInfoType) => gameInfo.roomID
                         )
                     )
-                    .emit("chat update", chatHistory.global);
+                    .emit("chat update", { global: chatHistory.global });
             }
         }
     );
@@ -593,11 +592,25 @@ socketIO.on("connection", (socket: any) => {
             //server selects and sends the chat history according to user status (online or in-game)
             //chat histories are private (different roomID will not have access to each other's chat history)
             if (activeUsers[name]?.inGame && roomID !== undefined) {
+                console.log(
+                    "Requester",
+                    name,
+                    "RETURN LOCAL CHAT",
+                    activeUsers[name]?.inGame,
+                    roomID
+                );
                 chatHistory.local[roomID].push(msg);
                 socketIO
                     .to(roomID)
-                    .emit("chat update", chatHistory.local[roomID]);
+                    .emit("chat update", { local: chatHistory.local[roomID] });
             } else {
+                console.log(
+                    "Requester",
+                    name,
+                    "RETURN LOCAL CHAT",
+                    activeUsers[name]?.inGame,
+                    roomID
+                );
                 chatHistory.global.push(msg);
                 const filteredGameInfos = gameInfos.filter(
                     (gameInfo: GameInfoType) => gameInfo.state === 2
@@ -608,7 +621,7 @@ socketIO.on("connection", (socket: any) => {
                             (gameInfo: GameInfoType) => gameInfo.roomID
                         )
                     )
-                    .emit("chat update", chatHistory.global);
+                    .emit("chat update", { global: chatHistory.global });
             }
         }
     );
