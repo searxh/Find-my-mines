@@ -22,9 +22,9 @@ export const Welcome = () => {
                     </div>
                 </div>
                 <div className="text-lg w-[90%] mx-auto">
-                    In this game, two players take turns picking a grid to find
-                    the location of the mines, the player with the points worth
-                    of mines win!
+                    In this game, two players take turns picking a grid to
+                    locate the mines, and the one with mines worth the most
+                    points wins!
                 </div>
                 <img
                     src="assets/images/clickshovel.png"

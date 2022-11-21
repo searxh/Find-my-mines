@@ -53,11 +53,15 @@ export default function ReplyReceiver() {
             <CloseButton onClick={handleOnClickClose} />
             {mode === 1 && (
                 <div className="m-auto">
-                    <div className="text-4xl font-righteous px-10">
+                    <div
+                        className={`text-3xl font-righteous px-10 ${
+                            decision ? "text-green-400" : "text-red-400"
+                        }`}
+                    >
                         YOUR INVITATION WAS {decision ? "ACCEPTED" : "DECLINED"}
                     </div>
-                    <div className="text-3xl text-cyan-400 font-quicksand px-10">
-                        (to {receiverName})
+                    <div className="text-2xl text-cyan-400 font-quicksand px-10">
+                        (Request sent to {receiverName})
                     </div>
                 </div>
             )}

@@ -44,7 +44,7 @@ export default function ActiveUsers() {
         }
     }, [socket, location.pathname]);
     return (
-        <div className="flex-1 overflow-y-scroll">
+        <div className="flex-1 overflow-y-scroll no-scrollbar">
             <div className="flex flex-col text-xl">
                 {priorities.map((user: PriorityType) => {
                     if (user.name.toLocaleLowerCase() !== "admin") {
@@ -88,7 +88,7 @@ export default function ActiveUsers() {
                                                 user.name
                                             ),
                                         }}
-                                        className="my-auto brightness-125 text-xl text-clip"
+                                        className="my-auto brightness-125 text-xl whitespace-nowrap"
                                     >
                                         {user.name.toUpperCase()}
                                     </div>

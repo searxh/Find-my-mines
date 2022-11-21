@@ -7,7 +7,7 @@ import AutoScroll from "@brianmcallister/react-auto-scroll";
 import { getUserColor } from "../lib/utility/GetUserColor";
 import format from "date-fns/format";
 
-export default function Chat() {
+export default function Chat({ mode }: { mode: string }) {
     const { global_state } = React.useContext(GlobalContext);
     const { name, gameInfo, activeUsers } = global_state;
     const { socket } = React.useContext(SocketContext);
@@ -26,13 +26,29 @@ export default function Chat() {
     }, []);
     React.useEffect(() => {
         if (socket !== undefined) {
-            socket.on("chat update", (chat: Array<MessageType>) => {
-                setChat(chat);
-            });
             socket.emit("chat request", {
                 name: name,
                 roomID: gameInfo.roomID,
             });
+            socket.on(
+                "chat update",
+                (chat: { [key: string]: Array<MessageType> }) => {
+                    if (mode === "local" && chat.local !== undefined) {
+                        setChat(chat.local);
+                    } else if (mode === "global" && chat.global !== undefined) {
+                        setChat(chat.global);
+                    } else {
+                        setTimeout(
+                            () =>
+                                socket.emit("chat request", {
+                                    name: name,
+                                    roomID: gameInfo.roomID,
+                                }),
+                            100
+                        );
+                    }
+                }
+            );
             return () => socket.off("chat update") as any;
         }
     }, [socket, gameInfo.roomID, activeUsers]);

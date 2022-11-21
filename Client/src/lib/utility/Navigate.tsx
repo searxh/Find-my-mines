@@ -1,5 +1,5 @@
 import React, { createContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Transition from "../../components/Transition";
 import { NavigateContextType } from "../../types";
 import { playAudio } from "./Audio";
@@ -14,11 +14,14 @@ export const NavigateProvider = ({
     children: React.ReactNode;
 }) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [destination, setDestination] = React.useState<string>("");
     const [transition, setTransition] = React.useState<number>(0);
     const navigationHandler = (dest: string) => {
-        playAudio("slide.wav");
-        setDestination(dest);
+        if (!location.pathname.includes(dest)) {
+            playAudio("slide.wav");
+            setDestination(dest);
+        }
     };
     React.useEffect(() => {
         if (transition === 1 && destination === "root") {
