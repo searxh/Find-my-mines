@@ -566,9 +566,12 @@ socketIO.on("connection", (socket: any) => {
                     .to(roomID)
                     .emit("chat update", chatHistory.local[roomID]);
             } else {
+                const filteredGameInfos = gameInfos.filter(
+                    (gameInfo: GameInfoType) => gameInfo.state === 2
+                );
                 socketIO
                     .except(
-                        gameInfos.map(
+                        filteredGameInfos.map(
                             (gameInfo: GameInfoType) => gameInfo.roomID
                         )
                     )
@@ -596,9 +599,12 @@ socketIO.on("connection", (socket: any) => {
                     .emit("chat update", chatHistory.local[roomID]);
             } else {
                 chatHistory.global.push(msg);
+                const filteredGameInfos = gameInfos.filter(
+                    (gameInfo: GameInfoType) => gameInfo.state === 2
+                );
                 socketIO
                     .except(
-                        gameInfos.map(
+                        filteredGameInfos.map(
                             (gameInfo: GameInfoType) => gameInfo.roomID
                         )
                     )

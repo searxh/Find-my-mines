@@ -469,8 +469,9 @@ socketIO.on("connection", (socket) => {
                 .emit("chat update", chatHistory.local[roomID]);
         }
         else {
+            const filteredGameInfos = gameInfos.filter((gameInfo) => gameInfo.state === 2);
             socketIO
-                .except(gameInfos.map((gameInfo) => gameInfo.roomID))
+                .except(filteredGameInfos.map((gameInfo) => gameInfo.roomID))
                 .emit("chat update", chatHistory.global);
         }
     });
@@ -486,8 +487,9 @@ socketIO.on("connection", (socket) => {
         }
         else {
             chatHistory.global.push(msg);
+            const filteredGameInfos = gameInfos.filter((gameInfo) => gameInfo.state === 2);
             socketIO
-                .except(gameInfos.map((gameInfo) => gameInfo.roomID))
+                .except(filteredGameInfos.map((gameInfo) => gameInfo.roomID))
                 .emit("chat update", chatHistory.global);
         }
     });
