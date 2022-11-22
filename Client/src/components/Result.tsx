@@ -39,7 +39,10 @@ export default function Result() {
     };
     const getWinner = () => {
         //if other user left mid-way
-        if (persistentFlags.userLeft) {
+        if (
+            persistentFlags.userLeft &&
+            gameInfo.winningScore !== scores[0] + scores[1]
+        ) {
             return name;
         } else {
             return scores[0] > scores[1]
