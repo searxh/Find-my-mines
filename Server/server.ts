@@ -566,11 +566,9 @@ socketIO.on("connection", (socket: any) => {
                     .emit("chat update", { local: chatHistory.local[roomID] });
                 setTimeout(
                     () =>
-                        socketIO
-                            .to(roomID)
-                            .emit("chat update", {
-                                local: chatHistory.local[roomID],
-                            }),
+                        socketIO.to(roomID).emit("chat update", {
+                            local: chatHistory.local[roomID],
+                        }),
                     300
                 );
             } else {
@@ -637,7 +635,7 @@ socketIO.on("connection", (socket: any) => {
         chatHistory.global = [];
         socketIO
             .except(gameInfos.map((gameInfo: GameInfoType) => gameInfo.roomID))
-            .emit("chat update", chatHistory.global);
+            .emit("chat update", { global: chatHistory.global });
     });
     socket.on("admin reset game", (gameInfo: GameInfoType) => {
         socketIO
