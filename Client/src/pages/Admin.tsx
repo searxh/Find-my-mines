@@ -3,7 +3,7 @@ import Card from "../components/UIElements/Card";
 import { GlobalContext } from "../states";
 import SocketID from "../components/SocketID";
 import { SocketContext } from "../socket";
-import { GameInfoType } from "../types";
+import { GameInfoType, UserType } from "../types";
 import Image from "../components/Image";
 
 const Admin = () => {
@@ -21,7 +21,12 @@ const Admin = () => {
     const handleOnClickClearGlobalChat = () => {
         if (socket !== undefined) socket.emit("admin clear chat");
     };
-
+    const kickPlayerHandler = (user: any) => {
+        if (socket !== undefined) {
+            console.log("called");
+            socket.emit("kick player", user);
+        }
+    };
     useEffect(() => {
         setUsersArray(
             Object.keys(activeUsers).map((key: any) => [key, activeUsers[key]])
@@ -86,6 +91,16 @@ const Admin = () => {
                                             </span>
                                         </div>
                                     </span>
+                                    {user[1].name !== "admin" && (
+                                        <button
+                                            className="p-2 rounded bg-rose-500 hover:bg-rose-400"
+                                            onClick={() =>
+                                                kickPlayerHandler(user)
+                                            }
+                                        >
+                                            Kick Player
+                                        </button>
+                                    )}
                                 </div>
                             ))}
                     </div>
