@@ -8,6 +8,7 @@ import SocketID from "../components/SocketID";
 import HowToPlay from "../components/HowToPlay";
 import { NavigateContext } from "../lib/utility/Navigate";
 import { SocketContext } from "../socket";
+import ExtraButtons from "../components/ExtraButtons";
 
 export default function Menu() {
     const { socket } = React.useContext(SocketContext);
@@ -20,10 +21,6 @@ export default function Menu() {
             });
         }
     }, [socket]);
-
-import ExtraButtons from "../components/ExtraButtons";
-
-export default function Menu() {
     return (
         <div
             className="flex flex-col h-screen overflow-hidden text-center font-quicksand

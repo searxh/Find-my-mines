@@ -60,6 +60,13 @@ export default function Name() {
     const handleOnSubmit = (e: FormEvent) => {
         e.preventDefault();
         console.log(nameRef.current?.value, socket);
+        if (nameRef.current?.value === "") {
+            setInvalidClass(inputClasses[1]);
+            setButtonClass(buttonClasses[1]);
+            setFormInvalid(true);
+            setErrorTxt(errorText[2]);
+        }
+
         if (nameRef.current !== null && socket === undefined) {
             setSocket(io(ioString));
             setLock(true);
@@ -115,6 +122,9 @@ export default function Name() {
             return () => socket.off("name probe response") as any;
         } else if (!lock) {
             console.log("unlocked");
+            setInvalidClass(inputClasses[0]);
+            setButtonClass(buttonClasses[0]);
+            setFormInvalid(false);
             sessionStorage.setItem("fmm-state", JSON.stringify(initialState));
             dispatch({
                 type: "set",
