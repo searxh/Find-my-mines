@@ -5,10 +5,9 @@ import { SocketContext } from "../socket";
 import { playAudio } from "../lib/utility/Audio";
 import { NavigateContext } from "../lib/utility/Navigate";
 import Countdown from "./Countdown";
-import { PersistentFlagsType } from "../types";
 
 export default function Result() {
-    const { global_state, dispatch } = React.useContext(GlobalContext);
+    const { global_state } = React.useContext(GlobalContext);
     const { socket } = React.useContext(SocketContext);
     const { navigate } = React.useContext(NavigateContext);
     const { persistentFlags, gameInfo, name } = global_state;
@@ -35,14 +34,22 @@ export default function Result() {
         }
     };
     const checkWinner = (name: string) => {
-        return getWinner() === name;
+        const res = getWinner();
+        return res === undefined ? undefined : res === name;
     };
     const getWinner = () => {
         //if other user left mid-way
-        if (persistentFlags.userLeft) {
+        if (
+            persistentFlags.userLeft &&
+            gameInfo.winningScore !== scores[0] + scores[1]
+        ) {
             return name;
         } else {
-            return scores[0] > scores[1] ? users[0].name : users[1].name;
+            return scores[0] > scores[1]
+                ? users[0].name
+                : scores[0] < scores[1]
+                ? users[1].name
+                : undefined;
         }
     };
     React.useEffect(() => {
@@ -59,12 +66,23 @@ export default function Result() {
             <div className="m-auto w-[70%]">
                 <div
                     className={`font-righteous text-5xl
-                ${checkWinner(name) ? "text-green-400" : "text-red-400"} `}
+                ${
+                    checkWinner(name) === undefined
+                        ? "text-yellow-400"
+                        : checkWinner(name)
+                        ? "text-green-400"
+                        : "text-red-400"
+                } `}
                 >
-                    {checkWinner(name) ? "VICTORY!" : "DEFEAT!"}
+                    {checkWinner(name) === undefined
+                        ? "DRAW!"
+                        : checkWinner(name)
+                        ? "VICTORY!"
+                        : "DEFEAT!"}
                 </div>
                 <div className="text-cyan-300 text-2xl">
-                    {getWinner().toUpperCase()} WINS!
+                    {getWinner()?.toUpperCase()}{" "}
+                    {getWinner() !== undefined ? "WINS!" : null}
                 </div>
                 {!persistentFlags.userLeft && (
                     <>

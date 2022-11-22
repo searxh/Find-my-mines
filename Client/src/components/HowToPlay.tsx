@@ -38,6 +38,9 @@ const HowToPlay = () => {
         }
     };
     //init visible state through function
+    React.useEffect(() => {
+        setCurrentPage(0);
+    }, [persistentFlags.howToPlayIsActive]);
     React.useLayoutEffect(() => {
         if (visible === null) {
             setVisible(getVisibleState());
