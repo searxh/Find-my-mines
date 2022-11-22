@@ -466,12 +466,22 @@ socketIO.on("connection", (socket) => {
             socketIO
                 .to(roomID)
                 .emit("chat update", { local: chatHistory.local[roomID] });
+            setTimeout(() => socketIO
+                .to(roomID)
+                .emit("chat update", {
+                local: chatHistory.local[roomID],
+            }), 300);
         }
         else {
             const filteredGameInfos = gameInfos.filter((gameInfo) => gameInfo.state === 2);
             socketIO
                 .except(filteredGameInfos.map((gameInfo) => gameInfo.roomID))
                 .emit("chat update", { global: chatHistory.global });
+            setTimeout(() => socketIO
+                .except(filteredGameInfos.map((gameInfo) => gameInfo.roomID))
+                .emit("chat update", {
+                global: chatHistory.global,
+            }), 300);
         }
     });
     socket.on("chat message", ({ msg, name, roomID, }) => {

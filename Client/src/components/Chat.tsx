@@ -33,19 +33,10 @@ export default function Chat({ mode }: { mode: string }) {
             socket.on(
                 "chat update",
                 (chat: { [key: string]: Array<MessageType> }) => {
-                    if (mode === "local" && chat.local !== undefined) {
+                    if (mode === "local" && chat.local) {
                         setChat(chat.local);
-                    } else if (mode === "global" && chat.global !== undefined) {
+                    } else if (mode === "global" && chat.global) {
                         setChat(chat.global);
-                    } else {
-                        setTimeout(
-                            () =>
-                                socket.emit("chat request", {
-                                    name: name,
-                                    roomID: gameInfo.roomID,
-                                }),
-                            100
-                        );
                     }
                 }
             );
