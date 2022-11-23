@@ -645,12 +645,12 @@ socketIO.on("connection", (socket: any) => {
     });
     socket.on("kick player", (user: any) => {
         console.log("Ligma");
-        console.log(user[1].name);
-        console.log(activeUsers[user[1].name]);
-        delete activeUsers[user[1].name];
+        console.log(user.name);
+        console.log(activeUsers[user.name]);
+        delete activeUsers[user.name];
         socketIO.emit("active user update", activeUsers);
 
-        socket.to(user[1].id).emit("go to names");
+        socket.to(user.id).emit("go to names");
     });
     socket.on(
         "select block",
