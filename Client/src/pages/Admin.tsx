@@ -62,7 +62,7 @@ const Admin = () => {
                 </h1>
             </div>
             <div className="flex justify-evenly flex-1">
-                <Card additionalStyle="relative w-[45%] h-full bg-black bg-opacity-50 overflow-auto">
+                <Card additionalStyle="relative w-[45%] h-full bg-black bg-opacity-50 overflow-y-scroll no-scrollbar">
                     <div className="absolute text-white top-0 left-0 bottom-0 right-0 p-3">
                         {usersArray[0]?.length > 0 &&
                             usersArray.map((user) => (
@@ -100,7 +100,8 @@ const Admin = () => {
                                     </span>
                                     {user[1].name !== "admin" && (
                                         <button
-                                            className="rounded-full bg-rose-500 hover:bg-rose-400 h-8 w-8 -m-1"
+                                            className="rounded-full bg-slate-500 hover:bg-rose-700 
+                                            hover:scale-105 transition h-7 w-7 -m-1"
                                             onClick={() => {
                                                 kickPlayerHandler();
                                                 setUser(user[1]);
@@ -132,7 +133,7 @@ const Admin = () => {
                     }}
                 />
 
-                <Card additionalStyle="relative w-[45%] bg-black bg-opacity-50 overflow-auto">
+                <Card additionalStyle="relative w-[45%] bg-black bg-opacity-50 overflow-y-scroll no-scrollbar">
                     <div className="absolute top-0 right-0 bottom-0 left-0 text-white p-3">
                         {gamesArray.map((game) => (
                             <span key={Math.random()}>
