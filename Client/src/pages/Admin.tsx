@@ -3,7 +3,7 @@ import Card from "../components/UIElements/Card";
 import { GlobalContext } from "../states";
 import SocketID from "../components/SocketID";
 import { SocketContext } from "../socket";
-import { FlagsType, GameInfoType } from "../types";
+import { FlagsType, GameInfoType, UserType } from "../types";
 import Confirmation from "../components/Confirmation";
 import Image from "../components/Image";
 
@@ -35,7 +35,15 @@ const Admin = () => {
     };
     useEffect(() => {
         setUsersArray(
-            Object.keys(activeUsers).map((key: any) => [key, activeUsers[key]])
+            Object.keys(activeUsers)
+                .map((key: any) => {
+                    if (activeUsers[key].name === "admin") {
+                        return [key, activeUsers[key], 1];
+                    } else {
+                        return [key, activeUsers[key], 0];
+                    }
+                })
+                .sort((a: Array<any>, b: Array<any>) => b[2] - a[2])
         );
         setGamesArray(activeGames as any);
     }, [activeUsers, activeGames, global_state]);
