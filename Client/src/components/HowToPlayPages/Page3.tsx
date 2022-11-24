@@ -1,14 +1,22 @@
 import React from "react";
 import Loading from "../Loading";
 
+const loadingComponents = 2;
+
 export const Page3 = () => {
-    const [loading, setLoading] = React.useState<boolean>(true);
+    const [loadingCount, setLoadingCount] = React.useState<number>(0);
+    const handleOnLoad = () => {
+        setLoadingCount((loading) => loading + 1);
+    };
+    const isLoading = () => {
+        return loadingCount < loadingComponents;
+    };
     return (
         <>
-            <Loading visible={loading} />
+            <Loading visible={isLoading()} />
             <div
                 className={`m-auto text-white ${
-                    loading ? "opacity-0" : "opacity-100"
+                    isLoading() ? "opacity-0" : "opacity-100"
                 }`}
             >
                 <div className="text-3xl my-2 text-cyan-300 font-righteous">
@@ -29,9 +37,7 @@ export const Page3 = () => {
                     <img
                         src="assets/images/page3.png"
                         className="basis-[65%] w-1/2 rounded-lg border-[1px] border-white my-5 ml-8"
-                        onLoad={() => {
-                            setLoading(false);
-                        }}
+                        onLoad={handleOnLoad}
                         alt=""
                     />
                     <div className="relative basis-[25%] m-auto">
@@ -43,9 +49,7 @@ export const Page3 = () => {
                         <img
                             src="assets/images/arrow.png"
                             className="absolute w-56 h-44 rotate-180 -scale-x-100 -left-1/2 top-[70%]"
-                            onLoad={() => {
-                                setLoading(false);
-                            }}
+                            onLoad={handleOnLoad}
                             alt=""
                         />
                     </div>

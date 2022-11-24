@@ -3,14 +3,22 @@ import Image from "../Image";
 import { defaultMinesConfig } from "../../lib/defaults/Default";
 import Loading from "../Loading";
 
+const loadingComponents = Object.keys(defaultMinesConfig).length;
+
 const Page2 = () => {
-    const [loading, setLoading] = React.useState<boolean>(true);
+    const [loadingCount, setLoadingCount] = React.useState<number>(0);
+    const handleOnLoad = () => {
+        setLoadingCount((loading) => loading + 1);
+    };
+    const isLoading = () => {
+        return loadingCount < loadingComponents;
+    };
     return (
         <>
-            <Loading visible={loading} />
+            <Loading visible={isLoading()} />
             <div
                 className={`m-auto text-white ${
-                    loading ? "opacity-0" : "opacity-100"
+                    isLoading() ? "opacity-0" : "opacity-100"
                 }`}
             >
                 <div className="text-3xl my-2 text-cyan-300 font-righteous">
@@ -42,9 +50,7 @@ const Page2 = () => {
                                     <div>{mineKey.toUpperCase()}</div>
                                     <Image
                                         type={mineKey}
-                                        onLoad={() => {
-                                            setLoading(false);
-                                        }}
+                                        onLoad={handleOnLoad}
                                         className="w-28 h-28 m-auto hover:scale-110 transition duration-300"
                                     />
                                     <div>

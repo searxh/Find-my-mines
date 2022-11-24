@@ -1,14 +1,22 @@
 import React from "react";
 import Loading from "../Loading";
 
+const loadingComponents = 3;
+
 export const Page4 = () => {
-    const [loading, setLoading] = React.useState<boolean>(true);
+    const [loadingCount, setLoadingCount] = React.useState<number>(0);
+    const handleOnLoad = () => {
+        setLoadingCount((loading) => loading + 1);
+    };
+    const isLoading = () => {
+        return loadingCount < loadingComponents;
+    };
     return (
         <>
-            <Loading visible={loading} />
+            <Loading visible={isLoading()} />
             <div
                 className={`m-auto text-white  ${
-                    loading ? "opacity-0" : "opacity-100"
+                    isLoading() ? "opacity-0" : "opacity-100"
                 }`}
             >
                 <div className="text-3xl my-2 text-cyan-300 font-righteous">
@@ -30,9 +38,7 @@ export const Page4 = () => {
                                 <img
                                     src="assets/images/click.png"
                                     className="absolute w-20 h-20 rotate-12 -right-[20%] -top-[10%]"
-                                    onLoad={() => {
-                                        setLoading(false);
-                                    }}
+                                    onLoad={handleOnLoad}
                                     alt=""
                                 />
                             </div>
@@ -50,9 +56,7 @@ export const Page4 = () => {
                             <img
                                 src="assets/images/click.png"
                                 className="absolute w-20 h-20 rotate-12 -right-[20%] -top-[10%]"
-                                onLoad={() => {
-                                    setLoading(false);
-                                }}
+                                onLoad={handleOnLoad}
                                 alt=""
                             />
                             <svg
@@ -67,9 +71,7 @@ export const Page4 = () => {
                     <img
                         src="assets/images/page4.png"
                         className="w-1/2 aspect-video rounded-lg border-[1px] m-auto"
-                        onLoad={() => {
-                            setLoading(false);
-                        }}
+                        onLoad={handleOnLoad}
                         alt=""
                     />
                 </div>
