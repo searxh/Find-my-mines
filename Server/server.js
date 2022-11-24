@@ -320,7 +320,8 @@ socketIO.of("/").adapter.on("leave-room", (roomID, id) => {
         //saves the name of the user according to id
         //(since id will change after reconnect)
         const saveUser = Object.keys(activeUsers).find((value) => {
-            return activeUsers[value].id === id;
+            var _a;
+            return ((_a = activeUsers[value]) === null || _a === void 0 ? void 0 : _a.id) === id;
         });
         //delay for 1.75 seconds to allow user to reconnect
         setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
@@ -406,11 +407,15 @@ socketIO.on("connection", (socket) => {
         removeUser(activeUsers[senderName], (roomID) => socket.leave(roomID));
         info.users.push(activeUsers[senderName]);
         socket.join(info.roomID);
-        socketIO.to(activeUsers[receiverName].id).emit("request incoming", {
-            senderName: senderName,
-            roomID: info.roomID,
-            inviteMessage: inviteMessage,
-        });
+        if (activeUsers[receiverName] !== undefined) {
+            socketIO
+                .to(activeUsers[receiverName].id)
+                .emit("request incoming", {
+                senderName: senderName,
+                roomID: info.roomID,
+                inviteMessage: inviteMessage,
+            });
+        }
     });
     socket.on("invite reply", ({ senderName, receiverName, decision, }) => {
         //remove any expired invitation (by timeout)
@@ -428,14 +433,15 @@ socketIO.on("connection", (socket) => {
         }
         //no invitation was found (expired)
         if (roomID === undefined) {
-            socketIO
-                .to(activeUsers[receiverName].id)
-                .emit("request incoming", { error: true }),
-                //tear down room because invitation was expired
-                socketIO.socketsLeave(roomID);
-            //manually expire all invitation of one sender (since invitation was successful)
-            expireInvitation(senderName);
-            //invitation was found
+            if (activeUsers[receiverName] !== undefined) {
+                socketIO
+                    .to(activeUsers[receiverName].id)
+                    .emit("request incoming", { error: true }),
+                    //tear down room because invitation was expired
+                    socketIO.socketsLeave(roomID);
+                //manually expire all invitation of one sender (since invitation was successful)
+                expireInvitation(senderName);
+            }
         }
         else {
             //invitation was accepted
@@ -574,7 +580,7 @@ socketIO.on("connection", (socket) => {
         }
     });
     socket.on("leave room request", (roomID) => {
-        const updatedUser = Object.keys(activeUsers).find((key) => activeUsers[key].id === socket.id);
+        const updatedUser = Object.keys(activeUsers).find((key) => { var _a; return ((_a = activeUsers[key]) === null || _a === void 0 ? void 0 : _a.id) === socket.id; });
         if (updatedUser !== undefined) {
             activeUsers[updatedUser].inGame = false;
             socketIO.emit("active user update", activeUsers);
