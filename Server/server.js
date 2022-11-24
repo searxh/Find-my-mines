@@ -513,7 +513,6 @@ socketIO.on("connection", (socket) => {
         socketIO.emit("active game update", resetRoom(gameInfo.roomID));
     });
     socket.on("kick player", (user) => {
-        console.log("Ligma");
         console.log(user.name);
         console.log(activeUsers[user.name]);
         delete activeUsers[user.name];

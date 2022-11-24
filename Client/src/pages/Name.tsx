@@ -14,8 +14,8 @@ export default function Name() {
     const { name, persistentFlags } = global_state;
     const nameRef = React.useRef<HTMLInputElement>(null);
     const inputClasses: Array<string> = [
-        "rounded-full text-center p-2 font-quicksand bg-slate-500 text-white placeholder-white shadow-md my-5 focus:bg-slate-900 transition duration-[2000ms]",
-        "rounded-full text-center p-2 font-quicksand bg-red-500 text-white placeholder-white shadow-md my-5",
+        "w-full rounded-full text-center p-2 font-quicksand bg-slate-500 text-white placeholder-white shadow-md my-5 focus:bg-slate-900 transition duration-[2000ms]",
+        "w-full rounded-full text-center p-2 font-quicksand bg-red-500 text-white placeholder-white shadow-md my-5",
     ];
     const buttonClasses = [
         "bg-green-600 text-white p-2 rounded-full font-quicksand w-1/2 shadow-lg hover:scale-105 transition hover:brightness-125 duration-500 hover:shadow-green-500",
@@ -166,20 +166,22 @@ export default function Name() {
                         BY GROUP 6
                     </div>
                 </div>
-                <input
-                    placeholder="Enter Your Name"
-                    style={{
-                        boxShadow: "0px 0px 12px white",
-                    }}
-                    className={invalidClass}
-                    onChange={onChangeInputHandler}
-                    ref={nameRef}
-                />
-                {formInvalid && (
-                    <h1 className="text-red-400 font-quicksand text-center">
-                        {errorTxt}
-                    </h1>
-                )}
+                <div className="relative">
+                    <input
+                        placeholder="Enter Your Name"
+                        style={{
+                            boxShadow: "0px 0px 12px white",
+                        }}
+                        className={invalidClass}
+                        onChange={onChangeInputHandler}
+                        ref={nameRef}
+                    />
+                    {formInvalid && (
+                        <h1 className="absolute left-0 right-0 -bottom-2 text-red-400 font-quicksand text-center">
+                            {errorTxt}
+                        </h1>
+                    )}
+                </div>
                 <div className="flex justify-center p-5">
                     <button
                         className={buttonClass}
