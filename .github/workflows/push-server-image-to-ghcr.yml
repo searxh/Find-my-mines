@@ -20,3 +20,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           context: "./Server"
           image_tag: latest
+          dockerfile: "./Server/Dockerfile"
