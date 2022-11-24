@@ -14,7 +14,7 @@ export default function Name() {
     const { name, persistentFlags } = global_state;
     const nameRef = React.useRef<HTMLInputElement>(null);
     const inputClasses: Array<string> = [
-        "rounded-full text-center p-2 font-quicksand bg-neutral-500 text-white placeholder-white shadow-md my-5 hover:bg-neutral-700 transition duration-[2000ms]",
+        "rounded-full text-center p-2 font-quicksand bg-slate-500 text-white placeholder-white shadow-md my-5 focus:bg-slate-900 transition duration-[2000ms]",
         "rounded-full text-center p-2 font-quicksand bg-red-500 text-white placeholder-white shadow-md my-5",
     ];
     const buttonClasses = [
@@ -84,7 +84,6 @@ export default function Name() {
         if (lock && socket !== undefined && name.length !== 0) {
             socket.emit("name probe", name.toLocaleLowerCase());
             socket.on("name probe response", (nameExists: boolean) => {
-                console.log("locked");
                 console.log("NAMEEXISTS", nameExists);
                 if (nameExists) {
                     console.log("user already exists");
@@ -126,8 +125,6 @@ export default function Name() {
             });
             return () => socket.off("name probe response") as any;
         } else if (!lock) {
-            console.log("unlocked");
-
             sessionStorage.setItem("fmm-state", JSON.stringify(initialState));
             dispatch({
                 type: "set",
@@ -166,11 +163,14 @@ export default function Name() {
                         FIND MY MINES
                     </div>
                     <div className="font-quicksand absolute left-0 right-0 top-20 text-3xl">
-                        GROUP 6
+                        BY GROUP 6
                     </div>
                 </div>
                 <input
                     placeholder="Enter Your Name"
+                    style={{
+                        boxShadow: "0px 0px 12px white",
+                    }}
                     className={invalidClass}
                     onChange={onChangeInputHandler}
                     ref={nameRef}
