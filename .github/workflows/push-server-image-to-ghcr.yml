@@ -17,7 +17,7 @@ jobs:
         uses: macbre/push-to-ghcr@master
         with:
           image_name: reaw55/find-my-mine
+          image_tag: latest
           github_token: ${{ secrets.GITHUB_TOKEN }}
           context: "./Server"
-          image_tag: latest
           dockerfile: "./Server/Dockerfile"
