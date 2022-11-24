@@ -644,7 +644,6 @@ socketIO.on("connection", (socket: any) => {
         socketIO.emit("active game update", resetRoom(gameInfo.roomID));
     });
     socket.on("kick player", (user: any) => {
-        console.log("Ligma");
         console.log(user.name);
         console.log(activeUsers[user.name]);
         delete activeUsers[user.name];
