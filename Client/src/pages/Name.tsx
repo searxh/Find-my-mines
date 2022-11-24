@@ -88,6 +88,11 @@ export default function Name() {
                 console.log("NAMEEXISTS", nameExists);
                 if (nameExists) {
                     console.log("user already exists");
+                    setFormInvalid(true);
+                    setErrorTxt(errorText[0]);
+                    setInvalidClass(inputClasses[1]);
+                    setButtonClass(buttonClasses[1]);
+
                     if (nameRef.current !== null) nameRef.current.value = "";
                     dispatch({
                         type: "set",
@@ -122,9 +127,7 @@ export default function Name() {
             return () => socket.off("name probe response") as any;
         } else if (!lock) {
             console.log("unlocked");
-            setInvalidClass(inputClasses[0]);
-            setButtonClass(buttonClasses[0]);
-            setFormInvalid(false);
+
             sessionStorage.setItem("fmm-state", JSON.stringify(initialState));
             dispatch({
                 type: "set",
@@ -132,10 +135,7 @@ export default function Name() {
             });
             if (socket !== undefined) {
                 console.log("socket forcibly disconnected");
-                setFormInvalid(true);
-                setErrorTxt(errorText[0]);
-                setInvalidClass(inputClasses[1]);
-                setButtonClass(buttonClasses[1]);
+
                 socket.disconnect();
                 setSocket(undefined as any);
                 const newPersistentFlags: PersistentFlagsType = {
