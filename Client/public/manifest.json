@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "FMM",
+  "name": "Find My Mines",
   "icons": [
     {
       "src": "favicon.ico",

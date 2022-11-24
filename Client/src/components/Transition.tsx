@@ -4,6 +4,7 @@ import Image from "./Image";
 //duration = 500ms for each transition
 const transitionCycleTime = 1000;
 const loadingTime = 500;
+const mines = ["Legendary", "Epic", "Rare", "Common"];
 
 const Transition = ({
     midCallback,
@@ -14,6 +15,9 @@ const Transition = ({
 }) => {
     const [visible, setVisible] = React.useState<boolean>(true);
     const [transition, setTransition] = React.useState<boolean>(false);
+    const [icon] = React.useState<string>(() => {
+        return mines[Math.floor(Math.random() * mines.length)];
+    });
     React.useEffect(() => {
         setVisible(true);
         setTimeout(() => {
@@ -39,7 +43,7 @@ const Transition = ({
             }`}
         >
             <Image
-                type="Legendary"
+                type={icon}
                 className="absolute top-0 left-0 right-0 bottom-0 w-[35%] h-[35%] m-auto animate-spin"
             />
         </div>

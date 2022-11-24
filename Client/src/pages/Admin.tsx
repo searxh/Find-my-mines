@@ -3,17 +3,17 @@ import Card from "../components/UIElements/Card";
 import { GlobalContext } from "../states";
 import SocketID from "../components/SocketID";
 import { SocketContext } from "../socket";
-import { GameInfoType, UserType } from "../types";
+import { FlagsType, GameInfoType, UserType } from "../types";
+import Confirmation from "../components/Confirmation";
 import Image from "../components/Image";
 
 const Admin = () => {
-    const { global_state } = React.useContext(GlobalContext);
-    const { activeUsers, activeGames } = global_state;
-    const [usersArray, setUsersArray] = useState<any[][]>([[]]);
+    const { global_state, dispatch } = React.useContext(GlobalContext);
+    const { activeUsers, activeGames, flags } = global_state;
+    const [usersArray, setUsersArray] = useState<any[]>([[]]);
+    const [user, setUser] = useState<any>(null);
     const { socket } = React.useContext(SocketContext);
     const [gamesArray, setGamesArray] = useState<any[]>([]);
-
-    console.log(global_state);
 
     const resetHandler = (gameInfo: GameInfoType) => {
         if (socket !== undefined) socket.emit("admin reset game", gameInfo);
@@ -21,19 +21,34 @@ const Admin = () => {
     const handleOnClickClearGlobalChat = () => {
         if (socket !== undefined) socket.emit("admin clear chat");
     };
-    const kickPlayerHandler = (user: any) => {
+    const kickPlayerHandler = () => {
+        console.log(user);
+        const newFlags: FlagsType = { ...flags, confirmationVisible: true };
+        dispatch({
+            type: "set",
+            field: "flags",
+            payload: newFlags,
+        });
         if (socket !== undefined) {
             console.log("called");
-            socket.emit("kick player", user);
         }
     };
     useEffect(() => {
         setUsersArray(
-            Object.keys(activeUsers).map((key: any) => [key, activeUsers[key]])
+            Object.keys(activeUsers)
+                .map((key: any) => {
+                    if (activeUsers[key].name === "admin") {
+                        return [key, activeUsers[key], 1];
+                    } else {
+                        return [key, activeUsers[key], 0];
+                    }
+                })
+                .sort((a: Array<any>, b: Array<any>) => b[2] - a[2])
         );
         setGamesArray(activeGames as any);
     }, [activeUsers, activeGames, global_state]);
 
+    console.log(usersArray);
     return (
         <div className="flex flex-col h-screen overflow-hidden bg-slate-800 font-quicksand text-center">
             <div className="font-righteous text-4xl text-white pt-5">
@@ -55,7 +70,7 @@ const Admin = () => {
                 </h1>
             </div>
             <div className="flex justify-evenly flex-1">
-                <Card additionalStyle="relative w-[45%] h-full bg-black bg-opacity-50 overflow-auto">
+                <Card additionalStyle="relative w-[45%] h-full bg-black bg-opacity-50 overflow-y-scroll no-scrollbar">
                     <div className="absolute text-white top-0 left-0 bottom-0 right-0 p-3">
                         {usersArray[0]?.length > 0 &&
                             usersArray.map((user) => (
@@ -93,19 +108,40 @@ const Admin = () => {
                                     </span>
                                     {user[1].name !== "admin" && (
                                         <button
-                                            className="p-2 rounded bg-rose-500 hover:bg-rose-400"
-                                            onClick={() =>
-                                                kickPlayerHandler(user)
-                                            }
+                                            className="rounded-full bg-slate-500 hover:bg-rose-700 
+                                            hover:scale-105 transition h-7 w-7 -m-1"
+                                            onClick={() => {
+                                                kickPlayerHandler();
+                                                setUser(user[1]);
+                                            }}
                                         >
-                                            Kick Player
+                                            X
                                         </button>
                                     )}
                                 </div>
                             ))}
                     </div>
                 </Card>
-                <Card additionalStyle="relative w-[45%] bg-black bg-opacity-50 overflow-auto">
+                <Confirmation
+                    title="Are you sure you want to kick this player?"
+                    content={`Kicking player: ${user?.name}`}
+                    decisionCallback={(decision: boolean) => {
+                        if (decision && socket !== undefined && user) {
+                            socket.emit("kick player", user);
+                        }
+                        const newFlags: FlagsType = {
+                            ...flags,
+                            confirmationVisible: false,
+                        };
+                        dispatch({
+                            type: "set",
+                            field: "flags",
+                            payload: newFlags,
+                        });
+                    }}
+                />
+
+                <Card additionalStyle="relative w-[45%] bg-black bg-opacity-50 overflow-y-scroll no-scrollbar">
                     <div className="absolute top-0 right-0 bottom-0 left-0 text-white p-3">
                         {gamesArray.map((game) => (
                             <span key={Math.random()}>

@@ -14,8 +14,8 @@ export default function Name() {
     const { name, persistentFlags } = global_state;
     const nameRef = React.useRef<HTMLInputElement>(null);
     const inputClasses: Array<string> = [
-        "rounded-full text-center p-2 font-quicksand bg-neutral-500 text-white placeholder-white shadow-md my-5 hover:bg-neutral-700 transition duration-[2000ms]",
-        "rounded-full text-center p-2 font-quicksand bg-red-500 text-white placeholder-white shadow-md my-5",
+        "w-full rounded-full text-center p-2 font-quicksand bg-slate-500 text-white placeholder-white shadow-md my-5 focus:bg-slate-900 transition duration-[2000ms]",
+        "w-full rounded-full text-center p-2 font-quicksand bg-red-500 text-white placeholder-white shadow-md my-5",
     ];
     const buttonClasses = [
         "bg-green-600 text-white p-2 rounded-full font-quicksand w-1/2 shadow-lg hover:scale-105 transition hover:brightness-125 duration-500 hover:shadow-green-500",
@@ -84,10 +84,14 @@ export default function Name() {
         if (lock && socket !== undefined && name.length !== 0) {
             socket.emit("name probe", name.toLocaleLowerCase());
             socket.on("name probe response", (nameExists: boolean) => {
-                console.log("locked");
                 console.log("NAMEEXISTS", nameExists);
                 if (nameExists) {
                     console.log("user already exists");
+                    setFormInvalid(true);
+                    setErrorTxt(errorText[0]);
+                    setInvalidClass(inputClasses[1]);
+                    setButtonClass(buttonClasses[1]);
+
                     if (nameRef.current !== null) nameRef.current.value = "";
                     dispatch({
                         type: "set",
@@ -121,10 +125,6 @@ export default function Name() {
             });
             return () => socket.off("name probe response") as any;
         } else if (!lock) {
-            console.log("unlocked");
-            setInvalidClass(inputClasses[0]);
-            setButtonClass(buttonClasses[0]);
-            setFormInvalid(false);
             sessionStorage.setItem("fmm-state", JSON.stringify(initialState));
             dispatch({
                 type: "set",
@@ -132,10 +132,7 @@ export default function Name() {
             });
             if (socket !== undefined) {
                 console.log("socket forcibly disconnected");
-                setFormInvalid(true);
-                setErrorTxt(errorText[0]);
-                setInvalidClass(inputClasses[1]);
-                setButtonClass(buttonClasses[1]);
+
                 socket.disconnect();
                 setSocket(undefined as any);
                 const newPersistentFlags: PersistentFlagsType = {
@@ -166,20 +163,25 @@ export default function Name() {
                         FIND MY MINES
                     </div>
                     <div className="font-quicksand absolute left-0 right-0 top-20 text-3xl">
-                        GROUP 6
+                        BY GROUP 6
                     </div>
                 </div>
-                <input
-                    placeholder="Enter Your Name"
-                    className={invalidClass}
-                    onChange={onChangeInputHandler}
-                    ref={nameRef}
-                />
-                {formInvalid && (
-                    <h1 className="text-red-400 font-quicksand text-center">
-                        {errorTxt}
-                    </h1>
-                )}
+                <div className="relative">
+                    <input
+                        placeholder="Enter Your Name"
+                        style={{
+                            boxShadow: "0px 0px 12px white",
+                        }}
+                        className={invalidClass}
+                        onChange={onChangeInputHandler}
+                        ref={nameRef}
+                    />
+                    {formInvalid && (
+                        <h1 className="absolute left-0 right-0 -bottom-2 text-red-400 font-quicksand text-center">
+                            {errorTxt}
+                        </h1>
+                    )}
+                </div>
                 <div className="flex justify-center p-5">
                     <button
                         className={buttonClass}

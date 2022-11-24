@@ -1,18 +1,25 @@
 import React from "react";
 import { GlobalContext } from "../../states";
-import Image from "../Image";
 import Loading from "../Loading";
+
+const loadingComponents = 4;
 
 export const Welcome = () => {
     const { global_state } = React.useContext(GlobalContext);
     const { name } = global_state;
-    const [loading, setLoading] = React.useState<boolean>(true);
+    const [loadingCount, setLoadingCount] = React.useState<number>(0);
+    const handleOnLoad = () => {
+        setLoadingCount((loading) => loading + 1);
+    };
+    const isLoading = () => {
+        return loadingCount < loadingComponents;
+    };
     return (
         <>
-            <Loading visible={loading} />
+            <Loading visible={isLoading()} />
             <div
                 className={`m-auto text-white  ${
-                    loading ? "opacity-0" : "opacity-100"
+                    isLoading() ? "opacity-0" : "opacity-100"
                 }`}
             >
                 <div className="text-3xl py-2 text-lime-400 mx-auto font-righteous">
@@ -26,14 +33,32 @@ export const Welcome = () => {
                     locate the mines, and the one with mines worth the most
                     points wins!
                 </div>
-                <img
-                    src="assets/images/clickshovel.png"
-                    className="w-[35%] m-auto"
-                    onLoad={() => {
-                        setLoading(false);
-                    }}
-                    alt=""
-                />
+                <div className="relative">
+                    <img
+                        src="assets/images/clickshovel.png"
+                        className="w-[35%] m-auto drop-shadow-lg"
+                        onLoad={handleOnLoad}
+                        alt=""
+                    />
+                    <img
+                        src="assets/images/CommonMine.png"
+                        className="absolute left-44 -bottom-5 right-0 top-0 w-[28%] m-auto -z-10 opacity-50 rotate-45"
+                        onLoad={handleOnLoad}
+                        alt=""
+                    />
+                    <img
+                        src="assets/images/RareMine.png"
+                        className="absolute -left-48 -bottom-10 right-0 top-0 w-[25%] m-auto -z-10 drop-shadow-md opacity-50"
+                        onLoad={handleOnLoad}
+                        alt=""
+                    />
+                    <img
+                        src="assets/images/LegendaryMine.png"
+                        className="absolute left-0 -bottom-15 right-0 top-0 w-[25%] m-auto -z-20 opacity-30"
+                        onLoad={handleOnLoad}
+                        alt=""
+                    />
+                </div>
             </div>
         </>
     );
