@@ -420,10 +420,12 @@ socketIO.on("connection", (socket) => {
         //(prevents multiple invitations of same pair of sender and receiver)
         const inviteInfo = getMostRecentInvitation(senderName, receiverName);
         const roomID = inviteInfo !== undefined ? inviteInfo.roomID : undefined;
-        socketIO.to(activeUsers[senderName].id).emit("reply incoming", {
-            receiverName: receiverName,
-            decision: decision,
-        });
+        if (activeUsers[senderName] !== undefined) {
+            socketIO.to(activeUsers[senderName].id).emit("reply incoming", {
+                receiverName: receiverName,
+                decision: decision,
+            });
+        }
         //no invitation was found (expired)
         if (roomID === undefined) {
             socketIO
