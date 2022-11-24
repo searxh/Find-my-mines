@@ -35,7 +35,7 @@ export const Welcome = () => {
                 </div>
                 <div className="relative">
                     <img
-                        src="assets/images/ClickShovel.png"
+                        src="assets/images/clickshovel.png"
                         className="w-[35%] m-auto drop-shadow-lg"
                         onLoad={handleOnLoad}
                         alt=""
